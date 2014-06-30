@@ -1,0 +1,38 @@
+{
+  "name": "javascript-parser",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "clarify": "*",
+    "co": "*",
+    "gulp-util": "^2.2.19",
+    "jade": "*",
+    "lodash": "*",
+    "map-stream": "^0.1.0",
+    "thunkify": "*",
+    "trace": "*",
+    "winston": "*"
+  },
+  "devDependencies": {
+    "co-mocha": "*",
+    "gulp": "*",
+    "gulp-jshint": "*",
+    "mocha": "*",
+    "should": "^4.0.4",
+    "sinon": "^1.10.2",
+    "javascript-precommit": "*"
+  },
+  "engines": {
+    "node": ">=0.11.13"
+  },
+  "engineStrict": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iliakan/javascript-parser.git"
+  },
+  "author": "Ilya Kantor and other contributors in git repo",
+  "license": "CC BY-NC-SA 3.0",
+  "bugs": {
+    "url": "https://github.com/iliakan/javascript-parser/issues"
+  }
+}
