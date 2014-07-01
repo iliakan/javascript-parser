@@ -1,10 +1,16 @@
-const TextParser = require('./textParser').TextParser;
 const util = require('util');
-const TextNode = require('../node/textNode').TextNode;
 const consts = require('../consts');
 
+const FAILURE_FIND_STRING = 'FAILURE_FIND_STRING';
+const FAILURE_FIND_STRING_NO_CASE = 'FAILURE_FIND_STRING_NO_CASE';
+const FAILURE_FIND_CHAR = 'FAILURE_FIND_CHAR';
+const FAILURE_FIND_CHAR_NO_NEWLINE = 'FAILURE_FIND_CHAR_NO_NEWLINE';
+
 /**
- * Parser is built with raw string analysis, not using regexps,
+ * Lexer knows how to consume tokens.
+ * Parser must call Lexer's methods to search right tokens in right context.
+ *
+ * The Lexer is built with raw string analysis, not using regexps,
  * because at the time of writing /y flag was not supported.
  * In other words, one can't test a match at the current position only,
  * RegExp will go on and return nearest match (event if it's not needed).
@@ -13,15 +19,30 @@ const consts = require('../consts');
  * A workaround would be to user ^regexps and take substring tails, but substrings in V8 are slow
  * also they may eat same memory as the original string and actually there's no need in copying things around.
  *
- * Methods consume* return the object with an element and shift this.position
+ * Besides that, raw strings are faster and allow more control.
+ *
+ * Methods consume* return the object with an token and shift this.position
  * Methods peek* try to find a match at the current position, w/o this.position change
- * Methods find* try to find an element on the nearest position, w/o this.position change
+ * Methods find* try to find a match at the nearest position, w/o this.position change
+ *
  * @constructor
  */
 function Lexer(text) {
   this.text = text;
   this.length = text.length;
   this.position = 0;
+
+  // all failures are remembered not to search the same twice
+  // helps to evade n^2 complexity in simple cases like [[[[[[[[[[[[[[ & consumeLink()
+  // format:
+  //   failures[function][string] = {start: ..., end: }
+  // if the next search starts between "start" & "end"-stringLength, it fails instantly
+
+  this.failures = {};
+  this.failures[FAILURE_FIND_STRING] = {};
+  this.failures[FAILURE_FIND_STRING_NO_CASE] = {};
+  this.failures[FAILURE_FIND_CHAR] = {};
+  this.failures[FAILURE_FIND_CHAR_NO_NEWLINE] = {};
 }
 
 Lexer.prototype.consumeCode = function() {
@@ -52,7 +73,8 @@ Lexer.prototype.consumeComment = function() {
 
 /**
  * Matches <script>....</script>
- * This function is not perfect.
+ * This function does not exactly follow the spec
+ * @see http://www.w3.org/TR/html-markup/syntax.html#syntax-attribute-value
  *
  * Html can be like this (valid):
  *   <script attr="</script>"> alert(1); </script>
@@ -182,9 +204,37 @@ Lexer.prototype.consumeBoldItalic = function() {
 
 };
 
+Lexer.prototype.consumeHeader = function() {
+  if (this.position !== 0 && this.text[this.position-1] !== '\n' || this.text[this.position] !== '#') {
+    return null;
+  }
+
+  var startPosition = this.position;
+
+  var position = startPosition;
+  while(this.text[position] === '#') {
+    position++;
+  }
+
+  var level = position - startPosition;
+
+  var titlePosition = position;
+  while(position < this.text.length) {
+    if (this.text[position] == '\n') break;
+    position++;
+  }
+
+  this.position = position;
+
+  return {
+    level: level,
+    title: this.text.slice(titlePosition, position).trim()
+  };
+
+};
 
 Lexer.prototype.consumeLink = function() {
-  if (this.text[this.position] != '[') return null;
+  if (this.text[this.position] !== '[') return null;
   var startPosition = this.position;
   var position = startPosition + 1;
   var titleSegment, hrefSegment;
@@ -415,14 +465,20 @@ Lexer.prototype.peekBbtagAttrs = function(startPosition) {
   return null;
 };
 
-
 /**
  * Find string, return segment
  */
-Lexer.prototype.findString = function(string, startPosition, latinNoCase) {
+Lexer.prototype.findString = function(string, startPosition, noCase) {
   var position = startPosition;
+
+  var failure = this.failures[noCase ? FAILURE_FIND_STRING : FAILURE_FIND_STRING_NO_CASE][string];
+  if (failure && position >= failure.start && position <= failure.end - string.length) {
+    // the search from this position will fail for same reasons as it failed for the earlier position
+    return null;
+  }
+
   while (position < this.text.length) {
-    var endPosition = this.peekString(string, position, latinNoCase);
+    var endPosition = this.peekString(string, position, noCase);
     if (endPosition !== null) {
       return {
         start: position, end: endPosition
@@ -430,6 +486,13 @@ Lexer.prototype.findString = function(string, startPosition, latinNoCase) {
     }
     position++;
   }
+
+  // failed to match from startPosition :(
+  this.failures[noCase ? FAILURE_FIND_STRING : FAILURE_FIND_STRING_NO_CASE][string] = {
+    start: startPosition,
+    end: position
+  };
+
   return null;
 };
 
@@ -440,15 +503,30 @@ Lexer.prototype.findString = function(string, startPosition, latinNoCase) {
  */
 Lexer.prototype.findCharNoNewline = function(char, startPosition) {
   var position = startPosition;
+  var failure = this.failures[FAILURE_FIND_CHAR_NO_NEWLINE][char];
+  if (failure && position >= failure.start && position <= failure.end) {
+    return null;
+  }
+
   while (position < this.length) {
     switch(this.text[position]) {
     case char:
       return position;
     case "\n":
+      this.failures[FAILURE_FIND_CHAR_NO_NEWLINE][char] = {
+        start: startPosition,
+        end: position
+      };
       return null;
     }
     position++;
   }
+
+  // failed to find char up to position
+  this.failures[FAILURE_FIND_CHAR_NO_NEWLINE][char] = {
+    start: startPosition,
+    end: position
+  };
 
   return null;
 };
@@ -459,11 +537,23 @@ Lexer.prototype.findCharNoNewline = function(char, startPosition) {
  */
 Lexer.prototype.findChar = function(char, startPosition) {
   var position = startPosition;
-  while (position < this.text.length && this.text[position] != char) {
+  var failure = this.failures[FAILURE_FIND_CHAR][char];
+  if (failure && position >= failure.start && position <= failure.end) {
+    return null;
+  }
+
+  while (position < this.text.length) {
+    if (this.text[position] == char) {
+      return position;
+    }
     position++;
   }
 
-  return (this.text[position] == char) ? position : null;
+  this.failures[FAILURE_FIND_CHAR][char] = {
+    start: startPosition,
+    end: position
+  };
+  return null;
 };
 
 /**
@@ -502,23 +592,4 @@ Lexer.prototype.isWhiteSpace = function(char) {
   }
 };
 
-
-/**
- * Run the search with n^2 complexity
- * For every [ it will seek ]
- * n times + n-1 times + n-2 times + ... = n(n+1)/2 times
- * @param times
- */
-Lexer.rapeMe = function(times) {
-  var str = new Array(times + 1).join('[');
-  var lexer = new Lexer(str);
-  while (!lexer.isEof()) {
-    lexer.consumeLink();
-    lexer.position++;
-  }
-
-};
-
 exports.Lexer = Lexer;
-
-Lexer.rapeMe(1e5);

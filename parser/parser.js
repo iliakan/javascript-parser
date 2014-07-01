@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var CompositeTag = require('../node/compositeTag').CompositeTag;
+var Lexer = require('./lexer')
 
 // Обычно при создании парсера опции создаются как sub_opts, чтобы передать текущие опции, расширив их
 // Произвольный парсер имеет опции

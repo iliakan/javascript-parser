@@ -504,7 +504,7 @@ BodyParser.prototype.isWhiteSpace = function(char) {
  * n times + n-1 times + n-2 times + ... = n(n+1)/2 times
  * @param times
  */
-BodyParser.rapeMe = function(times) {
+BodyParser.tryMe = function(times) {
   var str = new Array(times + 1).join('[');
   var parser = new BodyParser(str);
   parser.consumeLink();
@@ -512,4 +512,4 @@ BodyParser.rapeMe = function(times) {
 
 exports.BodyParser = BodyParser;
 
-BodyParser.rapeMe(1000000);
+BodyParser.tryMe(1000000);
