@@ -28,12 +28,6 @@ Node.prototype.getType = function() {
   return "node";
 };
 
-
-Node.prototype.getClass = function() {
-  return "Node";
-};
-
-
 /*
   trusted - берём от ближайшего родителя (любой узел может поменять его в иерархии на другой)
   При генерации содержимого узел sanitize'ит своё тело unless trusted?,

@@ -22,6 +22,7 @@
     "sinon": "^1.10.2",
     "javascript-precommit": "*"
   },
+  "precommit": "gulp pre-commit",
   "engines": {
     "node": ">=0.11.13"
   },

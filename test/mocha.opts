@@ -1,0 +1,8 @@
+--reporter spec
+--colors
+--timeout 10000
+--require should
+--require co
+--require co-mocha
+--recursive
+--ui bdd

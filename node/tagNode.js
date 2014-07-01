@@ -2,7 +2,7 @@ const TextNode = require('./textNode').TextNode;
 const util = require('util');
 const charTypography = require('../typography/charTypography');
 
-var htmlUtil = require('lib/htmlUtil');
+var htmlUtil = require('../htmlUtil');
 
 
 // Consistent tag
@@ -47,7 +47,7 @@ TagNode.prototype.wrapTagAround = function(html) {
   var result = "<" + this.tag;
 
   for(var name in this.attrs) {
-    name = htmlUtil.escapeHtmlAttr(name);
+    name = (name == "className") ? "class" : htmlUtil.escapeHtmlAttr(name);
     var value = htmlUtil.escapeHtmlAttr(this.attrs[name]);
     result += name + '="' + value +'"';
   }
@@ -55,3 +55,5 @@ TagNode.prototype.wrapTagAround = function(html) {
   result += '>' + html + '</' + this.tag + '>';
   return result;
 };
+
+exports.TagNode = TagNode;
