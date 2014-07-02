@@ -1,37 +1,37 @@
-const Lexer = require('../parser/lexer').Lexer;
+const BodyLexer = require('../parser/bodyLexer').BodyLexer;
 
 const should = require('should');
 
-describe("Lexer", function() {
+describe("BodyLexer", function() {
 
   beforeEach(function() {
     var title = this.currentTest.title;
-    this.currentTest.lexer = new Lexer(title);
+    this.currentTest.lexer = new BodyLexer(title);
   });
 
   describe('consumeBbtagNeedClose', function() {
 
     it("[js]body[/js]", function() {
       var bbtag = this.test.lexer.consumeBbtagNeedClose();
-      bbtag.should.be.eql({ bbtagName: 'js', bbtagAttrs: '', bbtagBody: 'body' });
+      bbtag.should.be.eql({ type: 'bbtag', name:'js', attrs: '', body: 'body' });
       this.test.lexer.isEof().should.be.true;
     });
 
     it("[js attrs]body[/js]", function() {
       var bbtag = this.test.lexer.consumeBbtagNeedClose();
-      bbtag.should.be.eql({ bbtagName: 'js', bbtagAttrs: ' attrs', bbtagBody: 'body' });
+      bbtag.should.be.eql({ type: 'bbtag', name: 'js', attrs: ' attrs', body: 'body' });
       this.test.lexer.isEof().should.be.true;
     });
 
     it("[js '[]']body[/js]", function() {
       var bbtag = this.test.lexer.consumeBbtagNeedClose();
-      bbtag.should.be.eql({ bbtagName: 'js', bbtagAttrs: " '[]'", bbtagBody: 'body' });
+      bbtag.should.be.eql({ type: 'bbtag', name: 'js', attrs: " '[]'", body: 'body' });
       this.test.lexer.isEof().should.be.true;
     });
 
     it("[js/]", function() {
       var bbtag = this.test.lexer.consumeBbtagNeedClose();
-      bbtag.should.be.eql({ bbtagName: 'js', bbtagAttrs: "", bbtagBody: '' });
+      bbtag.should.be.eql({ type: 'bbtag', name: 'js', attrs: "", body: '' });
       this.test.lexer.isEof().should.be.true;
     });
 
@@ -41,13 +41,19 @@ describe("Lexer", function() {
 
     it("[task]", function() {
       var bbtag = this.test.lexer.consumeBbtagSelfClose();
-      bbtag.should.be.eql({ bbtagName: 'task', bbtagAttrs: '' });
+      bbtag.should.be.eql({ type: 'bbtag', name: 'task', attrs: '', body: '' });
       this.test.lexer.isEof().should.be.true;
+    });
+
+    it("[task-with-more-words-should-not-match]", function() {
+      var bbtag = this.test.lexer.consumeBbtagSelfClose();
+      should.not.exist(bbtag);
+      this.test.lexer.position.should.eql(0);
     });
 
     it("[task attrs]body[/task]", function() {
       var bbtag = this.test.lexer.consumeBbtagSelfClose();
-      bbtag.should.be.eql({ bbtagName: 'task', bbtagAttrs: ' attrs' });
+      bbtag.should.be.eql({ type: 'bbtag', name: 'task', attrs: ' attrs', body: '' });
       this.test.lexer.position.should.eql(12);
     });
 
@@ -57,13 +63,13 @@ describe("Lexer", function() {
 
     it("[text](href)", function() {
       var bbtag = this.test.lexer.consumeLink();
-      bbtag.should.be.eql({ href: 'href', title: 'text' });
+      bbtag.should.be.eql({ type: 'link', href: 'href', title: 'text' });
       this.test.lexer.isEof().should.be.true;
     });
 
     it("[many words](href)", function() {
       var bbtag = this.test.lexer.consumeLink();
-      bbtag.should.be.eql({ href: 'href', title: 'many words' });
+      bbtag.should.be.eql({ type: 'link', href: 'href', title: 'many words' });
       this.test.lexer.isEof().should.be.true;
     });
 
@@ -75,7 +81,7 @@ describe("Lexer", function() {
 
     it('[many words]("anything ()")', function() {
       var bbtag = this.test.lexer.consumeLink();
-      bbtag.should.be.eql({ href: 'anything ()', title: 'many words' });
+      bbtag.should.be.eql({ type: 'link', href: 'anything ()', title: 'many words' });
       this.test.lexer.isEof().should.be.true;
     });
 
@@ -87,19 +93,19 @@ describe("Lexer", function() {
 
     it('["quoted string"](href)', function() {
       var bbtag = this.test.lexer.consumeLink();
-      bbtag.should.be.eql({ href: 'href', title: 'quoted string' });
+      bbtag.should.be.eql({ type: 'link', href: 'href', title: 'quoted string' });
       this.test.lexer.isEof().should.be.true;
     });
 
     it('["quoted []"](href)', function() {
       var bbtag = this.test.lexer.consumeLink();
-      bbtag.should.be.eql({ href: 'href', title: 'quoted []' });
+      bbtag.should.be.eql({ type: 'link', href: 'href', title: 'quoted []' });
       this.test.lexer.isEof().should.be.true;
     });
 
     it('["quoted \\"[]\\""](href)', function() {
       var bbtag = this.test.lexer.consumeLink();
-      bbtag.should.be.eql({ href: 'href', title: 'quoted "[]"' });
+      bbtag.should.be.eql({ type: 'link', href: 'href', title: 'quoted "[]"' });
       this.test.lexer.isEof().should.be.true;
     });
 
@@ -109,7 +115,7 @@ describe("Lexer", function() {
   describe("consumeCode", function() {
 
     it('`my code`', function() {
-      this.test.lexer.consumeCode().should.be.eql({ code: 'my code' });
+      this.test.lexer.consumeCode().should.be.eql({ type: 'code', body: 'my code' });
       this.test.lexer.isEof().should.be.true;
     });
 
@@ -117,13 +123,13 @@ describe("Lexer", function() {
 
   describe("consumeComment", function() {
 
-    it('<!--comment-->', function() {
-      this.test.lexer.consumeComment().should.be.eql({ comment: 'comment' });
+    it('<!--comment \n multiline-->', function() {
+      this.test.lexer.consumeComment().should.be.eql({ type: 'comment', body: 'comment \n multiline' });
       this.test.lexer.isEof().should.be.true;
     });
 
     it('<!---->', function() {
-      this.test.lexer.consumeComment().should.be.eql({ comment: '' });
+      this.test.lexer.consumeComment().should.be.eql({ type: 'comment', body: '' });
       this.test.lexer.isEof().should.be.true;
     });
 
@@ -138,15 +144,35 @@ describe("Lexer", function() {
 
     it('<script>test</script>', function() {
       this.test.lexer.consumeVerbatimTag().should.be.eql(
-        {verbatim: this.test.title}
+        {type: 'verbatim', body: this.test.title}
       );
+      this.test.lexer.isEof().should.be.true;
+    });
+
+    it('<script with attrs="blabla">test</script>', function() {
+      this.test.lexer.consumeVerbatimTag().should.be.eql(
+        {type: 'verbatim', body: this.test.title}
+      );
+      this.test.lexer.isEof().should.be.true;
+    });
+
+    // behavior broken by design
+    //
+    // HTML spec allows an attr value to contain "</script>",
+    // so this tag should parse as a whole,
+    // but the current lexer is not perfect, it will parse only a part of it
+    it('<script attrs="</script>">test</script>', function() {
+      this.test.lexer.consumeVerbatimTag().should.be.eql(
+        {type:'verbatim', body: '<script attrs="</script>'}
+      );
+      this.test.lexer.isEof().should.be.false;
     });
 
   });
 
   describe('consumeHeader', function() {
     it('## My header', function() {
-      this.test.lexer.consumeHeader().should.be.eql({level: 2, title: 'My header'});
+      this.test.lexer.consumeHeader().should.be.eql({type: 'header', level: 2, title: 'My header'});
       this.test.lexer.isEof().should.be.true;
     });
 
@@ -155,12 +181,12 @@ describe("Lexer", function() {
   describe("consumeBoldItalic", function() {
 
     it('*italic*', function() {
-      this.test.lexer.consumeBoldItalic().should.be.eql({italic: 'italic'});
+      this.test.lexer.consumeBoldItalic().should.be.eql({type: 'italic', body: 'italic'});
       this.test.lexer.isEof().should.be.true;
     });
 
-    it('*italic*', function() {
-      this.test.lexer.consumeBoldItalic().should.be.eql({italic: 'italic'});
+    it('**bold**', function() {
+      this.test.lexer.consumeBoldItalic().should.be.eql({type: 'bold', body: 'bold'});
       this.test.lexer.isEof().should.be.true;
     });
 
@@ -170,12 +196,12 @@ describe("Lexer", function() {
     });
 
     it("**a * b**", function() {
-      this.test.lexer.consumeBoldItalic().should.be.eql({bold: 'a * b'});
+      this.test.lexer.consumeBoldItalic().should.be.eql({type:'bold', body: 'a * b'});
       this.test.lexer.isEof().should.be.true;
     });
 
     it("*a * b*", function() {
-      this.test.lexer.consumeBoldItalic().should.be.eql({italic: 'a * b'});
+      this.test.lexer.consumeBoldItalic().should.be.eql({type: 'italic', body: 'a * b'});
       this.test.lexer.isEof().should.be.true;
     });
 

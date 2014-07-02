@@ -1,19 +1,18 @@
 
 function Node(options) {
+  options = options || {};
   this.validateOptions(options);
-  this.trusted = options.trusted;
   this.options = options;
 }
 
 // Проверяет опции, чтобы не было чего-то лишнего (для ясности), а всё нужное - было
-// :parent в опциях нет, он ставится CompositeNode
-Node.prototype.validateOptions = function() {
-  // no op
+Node.prototype.validateOptions = function(options) {
+  return; // throw in case of an error!
 };
 
 
 /*
- если узел в toHtml сам применяет типографские фильтры и санитайзит, то true
+ если узел в toHtml сам санитайзит (и применяет типографию?), то true
  в этом случае внешний узел перед типографией заменяет его на метку
 
  без типографики идёт только "пользовательский текст", который сам себя не санитайзит,
@@ -42,7 +41,7 @@ Node.prototype.toHtml = function() {
 };
 
 Node.prototype.toStructure = function(options) {
-  var hash = {node: this.getClass()};
+  var hash = {type: this.getType()};
   if (options.withOptions) {
     hash.options = this.options;
   }

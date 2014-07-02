@@ -1,6 +1,5 @@
 var _ = require('lodash');
 var CompositeTag = require('../node/compositeTag').CompositeTag;
-var Lexer = require('./lexer')
 
 // Обычно при создании парсера опции создаются как sub_opts, чтобы передать текущие опции, расширив их
 // Произвольный парсер имеет опции
@@ -8,9 +7,7 @@ var Lexer = require('./lexer')
 function Parser(options) {
   options = options || {};
   this.validateOptions(options);
-  // В каждом парсере будет свой хэш опций
   this.options = options;
-
   this.trusted = options.trusted;
 }
 
@@ -20,11 +17,7 @@ function Parser(options) {
 // Как правило, в переопределённом методе не нужно вызывать super,
 // Так будет понятно, что именно нужно парсеру
 Parser.prototype.validateOptions = function(options) {
-
-  if ("trusted" in options) {
-    throw new Error("Must have :trusted")
-  }
-
+  // throw if something's wrong
 };
 
 Parser.prototype.subOpts = function(mergeOptions) {
@@ -33,14 +26,6 @@ Parser.prototype.subOpts = function(mergeOptions) {
 
 Parser.prototype.parse = function() {
   throw new Error("Not implemented");
-};
-
-Parser.prototype.getClass = function() {
-  return 'Parser';
-};
-
-Parser.prototype.toStructure = function() {
-  return _.assign({}, this.options, {parser: this.getClass()});
 };
 
 Parser.prototype.parseAndWrap = function(tag, attrs, options) {

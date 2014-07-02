@@ -7,7 +7,7 @@ const htmlUtil = require('../htmlUtil');
 function EscapedTag() {
   TagNode.call(this, arguments);
 }
-util.inherits(ErrorTag, TagNode);
+util.inherits(EscapedTag, TagNode);
 
 EscapedTag.prototype.getType = function() {
   return "escaped";

@@ -14,7 +14,7 @@ function TagNode(tag, text, attrs, options) {
 
   TextNode.call(this, text, options);
   this.tag = tag.toLowerCase();
-  this.attrs = attrs;
+  this.attrs = attrs || {};
 }
 util.inherits(TagNode, TextNode);
 

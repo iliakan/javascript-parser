@@ -24,7 +24,10 @@ const VERBATIM_TAGS = "script style object embed video audio".split(' ');
 const VERBATIM_TAGS_SET = arrToObj(VERBATIM_TAGS);
 
 const BBTAGS_SOURCE = "html js txt css http coffee java php ruby scss sql".split(' ');
+const BBTAGS_SOURCE_SET = arrToObj(BBTAGS_SOURCE);
+
 const BBTAGS_BLOCK = "ponder smart warn".split(' ');
+const BBTAGS_BLOCK_SET = arrToObj(BBTAGS_BLOCK);
 
 const BBTAGS_NEED_CLOSE = "online offline head edit libs summary quote unsafe_test hide pre compare".split(' ')
   .concat(BBTAGS_SOURCE, BBTAGS_BLOCK);
@@ -35,65 +38,13 @@ const BBTAGS_SELF_CLOSE_SET = arrToObj(BBTAGS_SELF_CLOSE);
 
 const BBTAGS_ALL = BBTAGS_NEED_CLOSE.concat(BBTAGS_SELF_CLOSE);
 
-const BOLD_PAT = /\*\*((?=\S)(.*?\S))\*\*(?!\*)(?=\W|$)/gim;
-
-const ITALIC_PAT = /\*((?=\S)(.*?\S))\*(?!\*)(?=\W|$)/gim;
-
-// < script ... </ script >
-const VERBATIM_TAGS_PAT = new RegExp('<\\s*' +
-    '(' + VERBATIM_TAGS.join('|') + ')' +
-    '(?=[^\\w-])([\\s\\S]*?)($|</\\s*\\1\\s*>)', 'gi'); // no multiline (!): $ is text
-
-// matches "text \"embedded quote\" text"
-const QUOTED_PAT = /"(?:\\.|[^"\\])*"/gim;
-const SQUOTED_PAT = /'(?:\\.|[^'\\])*'/gim;
-
-
-// матчит одну строку в двойных или одинарных кавычках
-// ИЛИ ОДИН символ до ] вне кавычек
-// Не много символов, так как [^'"\]]* приведёт
-// к смерти от бектрекинга в случае QUOTED_OR_NO_BRACKET_PAT
-const QUOTED_OR_NO_BRACKET_PAT = new RegExp(
-    QUOTED_PAT.source + '|' + SQUOTED_PAT.source + '|[^\'"\\]]', 'gim'
-);
-
-// matches [text](href)
-const LINK_PAT = new RegExp(
-    '\\[(' + QUOTED_PAT.source + '|' + SQUOTED_PAT.source +
-  '|[^\\]]*)\\]\\((' + QUOTED_PAT.source + '|' + SQUOTED_PAT.source + '|[^\\s\\)]*)\\)', 'gim'
-);
-
-const BBTAG_SELF_CLOSE_PAT = new RegExp(
-    '\\[(' + BBTAGS_SELF_CLOSE.join('|') +
-  ')(?=[^\\w-])((' + QUOTED_OR_NO_BRACKET_PAT.source + ')*)\\]', 'gim'
-);
-
-// сначала матчим [js/], а затем [js]...[/js]
-// именно такой порядок, так как
-// QUOTED_OR_NO_BRACKET_PAT сначала пытается матчить [js...] (съесть всё до ]) - не выходит
-// поэтому он отступает назад и ест всё до /]
-// если бы сначала матчили [js]...[/js], то QUOTED_OR_NO_BRACKET_PAT добавлял бы в attrs /
-const BBTAG_NEED_CLOSE_EMPTY_PAT = new RegExp(('         \
-\\[                                                     \
-    (' + BBTAGS_NEED_CLOSE.join('|') + ')(?=[^\\w-])    \
-    ((' + QUOTED_OR_NO_BRACKET_PAT.source + ')*)        \
-/\\]').replace(/\s/g, ''), 'gim');
-
-const BBTAG_NEED_CLOSE_BODY_PAT = new RegExp(('          \
-\\[                                                     \
-    (' + BBTAGS_NEED_CLOSE.join('|') + ')(?=[^\\w-])    \
-    ((' + QUOTED_OR_NO_BRACKET_PAT.source + ')*)        \
-\\]                                                     \
-([.\\n]*?)                                              \
-\\[/\\1\\]').replace(/\s/g, ''), 'gim');
-
 const BBTAG_BLOCK_DEFAULT_TITLE = {
   smart: 'На заметку:',
   ponder: 'Вопрос:',
   warn: 'Важно:'
 };
 
-const HREF_PROTOCOL_PAT = /^([^\/#]*?)(?:\:|&#0*58|&#x0*3a)/gim;
+const HREF_PROTOCOL_REGEXP = /^([^\/#]*?)(?:\:|&#0*58|&#x0*3a)/gim;
 
 
 module.exports = {
@@ -106,23 +57,15 @@ module.exports = {
   VERBATIM_TAGS: VERBATIM_TAGS,
   VERBATIM_TAGS_SET: VERBATIM_TAGS_SET,
   BBTAGS_SOURCE: BBTAGS_SOURCE,
+  BBTAGS_SOURCE_SET: BBTAGS_SOURCE_SET,
   BBTAGS_BLOCK: BBTAGS_BLOCK,
+  BBTAGS_BLOCK_SET: BBTAGS_BLOCK_SET,
   BBTAGS_NEED_CLOSE: BBTAGS_NEED_CLOSE,
   BBTAGS_SELF_CLOSE: BBTAGS_SELF_CLOSE,
   BBTAGS_ALL: BBTAGS_ALL,
-  BOLD_PAT: BOLD_PAT,
-  ITALIC_PAT: ITALIC_PAT,
-  VERBATIM_TAGS_PAT: VERBATIM_TAGS_PAT,
-  QUOTED_PAT: QUOTED_PAT,
-  SQUOTED_PAT: SQUOTED_PAT,
-  QUOTED_OR_NO_BRACKET_PAT: QUOTED_OR_NO_BRACKET_PAT,
-  LINK_PAT: LINK_PAT,
   BBTAGS_NEED_CLOSE_SET: BBTAGS_NEED_CLOSE_SET,
   BBTAGS_SELF_CLOSE_SET: BBTAGS_SELF_CLOSE_SET,
-  BBTAG_SELF_CLOSE_PAT: BBTAG_SELF_CLOSE_PAT,
-  BBTAG_NEED_CLOSE_EMPTY_PAT: BBTAG_NEED_CLOSE_EMPTY_PAT,
-  BBTAG_NEED_CLOSE_BODY_PAT: BBTAG_NEED_CLOSE_BODY_PAT,
   BBTAG_BLOCK_DEFAULT_TITLE: BBTAG_BLOCK_DEFAULT_TITLE,
-  HREF_PROTOCOL_PAT: HREF_PROTOCOL_PAT
+  HREF_PROTOCOL_PAT: HREF_PROTOCOL_REGEXP
 };
 
