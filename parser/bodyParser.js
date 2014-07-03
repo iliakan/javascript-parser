@@ -1,4 +1,10 @@
+// circular require BodyParser <- BbtagParser <- BodyParser
+// when I require BodyParser it will get the unfinished export
+// that's why I assign it here, before require('./bbtagParser')
+exports.BodyParser = BodyParser;
+
 const Parser = require('./parser').Parser;
+const BbtagParser = require('./bbtagParser').BbtagParser;
 const BodyLexer = require('./bodylexer').BodyLexer;
 const util = require('util');
 const TextNode = require('../node/textNode').TextNode;
@@ -20,6 +26,7 @@ function BodyParser(text, options) {
   Parser.call(this, options);
   this.lexer = new BodyLexer(text);
 }
+
 util.inherits(BodyParser, Parser);
 
 BodyParser.prototype.validateOptions = function(options) {
@@ -34,13 +41,13 @@ BodyParser.prototype.validateOptions = function(options) {
 //  например [online] ... [/online] возвращает своё содержимое с учетом вложенных тегов
 //  или пустой тег, если экспорт-режим
 //  Это должен быть valid html
-BodyParser.prototype.parse = function() {
+BodyParser.prototype.parse = function *() {
   var buffer = '';
   var children = [];
 
   while(!this.lexer.isEof()) {
 
-    var nodes = this.parseNodes();
+    var nodes = yield this.parseNodes();
 
     if (nodes && nodes.length === undefined) {
       nodes = [nodes];
@@ -123,29 +130,9 @@ BodyParser.prototype.parseNodes = function() {
  *  [ref] *may* exist later in this document, so we need parse it full before resolving
  * FIXME: move all link processing into second pass (single place)
  */
-BodyParser.prototype.parseLink = function(token) {
+BodyParser.prototype.parseLink = function *(token) {
   var href = token.href;
   var title = token.title;
-
-
-  var protocol = HREF_PROTOCOL_REGEXP.match(href);
-  if (protocol) {
-    protocol = protocol[1].trim();
-  }
-
-  // external link goes "as is"
-  if (protocol) {
-    if (!this.trusted && !~["http", "ftp", "https", "mailto"].indexOf(protocol.toLowerCase())) {
-      return new ErrorTag("span", "Protocol " + protocol + " is not allowed");
-    }
-
-    return new TagNode("a", title, {href: href});
-  }
-
-  // absolute link - goes "as is"
-  if (href[0] == '/') {
-    return new TagNode("a", title, {href: href});
-  }
 
   // relative link, need second pass to resolve it
   return new UnresolvedLinkNode(href, title);
@@ -161,11 +148,10 @@ BodyParser.prototype.parseBold = function(token) {
 };
 
 BodyParser.prototype.parseItalic = function(token) {
-  return new BodyParser(token.body, this.subOpts()).parseAndWrap("em");
+  var parser = new BodyParser(token.body, this.subOpts());
+  return parser.parseAndWrap("em");
 };
 
 BodyParser.prototype.parseCode = function(token) {
   return new EscapedTag("code", token.body);
 };
-
-exports.BodyParser = BodyParser;

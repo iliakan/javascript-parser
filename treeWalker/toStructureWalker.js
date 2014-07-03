@@ -20,11 +20,14 @@ ToStructureWalker.prototype.toStructureNode = function(node) {
   var structure = {type: type};
 
   if (node instanceof TextNode) {
-    structure.text = node.text;
+    if (node.text) structure.text = node.text;
   }
 
   if (node instanceof TagNode) {
     structure.tag = node.tag;
+    if (Object.keys(node.attrs).length) {
+      structure.attrs = node.attrs;
+    }
   }
 
   if (node instanceof CompositeTag) {

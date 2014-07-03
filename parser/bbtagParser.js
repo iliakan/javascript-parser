@@ -1,9 +1,12 @@
+exports.BbtagParser = BbtagParser;
+
 const Parser = require('./parser').Parser;
 const BodyParser = require('./bodyParser').BodyParser;
 const BbtagAttrsParser = require('./bbtagAttrsParser').BbtagAttrsParser;
 const consts = require('../consts');
 const util = require('util');
 const path = require('path');
+const _ = require('lodash');
 const TextNode = require('../node/textNode').TextNode;
 const TagNode = require('../node/tagNode').TagNode;
 const EscapedTag = require('../node/escapedTag').EscapedTag;
@@ -28,7 +31,6 @@ function BbtagParser(name, attrsString, body, options) {
 
   this.attrs = this.readAttrsString(attrsString);
 }
-
 util.inherits(BbtagParser, Parser);
 
 
@@ -66,7 +68,7 @@ BbtagParser.prototype.parse = function() {
     return this.parseSource();
   }
 
-  var methodName = 'parse' + name[0].toUpperCase() + name.slice(1);
+  var methodName = 'parse' + this.name[0].toUpperCase() + this.name.slice(1);
   var method = this[methodName];
 
   if (!method) {
@@ -79,16 +81,31 @@ BbtagParser.prototype.parse = function() {
 
 BbtagParser.prototype.parseOffline = function *() {
   if (this.options.export) {
-    return new BodyParser(this.body, this.subOpts()).parse();
+    return yield new BodyParser(this.body, this.subOpts()).parse();
   } else {
     return new TextNode("");
   }
 };
 
+BbtagParser.prototype.parseDemo = function *() {
+
+  var attrs = {};
+  if (this.attrs.src) {
+    var resolver = new SrcResolver(attrs.src, this.options);
+
+    attrs.href = resolver.getExamplePath();
+    attrs.target = '_blank';
+    return new TagNode('a', 'Демо в новом окне', attrs);
+  }
+
+  return new TagNode('button', "Запустить демо", {"onclick": 'runDemo(this)'});
+};
+
 
 BbtagParser.prototype.parseOnline = function *() {
   if (!this.options.export) {
-    return new BodyParser(this.body, this.subOpts()).parse();
+    var parser = new BodyParser(this.body, this.subOpts());
+    return yield parser.parse();
   } else {
     return new TextNode("");
   }
@@ -122,8 +139,8 @@ BbtagParser.prototype.parseImg = function *() {
 };
 
 
-BbtagParser.prototype.parseExample = function() {
-  if (!this.params['src']) {
+BbtagParser.prototype.parseExample = function *() {
+  if (!this.attrs.src) {
     return this.paramRequiredError('div', 'src');
   }
 
@@ -134,35 +151,25 @@ BbtagParser.prototype.parseExample = function() {
 
   attrs['data-demo-height'] = this.params.height || 350;
 
-  // TODO
+  var resolver = new SrcResolver(this.attrs.src, this.options);
+
+  var plunkId;
+  try {
+    plunkId = yield resolver.readPlunkId();
+  } catch (e) {
+    return new ErrorTag('div', e.message);
+  }
+
+  attrs.src = "http://embed.plnkr.co/" + plunkId + "/preview";
+
+  attrs['data-src'] = resolver.getExamplePath();
+
+  if (this.attrs.zip) {
+    attrs['data-zip'] = "1";
+  }
+
+  return new TagNode("iframe", "", attrs);
 };
-/*
-  this.
-    def bbtag_example
 
-      begin
-        plunk_id = read_plunk_id(@params['src'])
-        options['data-play'] = plunk_id
-      rescue => e
-        return Node::ErrorTag.new(:div, "#{@bbtag}: нет такой песочницы #{@params['src']}")
-      end
 
-      options['src'] = "http://embed.plnkr.co/#{plunk_id}/preview"
 
-      options['data-zip'] = "1" if @params['zip']
-
-      Node::Tag.new(:iframe, "", options)
-
-    end
-
-def bbtag_offline
-if top.export
-  BodyParser.new(@text, sub_opts).parse
-else
-Node::Text.new("")
-end
-end
-
-  */
-
-exports.BbtagParser = BbtagParser;

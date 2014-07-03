@@ -24,12 +24,12 @@ Parser.prototype.subOpts = function(mergeOptions) {
   return _.assign({}, this.options, mergeOptions || {});
 };
 
-Parser.prototype.parse = function() {
+Parser.prototype.parse = function *() {
   throw new Error("Not implemented");
 };
 
-Parser.prototype.parseAndWrap = function(tag, attrs) {
-  return new CompositeTag(tag, this.parse(), attrs);
+Parser.prototype.parseAndWrap = function *(tag, attrs) {
+  return new CompositeTag(tag, yield this.parse(), attrs);
 };
 
 exports.Parser = Parser;
