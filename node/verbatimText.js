@@ -1,6 +1,6 @@
 const util = require('util');
 const TextNode = require('./textNode').TextNode;
-const htmlUtil = require('../htmlUtil');
+const htmlUtil = require('../util/htmlUtil');
 
 // Текст, который нужно вернуть без обработки вложенных тегов,
 // в виде профильтрованного HTML

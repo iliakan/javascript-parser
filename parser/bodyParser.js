@@ -35,42 +35,51 @@ BodyParser.prototype.validateOptions = function(options) {
 //  или пустой тег, если экспорт-режим
 //  Это должен быть valid html
 BodyParser.prototype.parse = function() {
-  this.buffer = '';
+  var buffer = '';
   var children = [];
 
   while(!this.lexer.isEof()) {
 
-    var nodes = this.parseNodes() || [];
+    var nodes = this.parseNodes();
+
+    if (nodes && nodes.length === undefined) {
+      nodes = [nodes];
+    }
+
+    if (!nodes) {
+      nodes = [];
+    }
 
     for (var i = 0; i < nodes.length; i++) {
       var node = nodes[i];
       var type = node.getType();
       if (type == 'comment') {
-        this.buffer += node.toHtml();
+        buffer += node.toHtml();
       } else if (type == 'text') {
-        this.buffer += node.text;
+        buffer += node.text;
       } else if (type == 'cut') {
         if (this.options.stopOnCut) {
           break;
         }
       } else {
 
-        if (this.buffer) {
-          children.push(new TextNode(this.buffer));
-          this.buffer = "";
+        if (buffer) {
+          children.push(new TextNode(buffer));
+          buffer = "";
         }
         children.push(node);
       }
+
     }
 
     if (!nodes.length) {
-      this.buffer += this.lexer.consumeChar();
+      buffer += this.lexer.consumeChar();
     }
 
   }
 
-  if (this.buffer) {
-    children.push(new TextNode(this.buffer));
+  if (buffer) {
+    children.push(new TextNode(buffer));
   }
 
   return children;
@@ -100,6 +109,8 @@ BodyParser.prototype.parseNodes = function() {
     return this.parseCode(token);
   case 'bbtag':
     return this.parseBbtag(token);
+  default:
+    throw new Error("Unknown token: " + util.inspect(token));
   }
 
 };
@@ -110,8 +121,7 @@ BodyParser.prototype.parseNodes = function() {
  * Links in the form [](task/my-task) or [](mylesson) require title from DB
  * links in the form [](#ref) require reference from DB
  *  [ref] *may* exist later in this document, so we need parse it full before resolving
- * @param token
- * @returns {*}
+ * FIXME: move all link processing into second pass (single place)
  */
 BodyParser.prototype.parseLink = function(token) {
   var href = token.href;

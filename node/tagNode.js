@@ -2,26 +2,31 @@ const TextNode = require('./textNode').TextNode;
 const util = require('util');
 const charTypography = require('../typography/charTypography');
 
-var htmlUtil = require('../htmlUtil');
+var htmlUtil = require('../util/htmlUtil');
 
 
 // Consistent tag
 // fixes/sanitizes its content
-function TagNode(tag, text, attrs, options) {
+function TagNode(tag, text, attrs) {
   if (typeof text != "string") {
     throw new Error("Text must be string");
   }
 
-  TextNode.call(this, text, options);
+  TextNode.call(this, text);
   this.tag = tag.toLowerCase();
   this.attrs = attrs || {};
 }
 util.inherits(TagNode, TextNode);
 
+TagNode.prototype.getType = function() {
+  return "tag";
+};
+
 TagNode.prototype.selfAppliedTypography = function() {
   return true;
 };
 
+// TODO: а что если тег img? Нужно сделать <img...>, без текста
 TagNode.prototype.toHtml = function() {
   var html = this.formatHtml(this.text);
   html = this.wrapTagAround(html);
@@ -38,16 +43,17 @@ TagNode.prototype.formatHtml = function(html) {
   return html;
 };
 
-TagNode.prototype.toStructure = function() {
-  var structure = TextNode.prototype.toStructure.apply(this, arguments);
-  structure.tag = this.tag;
+TagNode.prototype.toJSON = function() {
+  var json = TextNode.prototype.toJSON.apply(this, arguments);
+  json.tag = this.tag;
+  return json;
 };
 
 TagNode.prototype.wrapTagAround = function(html) {
   var result = "<" + this.tag;
 
   for(var name in this.attrs) {
-    name = (name == "className") ? "class" : htmlUtil.escapeHtmlAttr(name);
+    name = htmlUtil.escapeHtmlAttr(name);
     var value = htmlUtil.escapeHtmlAttr(this.attrs[name]);
     result += name + '="' + value +'"';
   }

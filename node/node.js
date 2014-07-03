@@ -1,15 +1,6 @@
 
-function Node(options) {
-  options = options || {};
-  this.validateOptions(options);
-  this.options = options;
+function Node() {
 }
-
-// Проверяет опции, чтобы не было чего-то лишнего (для ясности), а всё нужное - было
-Node.prototype.validateOptions = function(options) {
-  return; // throw in case of an error!
-};
-
 
 /*
  если узел в toHtml сам санитайзит (и применяет типографию?), то true
@@ -27,28 +18,12 @@ Node.prototype.getType = function() {
   return "node";
 };
 
-/*
-  trusted - берём от ближайшего родителя (любой узел может поменять его в иерархии на другой)
-  При генерации содержимого узел sanitize'ит своё тело unless trusted?,
-  но сам тег и опции, которые генерирует класс узла, не проходят sanitize никогда
- */
-Node.prototype.isTrusted = function() {
-  return this.trusted === undefined ? this.parent.trusted : this.trusted;
-};
-
 Node.prototype.toHtml = function() {
   return "";
 };
 
-Node.prototype.toStructure = function(options) {
-  var hash = {type: this.getType()};
-  if (options.withOptions) {
-    hash.options = this.options;
-  }
-  if (this.trusted !== undefined) {
-    hash.trusted = this.trusted;
-  }
-  return hash;
+Node.prototype.toJSON = function(options) {
+  return {type: this.getType()};
 };
 
 exports.Node = Node;

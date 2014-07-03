@@ -3,18 +3,14 @@ const util = require('util');
 
 //var htmlUtil = require('lib/htmlUtil');
 
-function TextNode(text, options) {
-  Node.call(this, options);
+function TextNode(text) {
+  Node.call(this);
   this.text = text;
 }
 util.inherits(TextNode, Node);
 
 TextNode.prototype.getType = function() {
   return "text";
-};
-
-TextNode.prototype.getClass = function() {
-  return "TextNode";
 };
 
 TextNode.prototype.selfAppliedTypography = function() {
@@ -25,10 +21,10 @@ TextNode.prototype.toHtml = function() {
   return this.text;
 };
 
-TextNode.prototype.toStructure = function(options) {
-  var structure = Node.prototype.toStructure.call(this);
-  structure.text = this.text;
-  return structure;
+TextNode.prototype.toJSON = function() {
+  var json = Node.prototype.toJSON.call(this);
+  json.text = this.text;
+  return json;
 };
 
 

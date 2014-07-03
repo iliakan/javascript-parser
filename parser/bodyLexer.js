@@ -8,7 +8,7 @@ function BodyLexer(text) {
 util.inherits(BodyLexer, Lexer);
 
 Lexer.prototype.consumeCode = function() {
-  if (this.text[this.position] != '`') return;
+  if (this.text[this.position] != '`') return null;
   var position = this.position + 1;
 
   var endPosition = this.findCharNoNewline('`', position);
@@ -51,7 +51,7 @@ Lexer.prototype.consumeComment = function() {
  * this method should *not* be used for any safety tests or sanitizing
  */
 Lexer.prototype.consumeVerbatimTag = function() {
-  if (this.text[this.position] != '<') return;
+  if (this.text[this.position] != '<') return null;
 
   var startPosition = this.position;
   // found:
@@ -84,7 +84,7 @@ Lexer.prototype.consumeVerbatimTag = function() {
 };
 
 Lexer.prototype.consumeBoldItalic = function() {
-  if (this.text[this.position] != '*') return;
+  if (this.text[this.position] != '*') return null;
 
   var prevChar = this.text[this.position - 1];
   switch (prevChar) {

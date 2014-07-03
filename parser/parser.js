@@ -28,8 +28,8 @@ Parser.prototype.parse = function() {
   throw new Error("Not implemented");
 };
 
-Parser.prototype.parseAndWrap = function(tag, attrs, options) {
-  return new CompositeTag(tag, this.parse(), attrs, options);
+Parser.prototype.parseAndWrap = function(tag, attrs) {
+  return new CompositeTag(tag, this.parse(), attrs);
 };
 
 exports.Parser = Parser;

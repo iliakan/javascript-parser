@@ -4,12 +4,13 @@
   "private": true,
   "dependencies": {
     "clarify": "*",
-    "co": "*",
+    "co": "^3.0.6",
+    "gm": "^1.16.0",
     "gulp-util": "^2.2.19",
     "jade": "*",
     "lodash": "*",
     "map-stream": "^0.1.0",
-    "thunkify": "*",
+    "thunkify": "^2.1.2",
     "trace": "*",
     "winston": "*"
   },

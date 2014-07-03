@@ -1,6 +1,6 @@
 const util = require('util');
 const TagNode = require('./tagNode').TagNode;
-const htmlUtil = require('../htmlUtil');
+const htmlUtil = require('../util/htmlUtil');
 
 // Тег, содержимое которого нужно полностью заэкранировать
 // Все теги внутри эскейпятся, так что вложенный HTML заведомо безопасен

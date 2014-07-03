@@ -3,11 +3,13 @@ const BodyParser = require('./bodyParser').BodyParser;
 const BbtagAttrsParser = require('./bbtagAttrsParser').BbtagAttrsParser;
 const consts = require('../consts');
 const util = require('util');
+const path = require('path');
 const TextNode = require('../node/textNode').TextNode;
 const TagNode = require('../node/tagNode').TagNode;
 const EscapedTag = require('../node/escapedTag').EscapedTag;
 const ErrorTag = require('../node/errorTag').ErrorTag;
 const UnresolvedLinkNode = require('../node/unresolvedLinkNode').UnresolvedLinkNode;
+const SrcResolver = require('./srcResolver').SrcResolver;
 
 /**
  * Parser creates node objects from general text.
@@ -18,19 +20,39 @@ const UnresolvedLinkNode = require('../node/unresolvedLinkNode').UnresolvedLinkN
  *
  * @constructor
  */
-function BbtagParser(name, attrs, body, options) {
+function BbtagParser(name, attrsString, body, options) {
   Parser.call(this, options);
   this.name = name;
-  this.attrs = attrs;
+  this.attrsString = attrsString;
   this.body = body;
 
-  this.params = this.parseAttrs(attrs);
+  this.attrs = this.readAttrsString(attrsString);
 }
 
 util.inherits(BbtagParser, Parser);
 
-BbtagParser.prototype.parseAttrs = function() {
-  var parser = new BbtagAttrsParser(this.attrs);
+
+BbtagParser.prototype.validateOptions = function(options) {
+
+  if (!("trusted" in options)) {
+    throw new Error("Must have trusted option")
+  }
+
+  // if we need [img src="my.png"], we read my.png from *this folder* to retreive it's size
+  if (!options.resourceFsRoot) {
+    throw new Error("Must have resourceFsRoot option: filesystem dir to read resources from");
+  }
+
+  // if we need
+  if (!options.resourceWebRoot) {
+    throw new Error("Must have resourceWebRoot option: web dir to reference resources");
+  }
+
+};
+
+
+BbtagParser.prototype.readAttrsString = function(attrsString) {
+  var parser = new BbtagAttrsParser(attrsString);
   return parser.parse();
 };
 
@@ -55,7 +77,7 @@ BbtagParser.prototype.parse = function() {
 
 };
 
-BbtagParser.prototype.parseOffline = function() {
+BbtagParser.prototype.parseOffline = function *() {
   if (this.options.export) {
     return new BodyParser(this.body, this.subOpts()).parse();
   } else {
@@ -64,7 +86,7 @@ BbtagParser.prototype.parseOffline = function() {
 };
 
 
-BbtagParser.prototype.parseOnline = function() {
+BbtagParser.prototype.parseOnline = function *() {
   if (!this.options.export) {
     return new BodyParser(this.body, this.subOpts()).parse();
   } else {
@@ -72,34 +94,51 @@ BbtagParser.prototype.parseOnline = function() {
   }
 };
 
-BbtagParser.prototype.paramRequired = function(errorTag, paramName) {
+BbtagParser.prototype.paramRequiredError = function(errorTag, paramName) {
   return new ErrorTag.new(errorTag, this.name + ": attribute required " + paramName)
 };
 
+BbtagParser.prototype.parseImg = function *() {
+  if (!this.attrs.src) {
+    return this.paramRequiredError('div', 'src');
+  }
+
+  var attrs = this.trusted ? _.clone(this.attrs) : {"src" : this.attrs.src }
+
+  var resolver = new SrcResolver(attrs.src, this.options);
+
+  var imageInfo;
+  try {
+    imageInfo = yield resolver.resolveImage();
+  } catch (e) {
+    return new ErrorTag('div', e.message);
+  }
+
+  attrs.width = imageInfo.size.width;
+  attrs.height = imageInfo.size.height;
+  attrs.src = imageInfo.webPath;
+
+  return new TagNode('img', '', attrs);
+};
+
+
 BbtagParser.prototype.parseExample = function() {
   if (!this.params['src']) {
-    return this.paramRequired('div', 'src');
+    return this.paramRequiredError('div', 'src');
   }
+
+  var attrs = {
+    'class': 'result__iframe',
+    'data-trusted': this.trusted ? '1' : '0'
+  };
+
+  attrs['data-demo-height'] = this.params.height || 350;
 
   // TODO
 };
 /*
   this.
     def bbtag_example
-      return param_required(:div, "src") unless @params['src']
-
-      options = {
-          'class' => 'result__iframe',
-          'data-trusted' => @trusted ? '1' : '0'
-      }
-
-      if @params['height']
-        options['data-demo-height'] = @params['height']
-      else
-        options['data-demo-height'] = '350'
-      end
-
-      #options['src'] = prefix_relative_src(@params['src']) + "/"
 
       begin
         plunk_id = read_plunk_id(@params['src'])
@@ -125,3 +164,5 @@ end
 end
 
   */
+
+exports.BbtagParser = BbtagParser;

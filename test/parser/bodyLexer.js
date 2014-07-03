@@ -1,4 +1,4 @@
-const BodyLexer = require('../parser/bodyLexer').BodyLexer;
+const BodyLexer = require('../../parser/bodyLexer').BodyLexer;
 
 const should = require('should');
 

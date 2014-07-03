@@ -5,18 +5,22 @@ const util = require('util');
 const charTypography = require('../typography/charTypography');
 const NO_WRAP_TAGS_SET = require('../consts').NO_WRAP_TAGS_SET;
 
-var htmlUtil = require('../htmlUtil');
+var htmlUtil = require('../util/htmlUtil');
 
-function CompositeTag(tag, children, attrs, options) {
-  if (tag !== null && !Array.isArray(tag)) {
-    throw new Error("Tag must not be array");
+function CompositeTag(tag, children, attrs) {
+  if (tag !== null && typeof tag != 'string') {
+    throw new Error("Tag must be either null or a string");
   }
 
-  TagNode.call(this, tag, '', attrs, options);
+  TagNode.call(this, tag, '', attrs);
   this._children = [];
   this.addChildren(children);
 }
 util.inherits(CompositeTag, TagNode);
+
+CompositeTag.prototype.getType = function() {
+  return "composite";
+};
 
 /**
  * запрещёна модификация через @children, чтобы быть уверенными,
@@ -79,13 +83,11 @@ CompositeTag.prototype.prependChild = function(child) {
   this._children.unshift(child);
 };
 
-CompositeTag.prototype.toStructure = function(options) {
-  var structure = TagNode.prototype.toStructure.apply(this, arguments);
-  delete structure.text;
-  structure.children = this._children.map(function(child) {
-    return child.toStructure(options);
-  });
-  return structure;
+CompositeTag.prototype.toJSON = function(options) {
+  var json = TagNode.prototype.toJSON.apply(this, arguments);
+  delete json.text;
+  json.children = this._children;
+  return json;
 };
 
 CompositeTag.prototype.toHtml = function() {
