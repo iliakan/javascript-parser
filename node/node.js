@@ -22,8 +22,4 @@ Node.prototype.toHtml = function() {
   return "";
 };
 
-Node.prototype.toJSON = function(options) {
-  return {type: this.getType()};
-};
-
 exports.Node = Node;

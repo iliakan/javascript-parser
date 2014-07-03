@@ -28,7 +28,7 @@ CompositeTag.prototype.getType = function() {
  * которые ставят новым детям parent
  * кроме того, дубликат нужен для перемещения в новый узел (@see node_spec "Node moves children")
  */
-CompositeTag.prototype.children = function() {
+CompositeTag.prototype.getChildren = function() {
   return this._children.slice();
 };
 
@@ -83,12 +83,6 @@ CompositeTag.prototype.prependChild = function(child) {
   this._children.unshift(child);
 };
 
-CompositeTag.prototype.toJSON = function(options) {
-  var json = TagNode.prototype.toJSON.apply(this, arguments);
-  delete json.text;
-  json.children = this._children;
-  return json;
-};
 
 CompositeTag.prototype.toHtml = function() {
   var labels = {};

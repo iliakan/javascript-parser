@@ -43,11 +43,6 @@ TagNode.prototype.formatHtml = function(html) {
   return html;
 };
 
-TagNode.prototype.toJSON = function() {
-  var json = TextNode.prototype.toJSON.apply(this, arguments);
-  json.tag = this.tag;
-  return json;
-};
 
 TagNode.prototype.wrapTagAround = function(html) {
   var result = "<" + this.tag;

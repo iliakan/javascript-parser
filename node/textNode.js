@@ -21,11 +21,5 @@ TextNode.prototype.toHtml = function() {
   return this.text;
 };
 
-TextNode.prototype.toJSON = function() {
-  var json = Node.prototype.toJSON.call(this);
-  json.text = this.text;
-  return json;
-};
-
 
 exports.TextNode = TextNode;
