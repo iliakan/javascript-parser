@@ -32,14 +32,14 @@ describe("BodyParser", function() {
       var structure = new ToStructureWalker(result).toStructure();
       structure.should.be.eql([
           {
-            type:     'composite',
+            type:     'CompositeTag',
             tag:      'em',
             children: [
-              { type: 'text', text: 'italic' }
+              { type: 'TextNode', text: 'italic' }
             ]
           },
           {
-            type: 'text',
+            type: 'TextNode',
             text: ' text'
           }
         ]
@@ -52,13 +52,13 @@ describe("BodyParser", function() {
       var structure = new ToStructureWalker(result).toStructure();
       structure.should.be.eql([
         {
-          type: 'tag',
+          type: 'TagNode',
           tag: 'img',
           attrs: {
             src: '/document/html6.jpg', width: 256, height: 256
           }
         },
-        { type: 'text', text: ' text' }
+        { type: 'TextNode', text: ' text' }
       ]);
     });
 
@@ -67,15 +67,17 @@ describe("BodyParser", function() {
     it("[online] text *in* [/online] out", function *() {
       var parser = new BodyParser(this.test.title, options);
       var result = yield parser.parse();
+
       toStructure(result).should.be.eql([
-          { type: 'text', text: ' text ' },
-          { type:     'composite',
+          { type: 'TextNode', text: ' text ' },
+          { type:     'CompositeTag',
             tag:      'em',
             children: [
-              { type: 'text', text: 'in' }
+              { type: 'TextNode', text: 'in' }
             ]
           },
-          { type: 'text', text: '  out' }
+          { type: 'TextNode', text: ' ' },
+          { type: 'TextNode', text: ' out' }
         ]
       )
     });
