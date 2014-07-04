@@ -10,7 +10,7 @@ function TextNode(text) {
 util.inherits(TextNode, Node);
 
 TextNode.prototype.getType = function() {
-  return "text";
+  return "TextNode";
 };
 
 TextNode.prototype.selfAppliedTypography = function() {

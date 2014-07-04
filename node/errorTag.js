@@ -7,7 +7,7 @@ function ErrorTag(tag, text) {
 util.inherits(ErrorTag, TagNode);
 
 ErrorTag.prototype.getType = function() {
-  return "error";
+  return "ErrorTag";
 };
 
 exports.ErrorTag = ErrorTag;

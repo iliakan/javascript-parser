@@ -7,10 +7,6 @@ function CommentNode() {
 util.inherits(CommentNode, TextNode);
 
 CommentNode.prototype.getType = function() {
-  return "comment";
+  return "CommentNode";
 };
 
-
-CommentNode.prototype.toHtml = function() {
-  return "<!--" + this.text + "-->";
-};

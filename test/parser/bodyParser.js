@@ -17,7 +17,11 @@ describe("BodyParser", function() {
   var options = {
     resourceFsRoot:  path.join(__dirname, 'document'),
     resourceWebRoot: '/document',
-    trusted:         true
+    trusted:         true,
+    metadata: {
+              head: [],
+              libs: []
+    }
   };
 
   describe('parse', function() {

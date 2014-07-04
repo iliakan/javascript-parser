@@ -9,6 +9,8 @@ function SrcResolver(src, options) {
   this.options = options;
 }
 
+// this must ensure that src is safe and jailed
+// as of now, only relative srcs are allowed
 SrcResolver.prototype.cleanSrc = function() {
   return this.src.replace(/\.\./g, '').replace(/^\/+|\/+$/, '');
 };
@@ -58,10 +60,18 @@ SrcResolver.prototype.readPlunkId = function *() {
   return info.plunk;
 };
 
+SrcResolver.prototype.readFile = function *() {
+  try {
+    return yield fsRead(this.getFsPath());
+  } catch(e) {
+    throw new Error("Bad src: could not read file " + this.src);
+  }
+};
+
 SrcResolver.prototype.resolveImage = function *() {
 
   if (!/\.(png|jpg|gif|jpeg)$/i.test(this.src)) {
-    throw new Error("The src should end with png/jpg/gif/jpeg")
+    throw new Error("Bad src: should end with png/jpg/gif/jpeg")
   }
 
   var fsPath = this.getFsPath();

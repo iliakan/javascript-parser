@@ -19,7 +19,7 @@ function CompositeTag(tag, children, attrs) {
 util.inherits(CompositeTag, TagNode);
 
 CompositeTag.prototype.getType = function() {
-  return "composite";
+  return "CompositeTag";
 };
 
 /**

@@ -15,7 +15,7 @@ Node.prototype.selfAppliedTypography = function() {
 };
 
 Node.prototype.getType = function() {
-  return "node";
+  return "Node";
 };
 
 Node.prototype.toHtml = function() {

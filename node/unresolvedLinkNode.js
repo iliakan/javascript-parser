@@ -14,12 +14,8 @@ function UnresolvedLinkNode(href, title, options) {
 }
 util.inherits(UnresolvedLinkNode, Node);
 
-UnresolvedLinkNode.prototype.toHtml = function() {
-  throw new Error("Cannot toHtml: This node must be transformed to TagNode");
-};
-
 UnresolvedLinkNode.prototype.getType = function() {
-  return 'unresolvedLink';
+  return 'UnresolvedLinkNode';
 };
 
 exports.UnresolvedLinkNode = UnresolvedLinkNode;

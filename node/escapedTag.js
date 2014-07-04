@@ -10,12 +10,7 @@ function EscapedTag() {
 util.inherits(EscapedTag, TagNode);
 
 EscapedTag.prototype.getType = function() {
-  return "escaped";
+  return "EscapedTag";
 };
 
-EscapedTag.prototype.toHtml = function() {
-  var html = htmlUtil.escapeHtmlText(this.text);
-  html = this.wrapTagAround(html);
-  return html;
-};
 exports.EscapedTag = EscapedTag;

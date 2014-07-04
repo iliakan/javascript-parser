@@ -60,23 +60,15 @@ BodyParser.prototype.parse = function *() {
     for (var i = 0; i < nodes.length; i++) {
       var node = nodes[i];
       var type = node.getType();
-      if (type == 'comment') {
-        buffer += node.toHtml();
-      } else if (type == 'text') {
-        buffer += node.text;
-      } else if (type == 'cut') {
-        if (this.options.stopOnCut) {
-          break;
-        }
-      } else {
-
-        if (buffer) {
-          children.push(new TextNode(buffer));
-          buffer = "";
-        }
-        children.push(node);
+      if (type == 'cut' && this.options.stopOnCut) {
+        break;
       }
 
+      if (buffer) {
+        children.push(new TextNode(buffer));
+        buffer = "";
+      }
+      children.push(node);
     }
 
     if (!nodes.length) {

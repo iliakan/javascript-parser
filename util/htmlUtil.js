@@ -16,19 +16,3 @@ exports.sanitize = function(html) {
   // fixme: not implemented
   return html;
 };
-
-exports.makeLabel = function() {
-  return (+(Math.random() + '').slice(2)).toString(36);
-};
-
-exports.replaceLabels = function(html, labels) {
-  var pattern = /<span>LABEL:(\w+)<\/span>|<div>LABEL:(\w+)<\/div>/g;
-
-  return html.replace(pattern, function(match, p1, p2) {
-    var label = p1 || p2;
-    var content = labels[label];
-    delete labels[label];
-    return content;
-  });
-};
-

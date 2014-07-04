@@ -19,14 +19,13 @@ function TagNode(tag, text, attrs) {
 util.inherits(TagNode, TextNode);
 
 TagNode.prototype.getType = function() {
-  return "tag";
+  return "TagNode";
 };
 
 TagNode.prototype.selfAppliedTypography = function() {
   return true;
 };
 
-// TODO: а что если тег img? Нужно сделать <img...>, без текста
 TagNode.prototype.toHtml = function() {
   var html = this.formatHtml(this.text);
   html = this.wrapTagAround(html);

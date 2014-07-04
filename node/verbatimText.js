@@ -10,19 +10,7 @@ function VerbatimText() {
 util.inherits(VerbatimText, TextNode);
 
 VerbatimText.prototype.getType = function() {
-  return "verbatim";
-};
-
-VerbatimText.prototype.selfAppliedTypography = function() {
-  return true;
-};
-
-VerbatimText.prototype.toHtml = function() {
-  var html = this.text;
-  if (!this.isTrusted()) {
-    html = htmlUtil.sanitize(html);
-  }
-  return html;
+  return "VerbatimText";
 };
 
 exports.VerbatimText = VerbatimText;

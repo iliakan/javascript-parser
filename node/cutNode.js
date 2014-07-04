@@ -7,7 +7,7 @@ function CutNode() {
 util.inherits(CutNode, Node);
 
 CutNode.prototype.getType = function() {
-  return "cut";
+  return "CutNode";
 };
 
 exports.CutNode = CutNode;
