@@ -13,7 +13,7 @@ function TagNode(tag, text, attrs) {
   }
 
   TextNode.call(this, text);
-  this.tag = tag.toLowerCase();
+  this.tag = tag && tag.toLowerCase();
   this.attrs = attrs || {};
 }
 util.inherits(TagNode, TextNode);

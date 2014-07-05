@@ -1,0 +1,750 @@
+{
+  ":)":          [
+    "emoticon-0100-smile.gif",
+    "Smile"
+  ],
+  ":=)":         [
+    "emoticon-0100-smile.gif",
+    "Smile"
+  ],
+  ":-)":         [
+    "emoticon-0100-smile.gif",
+    "Smile"
+  ],
+  ":(":          [
+    "emoticon-0101-sadsmile.gif",
+    "Sad Smile"
+  ],
+  ":=(":         [
+    "emoticon-0101-sadsmile.gif",
+    "Sad Smile"
+  ],
+  ":-(":         [
+    "emoticon-0101-sadsmile.gif",
+    "Sad Smile"
+  ],
+  ":D":          [
+    "emoticon-0102-bigsmile.gif",
+    "Big Smile"
+  ],
+  ":=D":         [
+    "emoticon-0102-bigsmile.gif",
+    "Big Smile"
+  ],
+  ":-D":         [
+    "emoticon-0102-bigsmile.gif",
+    "Big Smile"
+  ],
+  ":d":          [
+    "emoticon-0102-bigsmile.gif",
+    "Big Smile"
+  ],
+  ":=d":         [
+    "emoticon-0102-bigsmile.gif",
+    "Big Smile"
+  ],
+  ":-d":         [
+    "emoticon-0102-bigsmile.gif",
+    "Big Smile"
+  ],
+  "8=)":         [
+    "emoticon-0103-cool.gif",
+    "Cool"
+  ],
+  "8-)":         [
+    "emoticon-0103-cool.gif",
+    "Cool"
+  ],
+  "B)":          [
+    "emoticon-0103-cool.gif",
+    "Cool"
+  ],
+  "B=)":         [
+    "emoticon-0103-cool.gif",
+    "Cool"
+  ],
+  "B-)":         [
+    "emoticon-0103-cool.gif",
+    "Cool"
+  ],
+  "(cool)":      [
+    "emoticon-0103-cool.gif",
+    "Cool"
+  ],
+  ":o":          [
+    "emoticon-0104-surprised.gif",
+    "Surprised"
+  ],
+  ":=o":         [
+    "emoticon-0104-surprised.gif",
+    "Surprised"
+  ],
+  ":-o":         [
+    "emoticon-0104-surprised.gif",
+    "Surprised"
+  ],
+  ":O":          [
+    "emoticon-0104-surprised.gif",
+    "Surprised"
+  ],
+  ":=O":         [
+    "emoticon-0104-surprised.gif",
+    "Surprised"
+  ],
+  ":-O":         [
+    "emoticon-0104-surprised.gif",
+    "Surprised"
+  ],
+  ";)":          [
+    "emoticon-0105-wink.gif",
+    "Wink"
+  ],
+  ";=)":         [
+    "emoticon-0105-wink.gif",
+    "Wink"
+  ],
+  ";-)":         [
+    "emoticon-0105-wink.gif",
+    "Wink"
+  ],
+  ";(":          [
+    "emoticon-0106-crying.gif",
+    "Crying"
+  ],
+  ";-(":         [
+    "emoticon-0106-crying.gif",
+    "Crying"
+  ],
+  ";=(":         [
+    "emoticon-0106-crying.gif",
+    "Crying"
+  ],
+  "(sweat)":     [
+    "emoticon-0107-sweating.gif",
+    "Sweating"
+  ],
+  "(:|":         [
+    "emoticon-0107-sweating.gif",
+    "Sweating"
+  ],
+  ":|":          [
+    "emoticon-0108-speechless.gif",
+    "Speechless"
+  ],
+  ":=|":         [
+    "emoticon-0108-speechless.gif",
+    "Speechless"
+  ],
+  ":-|":         [
+    "emoticon-0108-speechless.gif",
+    "Speechless"
+  ],
+  ":*":          [
+    "emoticon-0109-kiss.gif",
+    "Kiss"
+  ],
+  ":=*":         [
+    "emoticon-0109-kiss.gif",
+    "Kiss"
+  ],
+  ":-*":         [
+    "emoticon-0109-kiss.gif",
+    "Kiss"
+  ],
+  ":P":          [
+    "emoticon-0110-tongueout.gif",
+    "Tongue Out"
+  ],
+  ":=P":         [
+    "emoticon-0110-tongueout.gif",
+    "Tongue Out"
+  ],
+  ":-P":         [
+    "emoticon-0110-tongueout.gif",
+    "Tongue Out"
+  ],
+  ":p":          [
+    "emoticon-0110-tongueout.gif",
+    "Tongue Out"
+  ],
+  ":=p":         [
+    "emoticon-0110-tongueout.gif",
+    "Tongue Out"
+  ],
+  ":-p":         [
+    "emoticon-0110-tongueout.gif",
+    "Tongue Out"
+  ],
+  "(blush)":     [
+    "emoticon-0111-blush.gif",
+    "Blush"
+  ],
+  ":$":          [
+    "emoticon-0111-blush.gif",
+    "Blush"
+  ],
+  ":-$":         [
+    "emoticon-0111-blush.gif",
+    "Blush"
+  ],
+  ":=$":         [
+    "emoticon-0111-blush.gif",
+    "Blush"
+  ],
+  ":\"&gt;":     [
+    "emoticon-0111-blush.gif",
+    "Blush"
+  ],
+  ":^)":         [
+    "emoticon-0112-wondering.gif",
+    "Wondering"
+  ],
+  "|-)":         [
+    "emoticon-0113-sleepy.gif",
+    "Sleepy"
+  ],
+  "I-)":         [
+    "emoticon-0113-sleepy.gif",
+    "Sleepy"
+  ],
+  "I=)":         [
+    "emoticon-0113-sleepy.gif",
+    "Sleepy"
+  ],
+  "(snooze)":    [
+    "emoticon-0113-sleepy.gif",
+    "Sleepy"
+  ],
+  "|(":          [
+    "emoticon-0114-dull.gif",
+    "Dull"
+  ],
+  "|-(":         [
+    "emoticon-0114-dull.gif",
+    "Dull"
+  ],
+  "|=(":         [
+    "emoticon-0114-dull.gif",
+    "Dull"
+  ],
+  "(inlove)":    [
+    "emoticon-0115-inlove.gif",
+    "In Love"
+  ],
+  "]:)":         [
+    "emoticon-0116-evilgrin.gif",
+    "Evil Grin"
+  ],
+  "&gt;:)":      [
+    "emoticon-0116-evilgrin.gif",
+    "Evil Grin"
+  ],
+  "(grin)":      [
+    "emoticon-0116-evilgrin.gif",
+    "Evil Grin"
+  ],
+  "(talk)":      [
+    "emoticon-0117-talking.gif",
+    "Talking"
+  ],
+  "(yawn)":      [
+    "emoticon-0118-yawn.gif",
+    "Yawning"
+  ],
+  "|-()":        [
+    "emoticon-0118-yawn.gif",
+    "Yawning"
+  ],
+  "(puke)":      [
+    "emoticon-0119-puke.gif",
+    "Puking"
+  ],
+  ":&":          [
+    "emoticon-0119-puke.gif",
+    "Puking"
+  ],
+  ":-&":         [
+    "emoticon-0119-puke.gif",
+    "Puking"
+  ],
+  ":=&":         [
+    "emoticon-0119-puke.gif",
+    "Puking"
+  ],
+  "(doh)":       [
+    "emoticon-0120-doh.gif",
+    "Doh!"
+  ],
+  ":@":          [
+    "emoticon-0121-angry.gif",
+    "Angry"
+  ],
+  ":-@":         [
+    "emoticon-0121-angry.gif",
+    "Angry"
+  ],
+  ":=@":         [
+    "emoticon-0121-angry.gif",
+    "Angry"
+  ],
+  "x(":          [
+    "emoticon-0121-angry.gif",
+    "Angry"
+  ],
+  "x-(":         [
+    "emoticon-0121-angry.gif",
+    "Angry"
+  ],
+  "x=(":         [
+    "emoticon-0121-angry.gif",
+    "Angry"
+  ],
+  "X(":          [
+    "emoticon-0121-angry.gif",
+    "Angry"
+  ],
+  "X-(":         [
+    "emoticon-0121-angry.gif",
+    "Angry"
+  ],
+  "X=(":         [
+    "emoticon-0121-angry.gif",
+    "Angry"
+  ],
+  "(wasntme)":   [
+    "emoticon-0122-itwasntme.gif",
+    "It Wasn't Me"
+  ],
+  "(party)":     [
+    "emoticon-0123-party.gif",
+    "Party!!!"
+  ],
+  ":S":          [
+    "emoticon-0124-worried.gif",
+    "Worried"
+  ],
+  ":-S":         [
+    "emoticon-0124-worried.gif",
+    "Worried"
+  ],
+  ":=S":         [
+    "emoticon-0124-worried.gif",
+    "Worried"
+  ],
+  ":s":          [
+    "emoticon-0124-worried.gif",
+    "Worried"
+  ],
+  ":-s":         [
+    "emoticon-0124-worried.gif",
+    "Worried"
+  ],
+  ":=s":         [
+    "emoticon-0124-worried.gif",
+    "Worried"
+  ],
+  "(mm)":        [
+    "emoticon-0125-mmm.gif",
+    "Mmm..."
+  ],
+  "8-|":         [
+    "emoticon-0126-nerd.gif",
+    "Nerd"
+  ],
+  "B-|":         [
+    "emoticon-0126-nerd.gif",
+    "Nerd"
+  ],
+  "8|":          [
+    "emoticon-0126-nerd.gif",
+    "Nerd"
+  ],
+  "B|":          [
+    "emoticon-0126-nerd.gif",
+    "Nerd"
+  ],
+  "8=|":         [
+    "emoticon-0126-nerd.gif",
+    "Nerd"
+  ],
+  "B=|":         [
+    "emoticon-0126-nerd.gif",
+    "Nerd"
+  ],
+  "(nerd)":      [
+    "emoticon-0126-nerd.gif",
+    "Nerd"
+  ],
+  ":x":          [
+    "emoticon-0127-lipssealed.gif",
+    "Lips Sealed"
+  ],
+  ":-x":         [
+    "emoticon-0127-lipssealed.gif",
+    "Lips Sealed"
+  ],
+  ":X":          [
+    "emoticon-0127-lipssealed.gif",
+    "Lips Sealed"
+  ],
+  ":-X":         [
+    "emoticon-0127-lipssealed.gif",
+    "Lips Sealed"
+  ],
+  ":#":          [
+    "emoticon-0127-lipssealed.gif",
+    "Lips Sealed"
+  ],
+  ":-#":         [
+    "emoticon-0127-lipssealed.gif",
+    "Lips Sealed"
+  ],
+  ":=x":         [
+    "emoticon-0127-lipssealed.gif",
+    "Lips Sealed"
+  ],
+  ":=X":         [
+    "emoticon-0127-lipssealed.gif",
+    "Lips Sealed"
+  ],
+  ":=#":         [
+    "emoticon-0127-lipssealed.gif",
+    "Lips Sealed"
+  ],
+  "(hi)":        [
+    "emoticon-0128-hi.gif",
+    "Hi"
+  ],
+  "(call)":      [
+    "emoticon-0129-call.gif",
+    "Call"
+  ],
+  "(devil)":     [
+    "emoticon-0130-devil.gif",
+    "Devil"
+  ],
+  "(angel)":     [
+    "emoticon-0131-angel.gif",
+    "Angel"
+  ],
+  "(envy)":      [
+    "emoticon-0132-envy.gif",
+    "Envy"
+  ],
+  "(wait)":      [
+    "emoticon-0133-wait.gif",
+    "Wait"
+  ],
+  "(makeup)":    [
+    "emoticon-0135-makeup.gif",
+    "Make-Up"
+  ],
+  "(kate)":      [
+    "emoticon-0135-makeup.gif",
+    "Make-Up"
+  ],
+  "(giggle)":    [
+    "emoticon-0136-giggle.gif",
+    "Covered Laugh"
+  ],
+  "(chuckle)":   [
+    "emoticon-0136-giggle.gif",
+    "Covered Laugh"
+  ],
+  "(clap)":      [
+    "emoticon-0137-clapping.gif",
+    "Clapping Hands"
+  ],
+  "(think)":     [
+    "emoticon-0138-thinking.gif",
+    "Thinking"
+  ],
+  ":?":          [
+    "emoticon-0138-thinking.gif",
+    "Thinking"
+  ],
+  ":-?":         [
+    "emoticon-0138-thinking.gif",
+    "Thinking"
+  ],
+  ":=?":         [
+    "emoticon-0138-thinking.gif",
+    "Thinking"
+  ],
+  "(rofl)":      [
+    "emoticon-0140-rofl.gif",
+    "Rolling on the floor laughing"
+  ],
+  "(whew)":      [
+    "emoticon-0141-whew.gif",
+    "Whew"
+  ],
+  "(happy)":     [
+    "emoticon-0142-happy.gif",
+    "Happy"
+  ],
+  "(smirk)":     [
+    "emoticon-0143-smirk.gif",
+    "Smirking"
+  ],
+  "(nod)":       [
+    "emoticon-0144-nod.gif",
+    "Nodding"
+  ],
+  "(shake)":     [
+    "emoticon-0145-shake.gif",
+    "Shake"
+  ],
+  "(punch)":     [
+    "emoticon-0146-punch.gif",
+    "Punch"
+  ],
+  "(emo)":       [
+    "emoticon-0147-emo.gif",
+    "Emo"
+  ],
+  "(y)":         [
+    "emoticon-0148-yes.gif",
+    "Yes"
+  ],
+  "(Y)":         [
+    "emoticon-0148-yes.gif",
+    "Yes"
+  ],
+  "(ok)":        [
+    "emoticon-0148-yes.gif",
+    "Yes"
+  ],
+  "(n)":         [
+    "emoticon-0149-no.gif",
+    "No"
+  ],
+  "(N)":         [
+    "emoticon-0149-no.gif",
+    "No"
+  ],
+  "(handshake)": [
+    "emoticon-0150-handshake.gif",
+    "Shaking Hands"
+  ],
+  "(skype)":     [
+    "emoticon-0151-skype.gif",
+    "Skype"
+  ],
+  "(ss)":        [
+    "emoticon-0151-skype.gif",
+    "Skype"
+  ],
+  "(h)":         [
+    "emoticon-0152-heart.gif",
+    "Heart"
+  ],
+  "(H)":         [
+    "emoticon-0152-heart.gif",
+    "Heart"
+  ],
+  "(l)":         [
+    "emoticon-0152-heart.gif",
+    "Heart"
+  ],
+  "(L)":         [
+    "emoticon-0152-heart.gif",
+    "Heart"
+  ],
+  "(u)":         [
+    "emoticon-0153-brokenheart.gif",
+    "Broken Heart"
+  ],
+  "(U)":         [
+    "emoticon-0153-brokenheart.gif",
+    "Broken Heart"
+  ],
+  "(e)":         [
+    "emoticon-0154-mail.gif",
+    "Mail"
+  ],
+  "(m)":         [
+    "emoticon-0154-mail.gif",
+    "Mail"
+  ],
+  "(f)":         [
+    "emoticon-0155-flower.gif",
+    "Flower"
+  ],
+  "(F)":         [
+    "emoticon-0155-flower.gif",
+    "Flower"
+  ],
+  "(rain)":      [
+    "emoticon-0156-rain.gif",
+    "Raining"
+  ],
+  "(london)":    [
+    "emoticon-0156-rain.gif",
+    "Raining"
+  ],
+  "(st)":        [
+    "emoticon-0156-rain.gif",
+    "Raining"
+  ],
+  "(sun)":       [
+    "emoticon-0157-sun.gif",
+    "Sun"
+  ],
+  "(o)":         [
+    "emoticon-0158-time.gif",
+    "Time"
+  ],
+  "(O)":         [
+    "emoticon-0158-time.gif",
+    "Time"
+  ],
+  "(time)":      [
+    "emoticon-0158-time.gif",
+    "Time"
+  ],
+  "(music)":     [
+    "emoticon-0159-music.gif",
+    "Music"
+  ],
+  "(mp)":        [
+    "emoticon-0161-phone.gif",
+    "Phone"
+  ],
+  "(ph)":        [
+    "emoticon-0161-phone.gif",
+    "Phone"
+  ],
+  "(coffee)":    [
+    "emoticon-0162-coffee.gif",
+    "Coffee"
+  ],
+  "(pizza)":     [
+    "emoticon-0163-pizza.gif",
+    "Pizza"
+  ],
+  "(pi)":        [
+    "emoticon-0163-pizza.gif",
+    "Pizza"
+  ],
+  "(cash)":      [
+    "emoticon-0164-cash.gif",
+    "Cash"
+  ],
+  "(mo)":        [
+    "emoticon-0164-cash.gif",
+    "Cash"
+  ],
+  "($)":         [
+    "emoticon-0164-cash.gif",
+    "Cash"
+  ],
+  "(muscle)":    [
+    "emoticon-0165-muscle.gif",
+    "Flexing muscle"
+  ],
+  "(flex)":      [
+    "emoticon-0165-muscle.gif",
+    "Flexing muscle"
+  ],
+  "(^)":         [
+    "emoticon-0166-cake.gif",
+    "Cake"
+  ],
+  "(cake)":      [
+    "emoticon-0166-cake.gif",
+    "Cake"
+  ],
+  "(beer)":      [
+    "emoticon-0167-beer.gif",
+    "Beer"
+  ],
+  "(d)":         [
+    "emoticon-0168-drink.gif",
+    "Drink"
+  ],
+  "(D)":         [
+    "emoticon-0168-drink.gif",
+    "Drink"
+  ],
+  "(dance)":     [
+    "emoticon-0169-dance.gif",
+    "Dancing"
+  ],
+  "\\o/":        [
+    "emoticon-0169-dance.gif",
+    "Dancing"
+  ],
+  "\\:D/":       [
+    "emoticon-0169-dance.gif",
+    "Dancing"
+  ],
+  "\\:d/":       [
+    "emoticon-0169-dance.gif",
+    "Dancing"
+  ],
+  "(ninja)":     [
+    "emoticon-0170-ninja.gif",
+    "Ninja"
+  ],
+  "(mooning)":   [
+    "emoticon-0172-mooning.gif",
+    "Mooning"
+  ],
+  "(finger)":    [
+    "emoticon-0173-middlefinger.gif",
+    "Finger"
+  ],
+  "(bandit)":    [
+    "emoticon-0174-bandit.gif",
+    "Bandit"
+  ],
+  "(drunk)":     [
+    "emoticon-0175-drunk.gif",
+    "Drunk"
+  ],
+  "(smoking)":   [
+    "emoticon-0176-smoke.gif",
+    "Smoking"
+  ],
+  "(smoke)":     [
+    "emoticon-0176-smoke.gif",
+    "Smoking"
+  ],
+  "(ci)":        [
+    "emoticon-0176-smoke.gif",
+    "Smoking"
+  ],
+  "(toivo)":     [
+    "emoticon-0177-toivo.gif",
+    "Toivo"
+  ],
+  "(rock)":      [
+    "emoticon-0178-rock.gif",
+    "Rock"
+  ],
+  "(headbang)":  [
+    "emoticon-0179-headbang.gif",
+    "Headbang"
+  ],
+  "(banghead)":  [
+    "emoticon-0179-headbang.gif",
+    "Headbang"
+  ],
+  "(bug)":       [
+    "emoticon-0180-bug.gif",
+    "Bug"
+  ],
+  "(fubar)":     [
+    "emoticon-0181-fubar.gif",
+    "Fubar"
+  ],
+  "(poolparty)": [
+    "emoticon-0182-poolparty.gif",
+    "Poolparty"
+  ],
+  "(swear)":     [
+    "emoticon-0183-swear.gif",
+    "Swear"
+  ]
+}

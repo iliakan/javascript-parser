@@ -4,6 +4,19 @@
  (возможно нужно запускать до jsdom, так как некоторые последовательности типа -> <- могут ему не понравиться)
 */
 
+const PUNCT_REG = /[!"#$%&'()*+,\-.\/:;<=>?@[\\\]^_`{|}~]/;
+
+const SMILES = require('./smiles');
+const SMILES_REG = (function() {
+  return new RegExp('(\\s)(' + Object.keys(SMILES).map(escapeReg).join('|') + ')(?=\\s|$|' + PUNCT_REG.source + ')', 'gim');
+}());
+
+
+
+function escapeReg(s) {
+  return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
 function processCopymarks(text) {
   text = text.replace(/\([сСcC]\)(?=[^\.\,\;\:])/ig, '©');
 
@@ -17,7 +30,7 @@ function processCopymarks(text) {
 }
 
 function processHellip(text) {
-  return text.replace(/.../g, '…');
+  return text.replace(/\.\.\./g, '…');
 }
 
 function processPlusmin(text) {
@@ -41,14 +54,13 @@ function processLoneLt(text) {
   return text.replace(/<(?=[\s\d])/gi, '&lt;');
 }
 
-
-/* TODO:
-  def replace_smiles(html)
-  SMILES.each do |(regexp, file, alt)|
-  html = html.gsub(regexp, %(<img src="/files/smiles/#{file}" alt="#{alt}">))
-  end
-*/
-
+function processSmiles(text) {
+  return text.replace(SMILES_REG, function(str, space, smile) {
+    var smileInfo = SMILES[smile];
+    return space + '<img src="/files/smiles/' + smileInfo[0] + '" alt="' + smileInfo[1] + '">';
+  });
+  
+}
 
 function charTypography(html) {
   html = processPlusmin(html);
@@ -58,7 +70,7 @@ function charTypography(html) {
   html = processHellip(html);
   html = processDash(html);
   html = processEmdash(html);
-  //html = replace_smiles(html);
+  html = processSmiles(html);
   return html;
 }
 

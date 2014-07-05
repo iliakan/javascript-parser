@@ -12,6 +12,7 @@ const TagNode = require('../node/tagNode').TagNode;
 const EscapedTag = require('../node/escapedTag').EscapedTag;
 const ErrorTag = require('../node/errorTag').ErrorTag;
 const UnresolvedLinkNode = require('../node/unresolvedLinkNode').UnresolvedLinkNode;
+const HeaderTag = require('../node/headerTag').HeaderTag;
 
 /**
  * Parser creates node objects from general text.
@@ -45,7 +46,7 @@ BodyParser.prototype.parse = function *() {
   var buffer = '';
   var children = [];
 
-  while(!this.lexer.isEof()) {
+  while (!this.lexer.isEof()) {
 
     var nodes = yield this.parseNodes();
 
@@ -93,11 +94,12 @@ BodyParser.prototype.parseNodes = function() {
     this.lexer.consumeCode() ||
     this.lexer.consumeBoldItalic() ||
     this.lexer.consumeComment() ||
+    this.lexer.consumeHeader() ||
     this.lexer.consumeVerbatimTag();
 
   if (token === null) return [];
 
-  switch(token.type) {
+  switch (token.type) {
   case 'link':
     return this.parseLink(token);
   case 'bold':
@@ -108,11 +110,21 @@ BodyParser.prototype.parseNodes = function() {
     return this.parseCode(token);
   case 'bbtag':
     return this.parseBbtag(token);
+  case 'header':
+    return this.parseHeader(token);
   default:
-    throw new Error("Unknown token: " + util.inspect(token));
+    throw new Error("Unexpected token: " + util.inspect(token));
   }
 
 };
+
+BodyParser.prototype.parseHeader = function* (token) {
+  var level = token.level;
+  var title = token.title;
+
+  return new HeaderTag(level, title, yield new BodyParser(title, this.subOpts()).parse());
+};
+
 
 /**
  * The parser is synchronous, we don't query DB here.

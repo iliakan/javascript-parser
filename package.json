@@ -5,17 +5,17 @@
   "dependencies": {
     "clarify": "*",
     "co": "^3.0.6",
-    "gm": "^1.16.0",
-    "gulp-util": "^2.2.19",
-    "jade": "*",
+    "image-size": "^0.3.0",
     "lodash": "*",
     "map-stream": "^0.1.0",
+    "sanitize-html": "^1.2.0",
     "thunkify": "^2.1.2",
     "trace": "*",
     "winston": "*"
   },
   "devDependencies": {
     "co-mocha": "*",
+    "gulp-util": "^2.2.19",
     "gulp": "*",
     "gulp-jshint": "*",
     "mocha": "*",

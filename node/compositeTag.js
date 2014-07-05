@@ -11,10 +11,13 @@ function CompositeTag(tag, children, attrs) {
   if (tag !== null && typeof tag != 'string') {
     throw new Error("Tag must be either null or a string");
   }
+  if (children.slice === undefined) {
+    throw new Error("Children must be array or array-like");
+  }
 
   TagNode.call(this, tag, '', attrs);
   this._children = [];
-  this.addChildren(children);
+  this.appendChildren(children);
 }
 util.inherits(CompositeTag, TagNode);
 
@@ -36,13 +39,13 @@ CompositeTag.prototype.hasChildren = function() {
   return this._children.length > 0;
 };
 
-CompositeTag.prototype.addChildren = function(children) {
+CompositeTag.prototype.appendChildren = function(children) {
   for (var i = 0; i < children.length; i++) {
-    this.addChild(children[i]);
+    this.appendChild(children[i]);
   }
 };
 
-CompositeTag.prototype.addChild = function(child) {
+CompositeTag.prototype.appendChild = function(child) {
   this.adoptChild(child);
   this._children.push(child);
 };

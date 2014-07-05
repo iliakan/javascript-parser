@@ -5,7 +5,7 @@ const htmlUtil = require('../util/htmlUtil');
 // Тег, содержимое которого нужно полностью заэкранировать
 // Все теги внутри эскейпятся, так что вложенный HTML заведомо безопасен
 function EscapedTag() {
-  TagNode.call(this, arguments);
+  TagNode.apply(this, arguments);
 }
 util.inherits(EscapedTag, TagNode);
 

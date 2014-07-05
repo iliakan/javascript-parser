@@ -281,7 +281,7 @@ BbtagParser.prototype.parseSource = function *() {
   if (highlight.inline) {
     attrs['data-highlight-inline'] = highlight.inline;
   }
-  body = highlight.body;
+  body = highlight.text;
 
   if (this.params.height) {
     attrs['data-demo-height'] = this.params.height;
@@ -389,15 +389,14 @@ BbtagParser.prototype.parseCompare = function *() {
   var cons = new CompositeTag('ul', [], {"class": "balance__list"});
 
   var parts = this.body.split(/\n+/);
-
   for (var i = 0; i < parts.length; i++) {
     var item = parts[i];
     if (!item) continue;
     var content = yield new BodyParser(item.slice(1), this.subOpts()).parse();
     if (item[0] == '+') {
-      pros.push( new CompositeTag('li', content, {'class':'plus'}) );
+      pros.appendChild( new CompositeTag('li', content, {'class':'plus'}) );
     } else if (item[0] == '-') {
-      pros.push( new CompositeTag('li', content, {'class':'minus'}) );
+      cons.appendChild( new CompositeTag('li', content, {'class':'minus'}) );
     } else {
       return new ErrorTag('div', 'compare items should start with either + or -');
     }
@@ -415,16 +414,15 @@ BbtagParser.prototype.parseCompare = function *() {
   }
 
   if (pros.hasChildren()) {
-    if (title) pros.unshift( new Tag('h3', 'Достоинства', {'class' : 'balance__title'}));
-    balance.addChild( new CompositeTag('div', pros, {'class':'balance__pluses'}));
+    if (title) pros.prependChild( new TagNode('h3', 'Достоинства', {'class' : 'balance__title'}));
+    balance.appendChild( new CompositeTag('div', [pros], {'class':'balance__pluses'}));
   }
 
   if (cons.hasChildren()) {
-    if (title) cons.unshift( new Tag('h3', 'Недостатки', {'class' : 'balance__title'}));
-    balance.addChild( new CompositeTag('div', cons, {'class':'balance__minuses'}));
+    if (title) cons.prependChild( new TagNode('h3', 'Недостатки', {'class' : 'balance__title'}));
+    balance.appendChild( new CompositeTag('div', [cons], {'class':'balance__minuses'}));
   }
-
-  return new CompositeTag('div', balance, balanceAttrs);
+  return new CompositeTag('div', [balance], balanceAttrs);
 };
 
 

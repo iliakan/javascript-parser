@@ -3,7 +3,7 @@ const path = require('path');
 const thunkify = require('thunkify');
 const fsStat = thunkify(fs.stat);
 const fsRead = thunkify(fs.read);
-const gm = require('gm');
+const imageSize = thunkify(require('image-size'));
 function SrcResolver(src, options) {
   this.src = src;
   this.options = options;
@@ -88,9 +88,7 @@ SrcResolver.prototype.resolveImage = function *() {
     throw new Error("Bad src: not a file " + this.src);
   }
 
-  var size = yield function(callback) {
-    gm(fsPath).size(callback);
-  };
+  var size = yield imageSize(fsPath);
 
   return {
     fsPath: fsPath,

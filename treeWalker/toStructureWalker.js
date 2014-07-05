@@ -3,7 +3,7 @@ const TextNode = require('../node/textNode').TextNode;
 const CompositeTag = require('../node/compositeTag').CompositeTag;
 
 function ToStructureWalker(roots) {
-  if (roots.length === undefined) roots = [roots]
+  if (roots.length === undefined) roots = [roots];
   this.roots = roots; // node or array
 }
 

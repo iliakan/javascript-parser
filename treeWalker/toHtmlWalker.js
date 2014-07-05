@@ -6,6 +6,7 @@ const charTypography = require('../typography/charTypography');
 const escapeHtmlAttr = require('../util/htmlUtil').escapeHtmlAttr;
 const escapeHtmlText = require('../util/htmlUtil').escapeHtmlText;
 const sanitize = require('../util/htmlUtil').sanitize;
+const transliterate = require('../util/transliterate');
 
 function ToHtmlWalker(roots, options) {
   if (roots.length === undefined) roots = [roots];
@@ -15,21 +16,7 @@ function ToHtmlWalker(roots, options) {
 
 
 ToHtmlWalker.prototype.toHtml = function() {
-  return this.transformNode(new CompositeTag(null, this.roots));
-};
-
-ToHtmlWalker.prototype.transformArray = function(nodes) {
-  var labels = {};
-  var html = '';
-
-  if (nodes )
-
-  nodes.forEach(function(node) {
-    var nodeHtml = this.transformNode(node);
-    html += nodeHtml;
-  }, this);
-
-  return html;
+  return this.transform(new CompositeTag(null, this.roots));
 };
 
 ToHtmlWalker.prototype.transform = function(node) {
@@ -47,8 +34,30 @@ ToHtmlWalker.prototype.transformCutNode = function(node) {
   return  "";
 };
 
+ToHtmlWalker.prototype.transformHeaderTag = function(node) {
+  var anchor = transliterate(node.title);
+
+  var headerContent = this.transformCompositeTag(node);
+
+  return '<h' + node.level + '><a name="' + anchor + '" href="#' + anchor + '">' +
+    headerContent +
+    '</a></h' + node.level + '>';
+};
+
 ToHtmlWalker.prototype.transformNode = function(node) {
   throw new Error("Basic node should not be instantiated and used");
+};
+
+ToHtmlWalker.prototype.makeHeaderAnchor = function(headerTextUnparsed) {
+  var anchor = headerTextUnparsed.trim()
+    .replace(/[!"#$%&'()*+,\-.\/:;<=>?@[\\\]^_`{|}~]/g, '-') // пунктуация, пробелы -> дефис
+    .replace(/[^a-zа-я0-9-]/gi, '') // убрать любые символы, кроме [слов цифр дефиса])
+    .replace(/-+/gi, '-') // слить дефисы вместе
+    .replace(/^-+|-+$/, '') // убрать дефисы с концов
+
+  anchor = transliterate(anchor).toLowerCase();
+
+  return anchor;
 };
 
 ToHtmlWalker.prototype.transformCommentNode = function(node) {
@@ -56,7 +65,7 @@ ToHtmlWalker.prototype.transformCommentNode = function(node) {
 };
 
 ToHtmlWalker.prototype.transformErrorTag = function(node) {
-  return this.transformTag(node);
+  return this.transformTagNode(node);
 };
 
 ToHtmlWalker.prototype.transformEscapedTag = function(node) {
@@ -83,11 +92,11 @@ ToHtmlWalker.prototype.transformCompositeTag = function(node) {
   var children = node.getChildren();
   for (var i = 0; i < children.length; i++) {
     var child = children[i];
-    var childHtml = this.transformNode(child);
-    if (node.getType() != 'text') {
+    var childHtml = this.transform(child);
+    if (child.getType() != 'text') {
       var label = this.makeLabel();
       labels[label] = childHtml;
-      if (NO_WRAP_TAGS_SET[node.tag]) {
+      if (NO_WRAP_TAGS_SET[child.tag]) {
         childHtml = "<div>LABEL:" + label + "</div>";
       } else {
         childHtml = "<span>LABEL:" + label + "</span>";
@@ -100,7 +109,7 @@ ToHtmlWalker.prototype.transformCompositeTag = function(node) {
   html = this.replaceLabels(html, labels);
 
   if (node.tag) {
-    html = this.wrapTagAround(node, html);
+    html = this.wrapTagAround(node.tag, node.attrs, html);
   }
 
   return html;
@@ -133,7 +142,6 @@ ToHtmlWalker.prototype.replaceLabels = function(html, labels) {
 
 ToHtmlWalker.prototype.formatHtml = function(html) {
   html = charTypography(html);
-
   if (!this.trusted) {
     html = sanitize(html);
   }
@@ -145,10 +153,10 @@ ToHtmlWalker.prototype.formatHtml = function(html) {
 ToHtmlWalker.prototype.wrapTagAround = function(tag, attrs, html) {
   var result = "<" + tag;
 
-  for(var name in attrs) {
+  for (var name in attrs) {
     name = escapeHtmlAttr(name);
-    var value = escapeHtmlAttr(node.attrs[name]);
-    result += name + '="' + value +'"';
+    var value = escapeHtmlAttr(attrs[name]);
+    result += ' ' + name + '="' + value + '"';
   }
 
   result += '>';
