@@ -1,5 +1,8 @@
-const BodyParser = require('../../parser/bodyParser').BodyParser;
-const StructureTransformer = require('../../transformer/structureTransformer').StructureTransformer;
+/*
+// public api test
+const BodyParser = require('../parser/bodyParser').BodyParser;
+const ToStructureWalker = require('./structureTransformer').StructureTransformer;
+const ToHtmlWalker = require('./htmlTransformer').HtmlTransformer;
 const path = require('path');
 const should = require('should');
 const util = require('util');
@@ -9,7 +12,7 @@ function show(result) {
 }
 
 function toStructure(result) {
-  return new StructureTransformer(result).toStructure();
+  return new ToStructureWalker(result).toStructure();
 }
 
 describe("BodyParser", function() {
@@ -29,7 +32,7 @@ describe("BodyParser", function() {
     it("*italic* text", function *() {
       var parser = new BodyParser(this.test.title, options);
       var result = yield parser.parse();
-      var structure = new StructureTransformer(result).toStructure();
+      var structure = new ToStructureWalker(result).toStructure();
       structure.should.be.eql([
           {
             type:     'CompositeTag',
@@ -49,7 +52,7 @@ describe("BodyParser", function() {
     it("[img src='html6.jpg'] text", function *() {
       var parser = new BodyParser(this.test.title, options);
       var result = yield parser.parse();
-      var structure = new StructureTransformer(result).toStructure();
+      var structure = new ToStructureWalker(result).toStructure();
       structure.should.be.eql([
         {
           type:  'TagNode',
@@ -166,4 +169,4 @@ describe("BodyParser", function() {
 
   });
 
-});
+});*/

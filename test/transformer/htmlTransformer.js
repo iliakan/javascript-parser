@@ -1,16 +1,16 @@
-const ToHtmlWalker = require('../../treeWalker/toHtmlWalker').ToHtmlWalker;
+const HtmlTransformer = require('../../transformer/htmlTransformer').HtmlTransformer;
 const TagNode = require('../../node/tagNode').TagNode;
 const HeaderTag = require('../../node/headerTag').HeaderTag;
 const CompositeTag = require('../../node/compositeTag').CompositeTag;
 const TextNode = require('../../node/textNode').TextNode;
 
-describe("ToHtmlWalker", function() {
+describe("HtmlTransformer", function() {
 
   describe("toHtml", function() {
 
     it("can transform text", function() {
       var input = new TextNode("text");
-      var walker = new ToHtmlWalker(input, { trusted: true });
+      var walker = new HtmlTransformer(input, { trusted: true });
       var result = walker.toHtml();
       result.should.be.eql("text");
     });
@@ -21,25 +21,23 @@ describe("ToHtmlWalker", function() {
         new TextNode("Item")
       ], {'class': 'link', title: '"in quotes"'});
 
-      var walker = new ToHtmlWalker(input, { trusted: true });
+      var walker = new HtmlTransformer(input, { trusted: true });
       var result = walker.toHtml();
       result.should.be.eql('<a class="link" title="&quot;in quotes&quot;">Item</a>')
     });
 
     it("can transform header", function() {
-      var input = new HeaderTag(1, "Header *italic*", [
+      var input = new HeaderTag(1, [
         new TextNode('Header '),
         new CompositeTag('em', [
           new TextNode('italic')
         ])
       ]);
 
-      var walker = new ToHtmlWalker(input, { trusted: true });
+      var walker = new HtmlTransformer(input, { trusted: true });
       var result = walker.toHtml();
-      console.log(result);
-
+      result.should.be.eql('<h1><a name="header-italic" href="#header-italic">Header <em>italic</em></a></h1>');
     });
-
 
     it("can transform more nested", function() {
       var input = new CompositeTag('div', [], {'class': 'container'});
@@ -53,7 +51,7 @@ describe("ToHtmlWalker", function() {
         ])
       ]);
 
-      var walker = new ToHtmlWalker(input, { trusted: true });
+      var walker = new HtmlTransformer(input, { trusted: true });
       var result = walker.toHtml();
       result.should.be.eql('<div class="container"><ul><li>Item 1</li><li>Item <em class="nice">italic</em></li></ul></div>');
     });

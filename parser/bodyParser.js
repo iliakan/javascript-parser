@@ -119,10 +119,7 @@ BodyParser.prototype.parseNodes = function() {
 };
 
 BodyParser.prototype.parseHeader = function* (token) {
-  var level = token.level;
-  var title = token.title;
-
-  return new HeaderTag(level, title, yield new BodyParser(title, this.subOpts()).parse());
+  return new HeaderTag(token.level, yield new BodyParser(token.title, this.subOpts()).parse());
 };
 
 

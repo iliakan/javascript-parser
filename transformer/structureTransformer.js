@@ -2,12 +2,12 @@ const TagNode = require('../node/tagNode').TagNode;
 const TextNode = require('../node/textNode').TextNode;
 const CompositeTag = require('../node/compositeTag').CompositeTag;
 
-function ToStructureWalker(roots) {
+function StructureTransformer(roots) {
   if (roots.length === undefined) roots = [roots];
   this.roots = roots; // node or array
 }
 
-ToStructureWalker.prototype.toStructure = function() {
+StructureTransformer.prototype.toStructure = function() {
 
   return this.roots.map(function(root) {
     return this.toStructureNode(root);
@@ -15,7 +15,7 @@ ToStructureWalker.prototype.toStructure = function() {
 
 };
 
-ToStructureWalker.prototype.toStructureNode = function(node) {
+StructureTransformer.prototype.toStructureNode = function(node) {
   var type = node.getType();
   var structure = {type: type};
 
@@ -40,4 +40,4 @@ ToStructureWalker.prototype.toStructureNode = function(node) {
   return structure;
 };
 
-exports.ToStructureWalker = ToStructureWalker;
+exports.StructureTransformer = StructureTransformer;
