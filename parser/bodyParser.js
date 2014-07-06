@@ -45,7 +45,7 @@ BodyParser.prototype.validateOptions = function(options) {
 //  например [online] ... [/online] возвращает своё содержимое с учетом вложенных тегов
 //  или пустой тег, если экспорт-режим
 //  Это должен быть valid html
-BodyParser.prototype.parse = function() {
+BodyParser.prototype.parse = function*() {
   var buffer = '';
   var children = [];
 
@@ -54,13 +54,13 @@ BodyParser.prototype.parse = function() {
     var nodes = this.parseNodes();
 
     if (nodes) {
+      nodes = yield nodes;
       if (nodes.length === undefined) {
         nodes = [nodes];
       }
 
       for (var i = 0; i < nodes.length; i++) {
         var node = nodes[i];
-        var type = node.getType();
 
         if (buffer) {
           children.push(new TextNode(buffer));
@@ -90,15 +90,12 @@ BodyParser.prototype.parse = function() {
  */
 BodyParser.prototype.parseNodes = function() {
 
- // return null;
-
   var token = null;
+
   // perf optimization for most chars
   switch(this.lexer.getChar()) {
   case '[':
-    token = this.lexer.consumeLink()
-      || this.lexer.consumeBbtagSelfClose()
-      || this.lexer.consumeBbtagNeedClose();
+    token = this.lexer.consumeLink() || this.lexer.consumeBbtagSelfClose() || this.lexer.consumeBbtagNeedClose();
     break;
   case '`':
     token = this.lexer.consumeCode();
@@ -116,7 +113,6 @@ BodyParser.prototype.parseNodes = function() {
 
   if (token === null) return null;
 
-  console.log(token.type);
   switch (token.type) {
   case 'link':
     return this.parseLink(token);
@@ -144,9 +140,7 @@ BodyParser.prototype.parseHeader = function* (token) {
   return new HeaderTag(token.level, yield new BodyParser(token.title, this.subOpts()).parse());
 };
 
-/*
 
-*/
 /**
  * The parser is synchronous, we don't query DB here.
  *
@@ -154,8 +148,7 @@ BodyParser.prototype.parseHeader = function* (token) {
  * links in the form [](#ref) require reference from DB
  *  [ref] *may* exist later in this document, so we need parse it full before resolving
  * FIXME: move all link processing into second pass (single place)
- *//*
-
+ */
 BodyParser.prototype.parseLink = function*(token) {
   var href = token.href;
   var title = token.title;
@@ -207,4 +200,3 @@ BodyParser.prototype.parseComment = function* (token) {
 BodyParser.prototype.parseVerbatim = function*(token) {
   return new VerbatimText(token.body);
 };
-*/
