@@ -67,6 +67,26 @@ CompositeTag.prototype.adoptChild = function(child) {
   child.parent = this;
 };
 
+CompositeTag.prototype.replaceChild = function(newChild, oldChild) {
+  var oldChildIdx = this._children.indexOf(oldChild);
+  if (oldChildIdx == -1) {
+    throw new Error("Cannot replace: oldChild does not exist");
+  }
+
+  this.adoptChild(newChild);
+  this._children.splice(oldChildIdx, 1, newChild);
+  oldChild.parent = null;
+};
+
+CompositeTag.prototype.insertBefore = function(child, ref) {
+  var refIdx = this._children.indexOf(ref);
+  if (refIdx == -1) {
+    throw new Error("Cannot insert: ref is not among children");
+  }
+  this.adoptChild(child);
+  this._children.splice(refIdx, 0, child);
+};
+
 CompositeTag.prototype.removeChild = function(child) {
   var idx = this._children.indexOf(child);
   if (idx == -1) return;
