@@ -18,10 +18,7 @@ describe("BodyParser", function() {
     resourceFsRoot:  path.join(__dirname, 'document'),
     resourceWebRoot: '/document',
     trusted:         true,
-    metadata:        {
-      head: [],
-      libs: []
-    }
+    metadata:        { }
   };
 
   describe('parse', function() {
@@ -110,6 +107,20 @@ describe("BodyParser", function() {
                 { type: 'TextNode', text: 'italic' }
               ] }
           ] }
+      ]);
+    });
+
+    it("# Header\n\n Content", function* () {
+      var parser = new BodyParser(this.test.title, options);
+      var result = yield parser.parse();
+
+      toStructure(result).should.be.eql([
+        { type:     'HeaderTag',
+          tag:      null,
+          children: [
+            { type: 'TextNode', text: 'Header' }
+          ] },
+        { type: 'TextNode', text: '\n\n Content' }
       ]);
     });
 

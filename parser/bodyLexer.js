@@ -315,6 +315,10 @@ Lexer.prototype.consumeChar = function() {
   return this.text[this.position++];
 };
 
+Lexer.prototype.getChar = function() {
+  return this.text[this.position];
+};
+
 Lexer.prototype.consumeBbtagSelfClose = function() {
   if (this.text[this.position] != '[') return null;
 

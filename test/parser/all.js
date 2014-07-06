@@ -30,9 +30,7 @@ describe("BodyParser", function() {
 
   function* format(html) {
     // reset metadata
-    options.metadata.head = {};
-    options.metadata.libs = {};
-    options.metadata.refs = {};
+    options.metadata = {};
     var parser = new BodyParser(html, options);
     var result = yield parser.parse();
     var htmlTransformer = new HtmlTransformer(result, options);
@@ -61,13 +59,11 @@ describe("BodyParser", function() {
       html.replace(/\n/g, '').should.be.eql('<script>...</script>');
     });
 
-
     it("applies char typography in text", function* () {
       var html = '**help me...**';
       var formatted = yield format(html);
       formatted.should.be.eql('<strong>help me…</strong>');
     });
-
 
     describe("[pre]", function() {
       it("No typograhy in [pre] block", function* () {

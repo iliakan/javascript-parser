@@ -109,6 +109,8 @@ BbtagParser.prototype.parseDemo = function *() {
 
 BbtagParser.prototype.parseHead = function *() {
   if (this.trusted) {
+    if (!this.options.metadata.head) this.options.metadata.head = [];
+
     this.options.metadata.head.push(this.body);
   }
   return new TextNode('');
@@ -123,6 +125,7 @@ BbtagParser.prototype.parseLibs = function *() {
     for (var i = 0; i < lines.length; i++) {
       var lib = lines[i].trim();
       if (!lib) continue;
+      if (!this.options.metadata.libs) this.options.metadata.libs = {};
       this.options.metadata.libs[lib] = true;
     }
   }
@@ -215,6 +218,7 @@ BbtagParser.prototype.parseRef = function *() {
 
   var id = this.params.id;
 
+  if (!this.options.metadata.refs) this.options.metadata.refs = {};
   if (this.options.metadata.refs[id]) {
     return new ErrorTag('div', 'ref: ссылка ' + id + ' уже есть');
   }

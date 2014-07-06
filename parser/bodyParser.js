@@ -45,37 +45,31 @@ BodyParser.prototype.validateOptions = function(options) {
 //  например [online] ... [/online] возвращает своё содержимое с учетом вложенных тегов
 //  или пустой тег, если экспорт-режим
 //  Это должен быть valid html
-BodyParser.prototype.parse = function *() {
+BodyParser.prototype.parse = function() {
   var buffer = '';
   var children = [];
 
   while (!this.lexer.isEof()) {
 
-    var nodes = yield this.parseNodes();
+    var nodes = this.parseNodes();
 
-    if (nodes && nodes.length === undefined) {
-      nodes = [nodes];
-    }
-
-    if (!nodes) {
-      nodes = [];
-    }
-
-    for (var i = 0; i < nodes.length; i++) {
-      var node = nodes[i];
-      var type = node.getType();
-      if (type == 'cut' && this.options.stopOnCut) {
-        break;
+    if (nodes) {
+      if (nodes.length === undefined) {
+        nodes = [nodes];
       }
 
-      if (buffer) {
-        children.push(new TextNode(buffer));
-        buffer = "";
-      }
-      children.push(node);
-    }
+      for (var i = 0; i < nodes.length; i++) {
+        var node = nodes[i];
+        var type = node.getType();
 
-    if (!nodes.length) {
+        if (buffer) {
+          children.push(new TextNode(buffer));
+          buffer = "";
+        }
+        children.push(node);
+      }
+
+    } else {
       buffer += this.lexer.consumeChar();
     }
 
@@ -91,22 +85,38 @@ BodyParser.prototype.parse = function *() {
 
 /**
  * Every parse* method must return a generator (if sync => be generator by itself)
- * @returns {*}
+ *
+ * @returns tokens array or (most often, for perf reasons) null if no token found
  */
 BodyParser.prototype.parseNodes = function() {
 
-  var token = this.lexer.consumeLink() ||
-    this.lexer.consumeBbtagSelfClose() ||
-    this.lexer.consumeBbtagNeedClose() ||
-    this.lexer.consumeCode() ||
-    this.lexer.consumeBold() ||
-    this.lexer.consumeItalic() ||
-    this.lexer.consumeComment() ||
-    this.lexer.consumeHeader() ||
-    this.lexer.consumeVerbatimTag();
+ // return null;
 
-  if (token === null) return [];
+  var token = null;
+  // perf optimization for most chars
+  switch(this.lexer.getChar()) {
+  case '[':
+    token = this.lexer.consumeLink()
+      || this.lexer.consumeBbtagSelfClose()
+      || this.lexer.consumeBbtagNeedClose();
+    break;
+  case '`':
+    token = this.lexer.consumeCode();
+    break;
+  case '*':
+    token = this.lexer.consumeBold() || this.lexer.consumeItalic();
+    break;
+  case '<':
+    token = this.lexer.consumeComment() || this.lexer.consumeVerbatimTag();
+    break;
+  case '#':
+    token = this.lexer.consumeHeader();
+    break;
+  }
 
+  if (token === null) return null;
+
+  console.log(token.type);
   switch (token.type) {
   case 'link':
     return this.parseLink(token);
