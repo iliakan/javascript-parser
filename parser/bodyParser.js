@@ -144,7 +144,9 @@ BodyParser.prototype.parseHeader = function* (token) {
   return new HeaderTag(token.level, yield new BodyParser(token.title, this.subOpts()).parse());
 };
 
+/*
 
+*/
 /**
  * The parser is synchronous, we don't query DB here.
  *
@@ -152,7 +154,8 @@ BodyParser.prototype.parseHeader = function* (token) {
  * links in the form [](#ref) require reference from DB
  *  [ref] *may* exist later in this document, so we need parse it full before resolving
  * FIXME: move all link processing into second pass (single place)
- */
+ *//*
+
 BodyParser.prototype.parseLink = function*(token) {
   var href = token.href;
   var title = token.title;
@@ -204,3 +207,4 @@ BodyParser.prototype.parseComment = function* (token) {
 BodyParser.prototype.parseVerbatim = function*(token) {
   return new VerbatimText(token.body);
 };
+*/
