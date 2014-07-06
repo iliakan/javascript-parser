@@ -15,6 +15,7 @@ const CommentNode = require('../node/commentNode').CommentNode;
 const UnresolvedLinkNode = require('../node/unresolvedLinkNode').UnresolvedLinkNode;
 const HeaderTag = require('../node/headerTag').HeaderTag;
 const VerbatimText = require('../node/verbatimText').VerbatimText;
+const HREF_PROTOCOL_REG = require('../consts').HREF_PROTOCOL_REG;
 
 /**
  * Parser creates node objects from general text.
@@ -146,9 +147,27 @@ BodyParser.prototype.parseLink = function*(token) {
   var href = token.href;
   var title = token.title;
 
+  var protocol = HREF_PROTOCOL_REG.match(href);
+  if (protocol) {
+    protocol = protocol[1].trim();
+  }
+
+  // external link goes "as is"
+  if (protocol) {
+    if (!this.trusted && !~["http", "ftp", "https", "mailto"].indexOf(protocol.toLowerCase())) {
+      return new ErrorTag("span", "Protocol " + protocol + " is not allowed");
+    }
+
+    return new TagNode("a", title, {href: href});
+  }
+
+  // absolute link - goes "as is"
+  if (href[0] == '/') {
+    return new TagNode("a", title, {href: href});
+  }
+
   // relative link, need second pass to resolve it
   return new UnresolvedLinkNode(href, title);
-
 };
 
 BodyParser.prototype.parseBbtag = function(token) {

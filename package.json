@@ -1,6 +1,7 @@
 {
   "name": "javascript-parser",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "description": "Parser for the extended markdown format used at javascript.ru",
   "dependencies": {
     "clarify": "*",
     "co": "*",
@@ -20,7 +21,8 @@
     "mocha": "*",
     "should": "*",
     "sinon": "*",
-    "javascript-precommit": "*"
+    "javascript-precommit": "*",
+    "javascript-gulp-task-lint": "*"
   },
   "precommit": "gulp pre-commit",
   "engines": {
