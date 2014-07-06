@@ -15,12 +15,12 @@ const SAFE_TAGS_SET = arrToObj(SAFE_TAGS);
 const NO_WRAP_TAGS = "h1 h2 h3 h4 h5 h6 hgroup ol ul li dl dd dt p div blockquote pre br hr canvas table td tr th tbody tfoot caption figure audio canvas embed iframe form fieldset script style object".split(" ");
 const NO_WRAP_TAGS_SET = arrToObj(NO_WRAP_TAGS);
 
-const NO_WRAP_TAGS_PAT = new RegExp('(?:' + NO_WRAP_TAGS.join('|') + ')', 'gim');
+const NO_WRAP_TAGS_REG = new RegExp('(?:' + NO_WRAP_TAGS.join('|') + ')', 'gim');
 
 // not the same as in Ruby (!)
-const ATTRS_PAT = /('[^']*'|"[^"]*"|[^'">])*/ig;
+const ATTRS_REG = /('[^']*'|"[^"]*"|[^'">])*/ig;
 
-const VERBATIM_TAGS = "script style object embed video audio".split(' ');
+const VERBATIM_TAGS = "script style object embed video audio pre".split(' ');
 const VERBATIM_TAGS_SET = arrToObj(VERBATIM_TAGS);
 
 const BBTAGS_SOURCE = "html js txt css http coffee java php ruby scss sql".split(' ');
@@ -33,7 +33,7 @@ const BBTAGS_NEED_CLOSE = "online offline head edit libs summary quote unsafe_te
   .concat(BBTAGS_SOURCE, BBTAGS_BLOCK);
 const BBTAGS_NEED_CLOSE_SET = arrToObj(BBTAGS_NEED_CLOSE);
 
-const BBTAGS_SELF_CLOSE = "cut key demo ref img iframe task example".split(' ');
+const BBTAGS_SELF_CLOSE = "cut importance key demo ref img iframe task example".split(' ');
 const BBTAGS_SELF_CLOSE_SET = arrToObj(BBTAGS_SELF_CLOSE);
 
 const BBTAGS_ALL = BBTAGS_NEED_CLOSE.concat(BBTAGS_SELF_CLOSE);
@@ -44,7 +44,7 @@ const BBTAG_BLOCK_DEFAULT_TITLE = {
   warn: 'Важно:'
 };
 
-const HREF_PROTOCOL_REGEXP = /^([^\/#]*?)(?:\:|&#0*58|&#x0*3a)/gim;
+const HREF_PROTOCOL_REG = /^([^\/#]*?)(?:\:|&#0*58|&#x0*3a)/gim;
 
 
 module.exports = {
@@ -52,8 +52,8 @@ module.exports = {
   SAFE_TAGS_SET: SAFE_TAGS_SET,
   NO_WRAP_TAGS: NO_WRAP_TAGS,
   NO_WRAP_TAGS_SET: NO_WRAP_TAGS_SET,
-  NO_WRAP_TAGS_PAT: NO_WRAP_TAGS_PAT,
-  ATTRS_PAT: ATTRS_PAT,
+  NO_WRAP_TAGS_REG: NO_WRAP_TAGS_REG,
+  ATTRS_REG: ATTRS_REG,
   VERBATIM_TAGS: VERBATIM_TAGS,
   VERBATIM_TAGS_SET: VERBATIM_TAGS_SET,
   BBTAGS_SOURCE: BBTAGS_SOURCE,
@@ -66,6 +66,6 @@ module.exports = {
   BBTAGS_NEED_CLOSE_SET: BBTAGS_NEED_CLOSE_SET,
   BBTAGS_SELF_CLOSE_SET: BBTAGS_SELF_CLOSE_SET,
   BBTAG_BLOCK_DEFAULT_TITLE: BBTAG_BLOCK_DEFAULT_TITLE,
-  HREF_PROTOCOL_PAT: HREF_PROTOCOL_REGEXP
+  HREF_PROTOCOL_REG: HREF_PROTOCOL_REG
 };
 

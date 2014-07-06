@@ -42,7 +42,7 @@ util.inherits(BbtagParser, Parser);
 BbtagParser.prototype.validateOptions = function(options) {
 
   if (!("trusted" in options)) {
-    throw new Error("Must have trusted option")
+    throw new Error("Must have trusted option");
   }
 
   // if we need [img src="my.png"], we read my.png from *this folder* to retreive it's size
@@ -125,6 +125,13 @@ BbtagParser.prototype.parseLibs = function *() {
       if (!lib) continue;
       this.options.metadata.libs[lib] = true;
     }
+  }
+  return new TextNode('');
+};
+
+BbtagParser.prototype.parseImportance = function *() {
+  if (this.trusted) {
+    this.options.metadata.importance = parseInt(this.paramsString);
   }
   return new TextNode('');
 };
@@ -225,10 +232,10 @@ BbtagParser.prototype.parseBlock = function *() {
 
   var children;
   if (this.params.header) {
-    var headerText =  yield new BodyParser(this.params.header, this.subOpts()).parse();
+    var headerContent =  yield new BodyParser(this.params.header, this.subOpts()).parse();
     children = [
       new TagNode('span', '', {'class': 'important__type'}),
-      new CompositeTag('h3', headerText, {'class': 'important__title'})
+      new CompositeTag('h3', headerContent, {'class': 'important__title'})
     ];
   } else {
     children = [
@@ -333,7 +340,7 @@ BbtagParser.prototype.parseIframe = function *() {
   var resolver = new SrcResolver(this.params.src, this.options);
 
   try {
-    attrs['src'] = yield resolver.getExamplePath();
+    attrs.src = yield resolver.getExamplePath();
     if (this.params.play) {
       attrs['data-play'] = yield resolver.readPlunkId();
     }
@@ -374,6 +381,7 @@ BbtagParser.prototype.parseHide = function *() {
   if (this.params.text) {
     var text = yield new BodyParser(this.params.text, this.subOpts()).parse();
 
+    /*jshint scripturl:true*/
     children.unshift(new CompositeTag('a', text,  {"class": "hide-link", "href": "javascript:;"}));
   }
 
@@ -446,7 +454,7 @@ BbtagParser.prototype.parseOnline = function *() {
 };
 
 BbtagParser.prototype.paramRequiredError = function(errorTag, paramName) {
-  return new ErrorTag.new(errorTag, this.name + ": attribute required " + paramName)
+  return new ErrorTag.new(errorTag, this.name + ": attribute required " + paramName);
 };
 
 BbtagParser.prototype.parseImg = function *() {
@@ -454,7 +462,7 @@ BbtagParser.prototype.parseImg = function *() {
     return this.paramRequiredError('div', 'src');
   }
 
-  var attrs = this.trusted ? _.clone(this.params) : {"src" : this.params.src }
+  var attrs = this.trusted ? _.clone(this.params) : {"src" : this.params.src };
 
   var resolver = new SrcResolver(this.params.src, this.options);
 

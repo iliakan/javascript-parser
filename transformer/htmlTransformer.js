@@ -1,8 +1,10 @@
 const TagNode = require('../node/tagNode').TagNode;
 const TextNode = require('../node/textNode').TextNode;
+const VerbatimText = require('../node/verbatimText').VerbatimText;
 const NO_WRAP_TAGS_SET = require('../consts').NO_WRAP_TAGS_SET;
 const CompositeTag = require('../node/compositeTag').CompositeTag;
-const charTypography = require('../typography/charTypography');
+const charTypography = require('../typography/charTypography').charTypography;
+const contextTypography = require('../typography/contextTypography').contextTypography;
 const escapeHtmlAttr = require('../util/htmlUtil').escapeHtmlAttr;
 const escapeHtmlText = require('../util/htmlUtil').escapeHtmlText;
 const sanitize = require('../util/htmlUtil').sanitize;
@@ -16,7 +18,9 @@ function HtmlTransformer(roots, options) {
 
 
 HtmlTransformer.prototype.toHtml = function() {
-  return this.transform(new CompositeTag(null, this.roots));
+  var wrapper = new CompositeTag(null, this.roots);
+  return this.transform(wrapper);
+  //return contextTypography(html); no typog here
 };
 
 HtmlTransformer.prototype.transform = function(node) {
@@ -53,7 +57,7 @@ HtmlTransformer.prototype.makeHeaderAnchor = function(headerContent) {
     .replace(/[ \t\n!"#$%&'()*+,\-.\/:;<=>?@[\\\]^_`{|}~]/g, '-') // пунктуация, пробелы -> дефис
     .replace(/[^a-zа-яё0-9-]/gi, '') // убрать любые символы, кроме [слов цифр дефиса])
     .replace(/-+/gi, '-') // слить дефисы вместе
-    .replace(/^-|-$/g, '') // убрать дефисы с концов
+    .replace(/^-|-$/g, ''); // убрать дефисы с концов
 
   anchor = transliterate(anchor).toLowerCase();
 
@@ -74,11 +78,11 @@ HtmlTransformer.prototype.transformEscapedTag = function(node) {
   return html;
 };
 
-HtmlTransformer.transformUnresolvedLinkNode = function(node) {
+HtmlTransformer.prototype.transformUnresolvedLinkNode = function(node) {
   throw new Error("Cannot transform: this node must have been preprocessed and transformed to TagNode");
 };
 
-HtmlTransformer.transformVerbatimText = function(node) {
+HtmlTransformer.prototype.transformVerbatimText = function(node) {
   var html = node.text;
   if (!this.trusted) {
     html = sanitize(html);
@@ -93,7 +97,7 @@ HtmlTransformer.prototype.transformCompositeTag = function(node) {
   for (var i = 0; i < children.length; i++) {
     var child = children[i];
     var childHtml = this.transform(child);
-    if (child.getType() != 'text') {
+    if (child.getType() != 'TextNode') {
       var label = this.makeLabel();
       labels[label] = childHtml;
       if (NO_WRAP_TAGS_SET[child.tag]) {
@@ -142,6 +146,7 @@ HtmlTransformer.prototype.replaceLabels = function(html, labels) {
 
 HtmlTransformer.prototype.formatHtml = function(html) {
   html = charTypography(html);
+
   if (!this.trusted) {
     html = sanitize(html);
   }

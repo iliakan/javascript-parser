@@ -37,6 +37,7 @@ SrcResolver.prototype.getExamplePath = function() {
 };
 
 SrcResolver.prototype.readPlunkId = function *() {
+  var stat;
 
   try {
     stat = yield fsStat(this.getFsPath());
@@ -44,17 +45,17 @@ SrcResolver.prototype.readPlunkId = function *() {
       throw new Error("Not a folder");
     }
   } catch (e) {
-    throw new Error("Bad src: could not read directory " + this.src)
+    throw new Error("Bad src: could not read directory " + this.src);
   }
 
   var plnkrPath = path.join(this.getFsPath(), '.plnkr');
 
   var info;
   try {
-    info = yield fsRead(fsPath);
+    info = yield fsRead(this.getFsPath());
     info = JSON.parse(info);
   } catch (e) {
-    throw new Error("Bad src: could not read plunk info " + this.src)
+    throw new Error("Bad src: could not read plunk info " + this.src);
   }
 
   return info.plunk;
@@ -71,7 +72,7 @@ SrcResolver.prototype.readFile = function *() {
 SrcResolver.prototype.resolveImage = function *() {
 
   if (!/\.(png|jpg|gif|jpeg)$/i.test(this.src)) {
-    throw new Error("Bad src: should end with png/jpg/gif/jpeg")
+    throw new Error("Bad src: should end with png/jpg/gif/jpeg");
   }
 
   var fsPath = this.getFsPath();
@@ -81,7 +82,7 @@ SrcResolver.prototype.resolveImage = function *() {
   try {
     stat = yield fsStat(fsPath);
   } catch (e) {
-    throw new Error("Bad src: could not read " + this.src)
+    throw new Error("Bad src: could not read " + this.src);
   }
 
   if (!stat.isFile()) {

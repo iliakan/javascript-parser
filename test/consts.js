@@ -22,8 +22,10 @@ const should = require('should');
 
     var match;
     var matches = this.currentTest.matches = [];
+
+    /* jshint -W084 */
     while(match = pattern.exec(text)) {
-      if (match[0] == "") break; // sometimes match can be empty str cause of .*
+      if (match[0] === "") break; // sometimes match can be empty str cause of .*
       matches.push(match[0]);
     }
 
@@ -166,7 +168,7 @@ const should = require('should');
   });
 
 
-  describe('ATTRS_PAT', function() {
+  describe('ATTRS_REG', function() {
     it("src='ya.ru' selected href=\"http://test.com\"", function() {
       this.test.firstMatch[0].should.eql(this.test.title);
     });

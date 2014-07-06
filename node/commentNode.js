@@ -10,3 +10,4 @@ CommentNode.prototype.getType = function() {
   return "CommentNode";
 };
 
+exports.CommentNode = CommentNode;

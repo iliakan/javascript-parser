@@ -33,7 +33,7 @@ StructureTransformer.prototype.toStructureNode = function(node) {
   if (node instanceof CompositeTag) {
     delete structure.text;
     structure.children = node.getChildren().map(function(child) {
-      return this.toStructureNode(child)
+      return this.toStructureNode(child);
     }, this);
   }
 

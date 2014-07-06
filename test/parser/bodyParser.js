@@ -4,12 +4,12 @@ const path = require('path');
 const should = require('should');
 const util = require('util');
 
-function show(result) {
-  console.log(util.inspect(toStructure(result), {depth: 20}));
-}
-
 function toStructure(result) {
   return new StructureTransformer(result).toStructure();
+}
+
+function show(result) {
+  console.log(util.inspect(toStructure(result), {depth: 20}));
 }
 
 describe("BodyParser", function() {
@@ -77,7 +77,7 @@ describe("BodyParser", function() {
           { type: 'TextNode', text: ' ' },
           { type: 'TextNode', text: ' out' }
         ]
-      )
+      );
     });
 
     it("[js]my code;[css][/css]my code;[/js]", function *() {
@@ -99,7 +99,18 @@ describe("BodyParser", function() {
       var parser = new BodyParser(this.test.title, options);
       var result = yield parser.parse();
 
-      show(result);
+      toStructure(result).should.be.eql([
+        { type:     'HeaderTag',
+          tag:      null,
+          children: [
+            { type: 'TextNode', text: 'Header ' },
+            { type:     'CompositeTag',
+              tag:      'em',
+              children: [
+                { type: 'TextNode', text: 'italic' }
+              ] }
+          ] }
+      ]);
     });
 
     it("[compare]+Plus 1\n-Minus *italic*\n[/compare]", function *() {
@@ -161,8 +172,8 @@ describe("BodyParser", function() {
                   ] }
               ] }
           ] }
-      ])
-    })
+      ]);
+    });
 
   });
 

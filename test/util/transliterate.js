@@ -6,6 +6,6 @@ describe("transliterate", function() {
     transliterate('краковяк').should.be.eql('krakovyak');
     transliterate('ОГОГО').should.be.eql('OGOGO');
     transliterate('Вьюга').should.be.eql('Vyuga');
-  })
+  });
 
 });

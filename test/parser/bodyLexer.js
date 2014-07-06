@@ -178,30 +178,61 @@ describe("BodyLexer", function() {
 
   });
 
+  describe("consumeBold", function() {
+
+    it('**bold**', function() {
+      this.test.lexer.consumeBold().should.be.eql({type: 'bold', body: 'bold'});
+      this.test.lexer.isEof().should.be.true;
+    });
+
+
+    it("'**' (**)", function() {
+      while(!this.test.lexer.isEof()) {
+        should.not.exist(this.test.lexer.consumeBold());
+        this.test.lexer.consumeChar();
+      }
+    });
+
+    it("**a * b**", function() {
+      this.test.lexer.consumeBold().should.be.eql({type:'bold', body: 'a * b'});
+      this.test.lexer.isEof().should.be.true;
+    });
+
+  });
+
   describe("consumeBoldItalic", function() {
 
     it('*italic*', function() {
-      this.test.lexer.consumeBoldItalic().should.be.eql({type: 'italic', body: 'italic'});
+      this.test.lexer.consumeItalic().should.be.eql({type: 'italic', body: 'italic'});
       this.test.lexer.isEof().should.be.true;
     });
 
     it('**bold**', function() {
-      this.test.lexer.consumeBoldItalic().should.be.eql({type: 'bold', body: 'bold'});
+      this.test.lexer.consumeBold().should.be.eql({type: 'bold', body: 'bold'});
       this.test.lexer.isEof().should.be.true;
     });
 
+
+    it('*test*my', function() {
+      should.not.exist(this.test.lexer.consumeItalic());
+    });
+
+
     it("'*' (*) '**' (**)", function() {
-      should.not.exist(this.test.lexer.consumeBoldItalic());
-      this.test.lexer.position.should.eql(0);
+      while(!this.test.lexer.isEof()) {
+        should.not.exist(this.test.lexer.consumeBold());
+        should.not.exist(this.test.lexer.consumeItalic());
+        this.test.lexer.consumeChar();
+      }
     });
 
     it("**a * b**", function() {
-      this.test.lexer.consumeBoldItalic().should.be.eql({type:'bold', body: 'a * b'});
+      this.test.lexer.consumeBold().should.be.eql({type:'bold', body: 'a * b'});
       this.test.lexer.isEof().should.be.true;
     });
 
     it("*a * b*", function() {
-      this.test.lexer.consumeBoldItalic().should.be.eql({type: 'italic', body: 'a * b'});
+      this.test.lexer.consumeItalic().should.be.eql({type: 'italic', body: 'a * b'});
       this.test.lexer.isEof().should.be.true;
     });
 

@@ -83,7 +83,7 @@ describe("source", function() {
       this.test.result.inline.should.be.eql('9:26-37,10:13-26');
       this.test.result.block.should.be.eql('13-13,23-24');
       this.test.result.text.should.be.eql(this.test.out);
-    })
+    });
 
 
   });

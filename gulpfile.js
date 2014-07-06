@@ -12,7 +12,7 @@ gulp.task('lint', function() {
 
   var options = JSON.parse(fs.readFileSync(path.join(__dirname, '.jshintrc')));
 
-  return gulp.src('**/*.js')
+  return gulp.src(['**/*.js', '!node_modules/**'])
     .pipe(jshint(options))
     .pipe(jshint.reporter('default'))
     .pipe(map(function (file, cb) {

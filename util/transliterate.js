@@ -12,10 +12,12 @@ const LOWER_SINGLE = {
   "ц": "ts", "ч": "ch", "ш": "sh", "щ": "sch", "ъ": "",
   "ы": "y", "ь": "", "э": "e", "ю": "yu", "я": "ya"
 };
+
 const LOWER_MULTI = {
   "ье": "ie",
   "ьё": "ie"
 };
+
 const UPPER_SINGLE = {
   "Ґ": "G", "Ё": "YO", "Є": "E", "Ї": "YI", "І": "I",
   "А": "A", "Б": "B", "В": "V", "Г": "G",

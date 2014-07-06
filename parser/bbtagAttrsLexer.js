@@ -30,7 +30,7 @@ Lexer.prototype.consumeName = function() {
   return {
     type: 'name',
     body: this.text.slice(startPosition, position)
-  }
+  };
 
 };
 
@@ -43,7 +43,7 @@ Lexer.prototype.consumeEq = function() {
     this.position++;
     return {
       type: 'eq'
-    }
+    };
   }
   return null;
 };

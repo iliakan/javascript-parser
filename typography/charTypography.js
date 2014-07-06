@@ -7,15 +7,17 @@
 const PUNCT_REG = /[!"#$%&'()*+,\-.\/:;<=>?@[\\\]^_`{|}~]/;
 
 const SMILES = require('./smiles');
-const SMILES_REG = (function() {
-  return new RegExp('(\\s)(' + Object.keys(SMILES).map(escapeReg).join('|') + ')(?=\\s|$|' + PUNCT_REG.source + ')', 'gim');
-}());
-
 
 
 function escapeReg(s) {
   return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
+
+
+const SMILES_REG = (function() {
+  return new RegExp('(\\s)(' + Object.keys(SMILES).map(escapeReg).join('|') + ')(?=\\s|$|' + PUNCT_REG.source + ')', 'gim');
+}());
+
 
 function processCopymarks(text) {
   text = text.replace(/\([сСcC]\)(?=[^\.\,\;\:])/ig, '©');
@@ -34,7 +36,7 @@ function processHellip(text) {
 }
 
 function processPlusmin(text) {
-  return text.replace(/[^+]\+\-/gi, '±');
+  return text.replace(/([^+])\+\-/gi, '$1±');
 }
 
 function processDash(text) {
@@ -74,4 +76,4 @@ function charTypography(html) {
   return html;
 }
 
-module.exports = charTypography;
+exports.charTypography = charTypography;

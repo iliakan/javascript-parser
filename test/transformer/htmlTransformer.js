@@ -23,7 +23,7 @@ describe("HtmlTransformer", function() {
 
       var walker = new HtmlTransformer(input, { trusted: true });
       var result = walker.toHtml();
-      result.should.be.eql('<a class="link" title="&quot;in quotes&quot;">Item</a>')
+      result.should.be.eql('<a class="link" title="&quot;in quotes&quot;">Item</a>');
     });
 
     it("can transform header", function() {
@@ -57,5 +57,5 @@ describe("HtmlTransformer", function() {
     });
 
 
-  })
+  });
 });

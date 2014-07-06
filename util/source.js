@@ -11,16 +11,46 @@ exports.stripIndents = function(text) {
   text = stripFirstLines(text).replace(/\s+$/, '');
   var indentLen = text.match(stripPattern)
     .reduce(function (min, line) {
-      return Math.min(min, line.length)
+      return Math.min(min, line.length);
     }, Infinity);
 
-  var indent = new RegExp('^\\s{' + indentLen + '}', 'mg')
-  return indentLen > 0
-    ? text.replace(indent, '')
-    : text
+  var indent = new RegExp('^\\s{' + indentLen + '}', 'mg');
+  return indentLen > 0 ? text.replace(indent, '') : text;
 };
 
+function deTab(text) {
+  // attacklab: Detab's completely rewritten for speed.
+  // In perl we could fix it by anchoring the regexp with \G.
+  // In javascript we're less fortunate.
+
+  // expand first n-1 tabs
+  text = text.replace(/\t(?=\t)/g, "  "); // attacklab: g_tab_width
+
+  // replace the nth with two sentinels
+  text = text.replace(/\t/g, "~A~B");
+
+  // use the sentinel to anchor our regex so it doesn't explode
+  text = text.replace(/~B(.+?)~A/g,
+    function(wholeMatch, m1) {
+      var leadingText = m1;
+      var numSpaces = 2 - leadingText.length % 2;  // attacklab: g_tab_width
+
+      // there *must* be a better way to do this:
+      for (var i = 0; i < numSpaces; i++) leadingText += " ";
+
+      return leadingText;
+    }
+  );
+
+  // clean up sentinels
+  text = text.replace(/~A/g, "  ");  // attacklab: g_tab_width
+  text = text.replace(/~B/g, "");
+
+  return text;
+}
+
 exports.extractHighlight = function(text) {
+  text = deTab(text);
   text += "\n";
   var r = {block: [], inline: []};
   var last = null;
@@ -35,7 +65,7 @@ exports.extractHighlight = function(text) {
       }
     } else if (/^\s*\*\/!\*\s*$/.test(line)) { // only */!*
       if (last !== null) {
-        r.block.push(last + '-' + (newText.length-1))
+        r.block.push(last + '-' + (newText.length-1));
         last = null;
       } else {
         newText.push(line);

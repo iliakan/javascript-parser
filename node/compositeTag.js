@@ -2,7 +2,6 @@ const Node = require('./node').Node;
 const TextNode = require('./textNode').TextNode;
 const TagNode = require('./tagNode').TagNode;
 const util = require('util');
-const charTypography = require('../typography/charTypography');
 const NO_WRAP_TAGS_SET = require('../consts').NO_WRAP_TAGS_SET;
 
 var htmlUtil = require('../util/htmlUtil');
@@ -84,36 +83,6 @@ CompositeTag.prototype.prependChildren = function(children) {
 CompositeTag.prototype.prependChild = function(child) {
   this.adoptChild(child);
   this._children.unshift(child);
-};
-
-
-CompositeTag.prototype.toHtml = function() {
-  var labels = {};
-  var html = '';
-
-  for (var i = 0; i < this._children.length; i++) {
-    var node = this._children[i];
-    var nodeHtml = node.toHtml();
-    if (node.selfAppliedTypography()) {
-      var label = htmlUtil.makeLabel();
-      labels[label] = nodeHtml;
-      if (NO_WRAP_TAGS_SET[this.tag]) {
-        nodeHtml = "<div>LABEL:" + label + "</div>";
-      } else {
-        nodeHtml = "<span>LABEL:" + label + "</span>";
-      }
-    }
-    html += nodeHtml;
-  }
-
-  html = this.formatHtml(html);
-  html = htmlUtil.replaceLabels(html, labels);
-
-  if (this.tag) {
-    html = this.wrapTagAround(html);
-  }
-
-  return html;
 };
 
 exports.CompositeTag = CompositeTag;

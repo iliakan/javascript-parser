@@ -59,9 +59,10 @@ Lexer.prototype.consumeVerbatimTag = function() {
   //    ^
   var position = startPosition + 1;
 
+  var tagName, tagNamePosition;
   for (var i = 0; i < consts.VERBATIM_TAGS.length; i++) {
-    var tagName = consts.VERBATIM_TAGS[i];
-    var tagNamePosition = this.peekWord(tagName, position, true);
+    tagName = consts.VERBATIM_TAGS[i];
+    tagNamePosition = this.peekWord(tagName, position, true);
     if (tagNamePosition !== null) break;
   }
   if (tagNamePosition === null) return null;
@@ -73,7 +74,7 @@ Lexer.prototype.consumeVerbatimTag = function() {
   var closingString = '</' + tagName + '>';
 
   var closingStringSegment = this.findString(closingString, tagNamePosition + 1, true);
-  if (closingStringSegment == null) return null;
+  if (closingStringSegment === null) return null;
 
   this.position = closingStringSegment.end + 1;
 
@@ -83,8 +84,10 @@ Lexer.prototype.consumeVerbatimTag = function() {
   };
 };
 
-Lexer.prototype.consumeBoldItalic = function() {
+
+Lexer.prototype.consumeBold = function() {
   if (this.text[this.position] != '*') return null;
+  if (this.text[this.position+1] != '*') return null;
 
   var prevChar = this.text[this.position - 1];
   switch (prevChar) {
@@ -93,20 +96,15 @@ Lexer.prototype.consumeBoldItalic = function() {
   case '\n':
   case '\t':
   case '>':
-  case '"':
-  case "'":
+//  case '"': fixme: why need this?
+//  case "'": fixme: why need this?
     break; // allow match after these chars
   default:
     return null; // no match after other chars
   }
 
-  var mode = '*'; // italic?
-  var position = this.position + 1;
-  if (this.text[position] == '*') { // bold?
-    mode = '**';
-    position++;
-  }
-  // position is after * or after **
+  var position = this.position + 2;
+  // position is after **
 
   // testing:
   // **\S
@@ -116,78 +114,129 @@ Lexer.prototype.consumeBoldItalic = function() {
   }
 
   // look for nearest star except after a space
-  // **blabla*
+  // **blabla**
   //         ^
   var starPosition = position;
   while (true) {
     starPosition = this.findCharNoNewline('*', starPosition);
     if (starPosition === null) return null;
 
-    // ignore stars * after space
     if (this.isWhiteSpaceCode(this.text.charCodeAt(starPosition - 1))) {
       starPosition++;
-    } else {
-      break;
+      continue;
     }
+
+    if (this.text[starPosition+1] != '*' || starPosition == position + 1) {
+      starPosition++;
+      continue;
+    }
+
+    // ignore stars followed by a wordly char
+    if (this.isWordlyCode(this.text.charCodeAt(starPosition + 2)) ||
+      this.text[starPosition + 2] == '*') {
+      starPosition++;
+      continue;
+    }
+
+    break;
+
   }
 
-  starPosition++;
 
-  // look for one more star:
+  // found the nearest star except after a space followed by another start and then not wordly char
   // **blabla**
-  //          ^
-  if (mode == '**') {
-    if (this.text[starPosition] == '*') {
-      // found:
-      // **blabla**
-      //          ^
-      this.position = starPosition + 1;
-      return {
-        type: 'bold',
-        body: this.text.slice(position, starPosition - 1)
-      };
-    } else {
-      // found:
-      // **blabla*X
-      //          ^
-      this.position = starPosition;
+  //         ^
+  this.position = starPosition + 2;
 
-      return {
-        // step back, found italic
-        type: 'italic',
-        body: this.text.slice(position - 1, starPosition)
-      }
-
-    }
-  } else {
-    // found:
-    // *blabla*
-    //         ^
-    this.position = starPosition;
-    return {
-      type: 'italic',
-      body: this.text.slice(position, starPosition - 1)
-    };
-  }
+  return {
+    type: 'bold',
+    body: this.text.slice(position, starPosition)
+  };
 
 };
 
+
+
+Lexer.prototype.consumeItalic = function() {
+  if (this.text[this.position] != '*') return null;
+
+  var prevChar = this.text[this.position - 1];
+  switch (prevChar) {
+  case undefined: // it was the first position
+  case ' ':
+  case '\n':
+  case '\t':
+  case '>':
+    break; // allow match after these chars
+  default:
+    return null; // no match after other chars
+  }
+
+  var position = this.position + 1;
+  // position is after *
+
+  // testing:
+  // *\S
+  //  ^
+  if (this.isWhiteSpaceCode(this.text.charCodeAt(position))) { // must be **\S
+    return null;
+  }
+
+  // look for nearest star except after a space
+  // *blabla*
+  //        ^
+  var starPosition = position;
+  while (true) {
+    starPosition = this.findCharNoNewline('*', starPosition);
+    if (starPosition === null) return null;
+
+    // ignore after space
+    if (this.isWhiteSpaceCode(this.text.charCodeAt(starPosition - 1))) {
+      starPosition++;
+      continue;
+    }
+
+    // ignore stars followed by a wordly char
+    if (this.isWordlyCode(this.text.charCodeAt(starPosition + 1)) ||
+      this.text[starPosition + 1] == '*' ) {
+      starPosition++;
+      continue;
+    }
+
+    if (starPosition == position) {
+      starPosition++;
+      continue;
+    }
+
+    break;
+  }
+
+  this.position = starPosition + 1;
+
+  return {
+    type: 'italic',
+    body: this.text.slice(position, starPosition)
+  };
+
+};
+
+
 Lexer.prototype.consumeHeader = function() {
-  if (this.position !== 0 && this.text[this.position-1] !== '\n' || this.text[this.position] !== '#') {
+  if (this.position !== 0 && this.text[this.position - 1] !== '\n' || this.text[this.position] !== '#') {
     return null;
   }
 
   var startPosition = this.position;
 
   var position = startPosition;
-  while(this.text[position] === '#') {
+  while (this.text[position] === '#') {
     position++;
   }
 
   var level = position - startPosition;
 
   var titlePosition = position;
-  while(position < this.text.length) {
+  while (position < this.text.length) {
     if (this.text[position] == '\n') break;
     position++;
   }
@@ -195,7 +244,7 @@ Lexer.prototype.consumeHeader = function() {
   this.position = position;
 
   return {
-    type: 'header',
+    type:  'header',
     level: level,
     title: this.text.slice(titlePosition, position).trim()
   };
@@ -206,10 +255,10 @@ Lexer.prototype.consumeLink = function() {
   if (this.text[this.position] !== '[') return null;
   var startPosition = this.position;
   var position = startPosition + 1;
-  var titleSegment, hrefSegment;
+  var titleSegment, hrefSegment, quotedPos;
 
   // match ["..."] or ['...'] or [....]
-  var quotedPos = this.peekQuotedString(position);
+  quotedPos = this.peekQuotedString(position);
   if (quotedPos !== null) {
     titleSegment = {start: startPosition + 1, end: quotedPos + 1};
     position = quotedPos;
@@ -226,7 +275,7 @@ Lexer.prototype.consumeLink = function() {
   if (this.text[position] != '(') return null;
   position++;
   var startPosition2 = position;
-  var quotedPos = this.peekQuotedString(position);
+  quotedPos = this.peekQuotedString(position);
   if (quotedPos !== null) {
     hrefSegment = {start: startPosition2, end: quotedPos + 1};
     position = quotedPos;
@@ -258,7 +307,7 @@ Lexer.prototype.consumeLink = function() {
   return {
     href:  this.stripQuotes(this.text.slice(hrefSegment.start, hrefSegment.end)),
     title: this.stripQuotes(this.text.slice(titleSegment.start, titleSegment.end)),
-    type: 'link'
+    type:  'link'
   };
 };
 
@@ -272,12 +321,12 @@ Lexer.prototype.consumeBbtagSelfClose = function() {
   var startPosition = this.position;
   var position = startPosition + 1;
 
-  var bbtagName, bbtagAttrsSegment;
+  var bbtagName, bbtagNamePosition, bbtagAttrsSegment;
 
   // match [tagName
   for (var i = 0; i < consts.BBTAGS_SELF_CLOSE.length; i++) {
     bbtagName = consts.BBTAGS_SELF_CLOSE[i];
-    var bbtagNamePosition = this.peekWord(bbtagName, position);
+    bbtagNamePosition = this.peekWord(bbtagName, position);
     if (bbtagNamePosition !== null) break;
   }
   if (bbtagNamePosition === null) return null;
@@ -292,10 +341,10 @@ Lexer.prototype.consumeBbtagSelfClose = function() {
   this.position = bbtagAttrsPosition + 1;
 
   return {
-    type: 'bbtag',
+    type:  'bbtag',
     name:  bbtagName,
     attrs: this.text.slice(bbtagAttrsSegment.start, bbtagAttrsSegment.end),
-    body: ''
+    body:  ''
   };
 
 };
@@ -306,12 +355,12 @@ Lexer.prototype.consumeBbtagNeedClose = function() {
   var startPosition = this.position;
   var position = startPosition + 1;
 
-  var bbtagName, bbtagAttrsSegment;
+  var bbtagName, bbtagNamePosition, bbtagAttrsSegment;
 
   // match [tagName
   for (var i = 0; i < consts.BBTAGS_NEED_CLOSE.length; i++) {
     bbtagName = consts.BBTAGS_NEED_CLOSE[i];
-    var bbtagNamePosition = this.peekWord(bbtagName, position);
+    bbtagNamePosition = this.peekWord(bbtagName, position);
     if (bbtagNamePosition !== null) break;
   }
   if (bbtagNamePosition === null) return null;
@@ -327,7 +376,7 @@ Lexer.prototype.consumeBbtagNeedClose = function() {
     bbtagAttrsSegment = {start: position, end: bbtagAttrsPosition - 1};
     this.position = bbtagAttrsPosition + 1;
     return {
-      type: 'bbtag',
+      type:  'bbtag',
       name:  bbtagName,
       attrs: this.text.slice(bbtagAttrsSegment.start, bbtagAttrsSegment.end),
       body:  ''
@@ -341,11 +390,11 @@ Lexer.prototype.consumeBbtagNeedClose = function() {
 
   var closingString = '[/' + bbtagName + ']';
   var closingPositionSegment = this.findString(closingString, position);
-  if (closingPositionSegment == null) return null;
+  if (closingPositionSegment === null) return null;
 
   this.position = closingPositionSegment.end + 1;
   return {
-    type: 'bbtag',
+    type:  'bbtag',
     name:  bbtagName,
     attrs: this.text.slice(bbtagAttrsSegment.start, bbtagAttrsSegment.end),
     body:  this.text.slice(position, closingPositionSegment.start)

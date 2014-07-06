@@ -22,7 +22,7 @@ exports.UnresolvedLinkNode = UnresolvedLinkNode;
 
 /*
 часть трансформации
- var protocol = consts.HREF_PROTOCOL_REGEXP.match(href);
+ var protocol = consts.HREF_PROTOCOL_REG.match(href);
  if (protocol) {
  protocol = protocol[1].trim();
  }

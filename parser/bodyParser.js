@@ -11,8 +11,10 @@ const TextNode = require('../node/textNode').TextNode;
 const TagNode = require('../node/tagNode').TagNode;
 const EscapedTag = require('../node/escapedTag').EscapedTag;
 const ErrorTag = require('../node/errorTag').ErrorTag;
+const CommentNode = require('../node/commentNode').CommentNode;
 const UnresolvedLinkNode = require('../node/unresolvedLinkNode').UnresolvedLinkNode;
 const HeaderTag = require('../node/headerTag').HeaderTag;
+const VerbatimText = require('../node/verbatimText').VerbatimText;
 
 /**
  * Parser creates node objects from general text.
@@ -33,7 +35,7 @@ util.inherits(BodyParser, Parser);
 BodyParser.prototype.validateOptions = function(options) {
 
   if (!("trusted" in options)) {
-    throw new Error("Must have trusted option")
+    throw new Error("Must have trusted option");
   }
 
 };
@@ -86,13 +88,18 @@ BodyParser.prototype.parse = function *() {
 };
 
 
+/**
+ * Every parse* method must return a generator (if sync => be generator by itself)
+ * @returns {*}
+ */
 BodyParser.prototype.parseNodes = function() {
 
   var token = this.lexer.consumeLink() ||
     this.lexer.consumeBbtagSelfClose() ||
     this.lexer.consumeBbtagNeedClose() ||
     this.lexer.consumeCode() ||
-    this.lexer.consumeBoldItalic() ||
+    this.lexer.consumeBold() ||
+    this.lexer.consumeItalic() ||
     this.lexer.consumeComment() ||
     this.lexer.consumeHeader() ||
     this.lexer.consumeVerbatimTag();
@@ -108,8 +115,12 @@ BodyParser.prototype.parseNodes = function() {
     return this.parseItalic(token);
   case 'code':
     return this.parseCode(token);
+  case 'comment':
+    return this.parseComment(token);
   case 'bbtag':
     return this.parseBbtag(token);
+  case 'verbatim':
+    return this.parseVerbatim(token);
   case 'header':
     return this.parseHeader(token);
   default:
@@ -131,7 +142,7 @@ BodyParser.prototype.parseHeader = function* (token) {
  *  [ref] *may* exist later in this document, so we need parse it full before resolving
  * FIXME: move all link processing into second pass (single place)
  */
-BodyParser.prototype.parseLink = function *(token) {
+BodyParser.prototype.parseLink = function*(token) {
   var href = token.href;
   var title = token.title;
 
@@ -153,6 +164,14 @@ BodyParser.prototype.parseItalic = function(token) {
   return parser.parseAndWrap("em");
 };
 
-BodyParser.prototype.parseCode = function(token) {
+BodyParser.prototype.parseCode = function* (token) {
   return new EscapedTag("code", token.body);
+};
+
+BodyParser.prototype.parseComment = function* (token) {
+  return new CommentNode(token.body);
+};
+
+BodyParser.prototype.parseVerbatim = function*(token) {
+  return new VerbatimText(token.body);
 };

@@ -15,12 +15,13 @@ exports.escapeHtmlAttr = function(text) {
 };
 
 exports.sanitize = function(html) {
+
   return sanitizeHtml(html, {
     allowedTags: SAFE_TAGS,
     allowedAttributes: {
       img: ['src', 'alt'],
       a:   ['href', 'name', 'target', 'title']
     }
-  })
+  });
 };
 
