@@ -7,6 +7,7 @@ const Parser = require('./parser').Parser;
 const BbtagParser = require('./bbtagParser').BbtagParser;
 const BodyLexer = require('./bodylexer').BodyLexer;
 const util = require('util');
+const htmlUtil = require('lib/htmlUtil');
 const TextNode = require('../node/textNode').TextNode;
 const TagNode = require('../node/tagNode').TagNode;
 const EscapedTag = require('../node/escapedTag').EscapedTag;
@@ -137,7 +138,8 @@ BodyParser.prototype.parseNodes = function() {
 };
 
 BodyParser.prototype.parseHeader = function* (token) {
-  return new HeaderTag(token.level, yield new BodyParser(token.title, this.subOpts()).parse());
+  const title = yield new BodyParser(token.title, this.subOpts()).parse();
+  return new HeaderTag(token.level, title);
 };
 
 
@@ -153,7 +155,7 @@ BodyParser.prototype.parseLink = function*(token) {
   var href = token.href;
   var title = token.title;
 
-  var protocol = HREF_PROTOCOL_REG.match(href);
+  var protocol = href.match(HREF_PROTOCOL_REG);
   if (protocol) {
     protocol = protocol[1].trim();
   }

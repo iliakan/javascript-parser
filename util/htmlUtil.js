@@ -14,6 +14,10 @@ exports.escapeHtmlAttr = function(text) {
   return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 };
 
+exports.stripTags = function(text) {
+  return text.replace(/<\/?[a-z].*?>/gim, '');
+};
+
 exports.sanitize = function(html) {
 
   return sanitizeHtml(html, {

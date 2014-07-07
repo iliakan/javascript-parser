@@ -44,7 +44,7 @@ const BBTAG_BLOCK_DEFAULT_TITLE = {
   warn: 'Важно:'
 };
 
-const HREF_PROTOCOL_REG = /^([^\/#]*?)(?:\:|&#0*58|&#x0*3a)/gim;
+const HREF_PROTOCOL_REG = /^([^\/#]*?)(?:\:|&#0*58|&#x0*3a)/;
 
 
 module.exports = {
