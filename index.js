@@ -8,6 +8,6 @@ for(var key in node) {
 //console.log(Object.keys(exports));
 
 exports.BodyParser = require('./parser/bodyParser').BodyParser;
-
+exports.Walker = require('./transformer/walker').Walker;
 exports.HtmlTransformer = require('./transformer/htmlTransformer').HtmlTransformer;
 

@@ -6,11 +6,12 @@ const util = require('util');
  * I store title unparsed here, for transliteration
  * (fixme: not sure that title is really needed. I could strip-tags from html'ized children instead)
  */
-function HeaderTag(level, children, attrs) {
+function HeaderTag(level, anchor, children, attrs) {
   if (typeof level != "number") {
     throw new Error("Level must be  a number");
   }
   this.level = level;
+  this.anchor = anchor;
 
   // in toHtmlWalker we make <h2><a> ... children ...</a></h2>
   // see                         ^^^

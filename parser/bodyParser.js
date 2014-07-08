@@ -3,11 +3,11 @@
 // that's why I assign it here, before require('./bbtagParser')
 exports.BodyParser = BodyParser;
 
+const StringSet = require('../util/stringSet').StringSet;
 const Parser = require('./parser').Parser;
 const BbtagParser = require('./bbtagParser').BbtagParser;
 const BodyLexer = require('./bodylexer').BodyLexer;
 const util = require('util');
-const htmlUtil = require('lib/htmlUtil');
 const TextNode = require('../node/textNode').TextNode;
 const TagNode = require('../node/tagNode').TagNode;
 const EscapedTag = require('../node/escapedTag').EscapedTag;
@@ -28,7 +28,22 @@ const HREF_PROTOCOL_REG = require('../consts').HREF_PROTOCOL_REG;
  * @constructor
  */
 function BodyParser(text, options) {
+  if (!options.metadata) {
+    options.metadata = {};
+  }
+  if (!options.metadata.refs) {
+    options.metadata.refs = new StringSet();
+  }
+  if (!options.metadata.libs) {
+    options.metadata.libs = new StringSet();
+  }
+  if (!options.metadata.head) {
+    options.metadata.head = [];
+  }
+
   Parser.call(this, options);
+
+
   this.lexer = new BodyLexer(text);
 }
 
@@ -139,7 +154,18 @@ BodyParser.prototype.parseNodes = function() {
 
 BodyParser.prototype.parseHeader = function* (token) {
   const title = yield new BodyParser(token.title, this.subOpts()).parse();
-  return new HeaderTag(token.level, title);
+
+  if (token.anchor) {
+    var id = token.anchor;
+    if (!this.options.metadata.refs) this.options.metadata.refs = new StringSet();
+    if (this.options.metadata.refs.has(id)) {
+      return new ErrorTag('div', '[#' + id + '] already exists');
+    }
+
+    this.options.metadata.refs.add(id);
+  }
+
+  return new HeaderTag(token.level, token.anchor, title);
 };
 
 

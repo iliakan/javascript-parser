@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const thunkify = require('thunkify');
 const fsStat = thunkify(fs.stat);
-const fsRead = thunkify(fs.read);
+const fsReadFile = thunkify(fs.readFile);
+const gm = require('gm');
 const imageSize = thunkify(require('image-size'));
 function SrcResolver(src, options) {
   this.src = src;
@@ -52,7 +53,7 @@ SrcResolver.prototype.readPlunkId = function *() {
 
   var info;
   try {
-    info = yield fsRead(this.getFsPath());
+    info = yield fsReadFile(plnkrPath, 'utf-8');
     info = JSON.parse(info);
   } catch (e) {
     throw new Error("Bad src: could not read plunk info " + this.src);
@@ -63,16 +64,19 @@ SrcResolver.prototype.readPlunkId = function *() {
 
 SrcResolver.prototype.readFile = function *() {
   try {
-    return yield fsRead(this.getFsPath());
+    return yield fsReadFile(this.getFsPath(), 'utf-8');
   } catch(e) {
-    throw new Error("Bad src: could not read file " + this.src);
+    console.error(e.stack);
+    throw new Error("Bad src: could not read file " + this.src +
+      (process.env.NODE_ENV == 'development' ? " [from " + this.getFsPath()+"]" : "")
+    );
   }
 };
 
 SrcResolver.prototype.resolveImage = function *() {
 
-  if (!/\.(png|jpg|gif|jpeg)$/i.test(this.src)) {
-    throw new Error("Bad src: should end with png/jpg/gif/jpeg");
+  if (!/\.(png|jpg|gif|jpeg|svg)$/i.test(this.src)) {
+    throw new Error("Bad src: should end with png/jpg/gif/jpeg/svg");
   }
 
   var fsPath = this.getFsPath();
@@ -89,7 +93,18 @@ SrcResolver.prototype.resolveImage = function *() {
     throw new Error("Bad src: not a file " + this.src);
   }
 
-  var size = yield imageSize(fsPath);
+  var size;
+  if (/\.svg$/i.test(this.src)) {
+    size = yield function(callback) {
+      // GraphicsMagick fails with gm identify svg
+      gm(fsPath).options({imageMagick: true}).identify('{"width":%w,"height":%h}', callback);
+    };
+
+    size = JSON.parse(size);
+  } else {
+    size = yield imageSize(fsPath);
+  }
+
 
   return {
     fsPath: fsPath,
@@ -97,5 +112,6 @@ SrcResolver.prototype.resolveImage = function *() {
     size: size
   };
 };
+
 
 exports.SrcResolver = SrcResolver;

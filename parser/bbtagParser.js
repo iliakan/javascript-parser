@@ -1,5 +1,6 @@
 exports.BbtagParser = BbtagParser;
 
+const StringSet = require('../util/StringSet');
 const Parser = require('./parser').Parser;
 const BodyParser = require('./bodyParser').BodyParser;
 const BbtagAttrsParser = require('./bbtagAttrsParser').BbtagAttrsParser;
@@ -125,8 +126,8 @@ BbtagParser.prototype.parseLibs = function *() {
     for (var i = 0; i < lines.length; i++) {
       var lib = lines[i].trim();
       if (!lib) continue;
-      if (!this.options.metadata.libs) this.options.metadata.libs = {};
-      this.options.metadata.libs[lib] = true;
+      if (!this.options.metadata.libs) this.options.metadata.libs = new StringSet();
+      this.options.metadata.libs.add(lib);
     }
   }
   return new TextNode('');
@@ -211,23 +212,27 @@ BbtagParser.prototype.parseKey = function *() {
   return new CompositeTag('kbd', results, {"class": "shortcut"});
 };
 
+/*
 BbtagParser.prototype.parseRef = function *() {
+  throw new Error("[ref is not supported any more");
+
   if (!this.params.id) {
     return this.paramRequiredError('span', 'id');
   }
 
   var id = this.params.id;
 
-  if (!this.options.metadata.refs) this.options.metadata.refs = {};
-  if (this.options.metadata.refs[id]) {
-    return new ErrorTag('div', 'ref: ссылка ' + id + ' уже есть');
+  if (!this.options.metadata.refs) this.options.metadata.refs = new StringSet();
+  if (this.options.metadata.refs.has(id)) {
+    return new ErrorTag('div', '[#'+id+']: duplicate in the same article');
   }
 
-  this.options.metadata.refs[id] = true;
+  this.options.metadata.refs.add(id);
 
   return new TagNode('a', '', {"name": id});
 
 };
+*/
 
 BbtagParser.prototype.parseBlock = function *() {
   var content = yield new BodyParser(this.body, this.subOpts()).parse();
@@ -344,7 +349,7 @@ BbtagParser.prototype.parseIframe = function *() {
   var resolver = new SrcResolver(this.params.src, this.options);
 
   try {
-    attrs.src = yield resolver.getExamplePath();
+    attrs.src = resolver.getExamplePath();
     if (this.params.play) {
       attrs['data-play'] = yield resolver.readPlunkId();
     }
@@ -438,12 +443,13 @@ BbtagParser.prototype.parseCompare = function *() {
 };
 
 
+// TODO
 BbtagParser.prototype.parseTask = function *() {
   if (!this.params.id) {
     return this.paramRequiredError('div', 'id');
   }
 
-  return new TagNode('div', "TASK " + this.params.id);
+  return new TagNode('div', "TODO TASK " + this.params.id);
 };
 
 
@@ -458,7 +464,7 @@ BbtagParser.prototype.parseOnline = function *() {
 };
 
 BbtagParser.prototype.paramRequiredError = function(errorTag, paramName) {
-  return new ErrorTag.new(errorTag, this.name + ": attribute required " + paramName);
+  return new ErrorTag(errorTag, this.name + ": attribute required " + paramName);
 };
 
 BbtagParser.prototype.parseImg = function *() {
@@ -477,8 +483,13 @@ BbtagParser.prototype.parseImg = function *() {
     return new ErrorTag('div', e.message);
   }
 
-  attrs.width = imageInfo.size.width;
-  attrs.height = imageInfo.size.height;
+  if (this.params.width && this.params.height) {
+    attrs.width = parseInt(this.params.width);
+    attrs.height = parseInt(this.params.height);
+  } else {
+    attrs.width = imageInfo.size.width;
+    attrs.height = imageInfo.size.height;
+  }
   attrs.src = imageInfo.webPath;
 
   return new TagNode('img', '', attrs);

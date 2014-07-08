@@ -27,7 +27,7 @@ describe("HtmlTransformer", function() {
     });
 
     it("can transform header", function() {
-      var input = new HeaderTag(1, [
+      var input = new HeaderTag(1, "", [
         new TextNode('Header '),
         new CompositeTag('em', [
           new TextNode('italic')
@@ -37,6 +37,19 @@ describe("HtmlTransformer", function() {
       var walker = new HtmlTransformer(input, { trusted: true });
       var result = walker.toHtml();
       result.should.be.eql('<h1><a name="header-italic" href="#header-italic">Header <em>italic</em></a></h1>');
+    });
+
+    it("can transform header with anchor", function() {
+      var input = new HeaderTag(1, "anchor", [
+        new TextNode('Header '),
+        new CompositeTag('em', [
+          new TextNode('italic')
+        ])
+      ]);
+
+      var walker = new HtmlTransformer(input, { trusted: true });
+      var result = walker.toHtml();
+      result.should.be.eql('<h1><a name="anchor" href="#anchor">Header <em>italic</em></a></h1>');
     });
 
     it("can transform more nested", function() {

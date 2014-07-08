@@ -40,7 +40,7 @@ HtmlTransformer.prototype.transformCutNode = function(node) {
 
 HtmlTransformer.prototype.transformHeaderTag = function(node) {
   var headerContent = this.transformCompositeTag(node);
-  var anchor = this.makeHeaderAnchor(headerContent);
+  var anchor = node.anchor || this.makeHeaderAnchor(headerContent);
 
   return '<h' + node.level + '><a name="' + anchor + '" href="#' + anchor + '">' +
     headerContent +
@@ -53,7 +53,7 @@ HtmlTransformer.prototype.transformNode = function(node) {
 
 HtmlTransformer.prototype.makeHeaderAnchor = function(headerContent) {
   var anchor = headerContent.trim()
-    .replace(/<\/?[a-z].*?>/gim, '')  // strip tags, leave IE<7
+    .replace(/<\/?[a-z].*?>/gim, '')  // strip tags, leave /<\d/ like: "IE<123"
     .replace(/[ \t\n!"#$%&'()*+,\-.\/:;<=>?@[\\\]^_`{|}~]/g, '-') // пунктуация, пробелы -> дефис
     .replace(/[^a-zа-яё0-9-]/gi, '') // убрать любые символы, кроме [слов цифр дефиса])
     .replace(/-+/gi, '-') // слить дефисы вместе

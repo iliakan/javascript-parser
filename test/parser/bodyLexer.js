@@ -172,7 +172,12 @@ describe("BodyLexer", function() {
 
   describe('consumeHeader', function() {
     it('## My header', function() {
-      this.test.lexer.consumeHeader().should.be.eql({type: 'header', level: 2, title: 'My header'});
+      this.test.lexer.consumeHeader().should.be.eql({type: 'header', anchor: '', level: 2, title: 'My header'});
+      this.test.lexer.isEof().should.be.true;
+    });
+
+    it('## My header [#anchor]', function() {
+      this.test.lexer.consumeHeader().should.be.eql({type: 'header', anchor: 'anchor', level: 2, title: 'My header'});
       this.test.lexer.isEof().should.be.true;
     });
 

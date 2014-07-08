@@ -1,10 +1,11 @@
 {
   "name": "javascript-parser",
-  "version": "0.0.5",
+  "version": "0.0.9",
   "description": "Parser for the extended markdown format used at javascript.ru",
   "dependencies": {
     "clarify": "*",
     "co": "*",
+    "gm": "*",
     "image-size": "*",
     "lodash": "*",
     "map-stream": "*",
