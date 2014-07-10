@@ -8,8 +8,17 @@ const util = require('util');
  */
 function HeaderTag(level, anchor, children, attrs) {
   if (typeof level != "number") {
-    throw new Error("Level must be  a number");
+    throw new Error("Level must be a number");
   }
+
+  if (typeof anchor != "string") {
+    throw new Error("Anchor must be a string");
+  }
+
+  if (!anchor) {
+    throw new Error("Anchor must not be empty!");
+  }
+
   this.level = level;
   this.anchor = anchor;
 

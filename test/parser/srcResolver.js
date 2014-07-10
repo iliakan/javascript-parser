@@ -32,7 +32,7 @@ describe("SrcResolver", function() {
   describe("resolveImage", function() {
 
     it("returns image size", function *() {
-      var image = yield srcResolver.resolveImage();
+      var image = yield srcResolver.resolveImage(true);
       image.size.should.be.eql({ width: 256, height: 256 });
     });
 
@@ -40,7 +40,7 @@ describe("SrcResolver", function() {
       var resolver = new SrcResolver("no-such-file.jpg", options);
       var caught = false;
       try {
-        yield resolver.resolveImage();
+        yield resolver.resolveImage(true);
       } catch(e) {
         caught = true;
       }

@@ -1,15 +1,12 @@
 const BodyParser = require('../../parser/bodyParser').BodyParser;
-const StructureTransformer = require('../../transformer/structureTransformer').StructureTransformer;
 const path = require('path');
 const should = require('should');
 const util = require('util');
 
-function toStructure(result) {
-  return new StructureTransformer(result).toStructure();
-}
-
-function show(result) {
-  console.log(util.inspect(toStructure(result), {depth: 20}));
+function toStructure(nodes) {
+  return nodes.map(function(node) {
+    return node.toStructure();
+  });
 }
 
 describe("BodyParser", function() {
@@ -26,7 +23,7 @@ describe("BodyParser", function() {
     it("*italic* text", function *() {
       var parser = new BodyParser(this.test.title, options);
       var result = yield parser.parse();
-      var structure = new StructureTransformer(result).toStructure();
+      var structure = toStructure(result);
       structure.should.be.eql([
           {
             type:     'CompositeTag',
@@ -46,11 +43,12 @@ describe("BodyParser", function() {
     it("[img src='html6.jpg'] text", function *() {
       var parser = new BodyParser(this.test.title, options);
       var result = yield parser.parse();
-      var structure = new StructureTransformer(result).toStructure();
+      var structure = toStructure(result);
       structure.should.be.eql([
         {
           type:  'TagNode',
           tag:   'img',
+          text:  '',
           attrs: {
             src: '/document/html6.jpg', width: 256, height: 256
           }

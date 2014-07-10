@@ -12,4 +12,12 @@ Node.prototype.index = function() {
   return this.parent.getChildren().indexOf(this);
 };
 
+Node.prototype.toStructure = function() {
+  return {type: this.getType()};
+};
+
+Node.prototype.toString = function() {
+  return JSON.stringify(this.toStructure());
+};
+
 exports.Node = Node;

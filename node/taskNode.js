@@ -4,15 +4,14 @@ const Node = require('./node').Node;
 /** this was meant to store "metadata", but probably not needed
  * some nodes like [refs] contribute to metadata AND to text, so can't be MetaNodes
  * */
-function MetaNode(metaType, metaInfo) {
+function TaskNode(src) {
   Node.call(this);
-  this.metaType = metaType;
-  this.metaInfo = metaInfo;
+  this.src = src;
 }
-util.inherits(MetaNode, Node);
+util.inherits(TaskNode, Node);
 
-MetaNode.prototype.getType = function() {
-  return "MetaNode";
+TaskNode.prototype.getType = function() {
+  return "TaskNode";
 };
 
-exports.MetaNode = MetaNode;
+exports.TaskNode = TaskNode;

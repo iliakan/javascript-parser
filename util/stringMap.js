@@ -3,7 +3,7 @@
  * I implemented it because ES6 set is not fully in node 0.11.13 (no .values() call)
  * @constructor
  */
-function StringSet() {
+function StringMap() {
   this.store = {};
 }
 
@@ -12,15 +12,19 @@ function StringSet() {
  * by prepending them with "*"
  * @param str
  */
-StringSet.prototype.add = function(str) {
-   this.store["*" + str] = true;
+StringMap.prototype.set = function(str, value) {
+   this.store["*" + str] = value;
 };
 
-StringSet.prototype.has = function(str) {
+StringMap.prototype.get = function(str) {
+   return this.store["*" + str];
+};
+
+StringMap.prototype.has = function(str) {
   return ("*" + str) in this.store;
 };
 
-StringSet.prototype.toArray = function() {
+StringMap.prototype.keys = function() {
   var result = [];
   for (var key in this.store) {
     result.push(key.slice(1));
@@ -28,4 +32,4 @@ StringSet.prototype.toArray = function() {
   return result;
 };
 
-exports.StringSet = StringSet;
+exports.StringMap = StringMap;

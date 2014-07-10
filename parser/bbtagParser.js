@@ -12,9 +12,9 @@ const TextNode = require('../node/textNode').TextNode;
 const TagNode = require('../node/tagNode').TagNode;
 const CutNode = require('../node/cutNode').CutNode;
 const CompositeTag = require('../node/compositeTag').CompositeTag;
+const TaskNode = require('../node/taskNode').TaskNode;
 const EscapedTag = require('../node/escapedTag').EscapedTag;
 const ErrorTag = require('../node/errorTag').ErrorTag;
-const UnresolvedLinkNode = require('../node/unresolvedLinkNode').UnresolvedLinkNode;
 const SrcResolver = require('./srcResolver').SrcResolver;
 const stripIndents = require('../util/source').stripIndents;
 const extractHighlight = require('../util/source').extractHighlight;
@@ -445,11 +445,12 @@ BbtagParser.prototype.parseCompare = function *() {
 
 // TODO
 BbtagParser.prototype.parseTask = function *() {
-  if (!this.params.id) {
-    return this.paramRequiredError('div', 'id');
+  if (!this.params.src) {
+    return this.paramRequiredError('div', 'src');
   }
 
-  return new TagNode('div', "TODO TASK " + this.params.id);
+  // todo: think about it
+  return new TaskNode(this.params.src);
 };
 
 
@@ -476,21 +477,25 @@ BbtagParser.prototype.parseImg = function *() {
 
   var resolver = new SrcResolver(this.params.src, this.options);
 
+  var needSize = true;
+  if (this.params.width && this.params.height) {
+    attrs.width = ''+parseInt(this.params.width);
+    attrs.height = ''+parseInt(this.params.height);
+    needSize = false;
+  }
+
   var imageInfo;
   try {
-    imageInfo = yield resolver.resolveImage();
+    imageInfo = yield resolver.resolveImage(needSize);
   } catch (e) {
     return new ErrorTag('div', e.message);
   }
 
-  if (this.params.width && this.params.height) {
-    attrs.width = parseInt(this.params.width);
-    attrs.height = parseInt(this.params.height);
-  } else {
-    attrs.width = imageInfo.size.width;
-    attrs.height = imageInfo.size.height;
-  }
   attrs.src = imageInfo.webPath;
+  if (needSize) {
+    attrs.width = ''+imageInfo.size.width;
+    attrs.height = ''+imageInfo.size.height;
+  }
 
   return new TagNode('img', '', attrs);
 };

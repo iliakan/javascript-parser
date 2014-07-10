@@ -74,9 +74,10 @@ function contextTypography(html) {
   var labels = [];
   var label = ('' + Math.random()).slice(2);
 
-  html = html.replace(noTypographyReg, function(match) {
+  html = html.replace(noTypographyReg, function(match, p1) {
     labels.push(match);
-    return '<div>' + label + '</div>';
+    return p1 == 'code' ? '<span>' + label + '</span>' :
+      '<div>' + label + '</div>';
   });
 
   html = replaceQuotesWithLaquo(html);
@@ -84,7 +85,7 @@ function contextTypography(html) {
   html = makeParagraphs(html);
 
   var i = 0;
-  html = html.replace(new RegExp('<div>'+label+'</div>', 'gm'), function(match, p1) {
+  html = html.replace(new RegExp('<(div|span)>'+label+'</\\1>', 'gm'), function() {
     return labels[i++];
   });
 

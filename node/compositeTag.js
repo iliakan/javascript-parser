@@ -2,13 +2,18 @@ const Node = require('./node').Node;
 const TextNode = require('./textNode').TextNode;
 const TagNode = require('./tagNode').TagNode;
 const util = require('util');
+const log = require('../util/log')(module);
 const NO_WRAP_TAGS_SET = require('../consts').NO_WRAP_TAGS_SET;
 
 var htmlUtil = require('../util/htmlUtil');
 
+//log.debugOn();
+
 function CompositeTag(tag, children, attrs) {
+  if (tag === undefined) tag = null;
+
   if (tag !== null && typeof tag != 'string') {
-    throw new Error("Tag must be either null or a string");
+    throw new Error("Tag must be either undefined/null or a string");
   }
   if (children.slice === undefined) {
     throw new Error("Children must be array or array-like");
@@ -54,6 +59,11 @@ CompositeTag.prototype.adoptChildren = function(children) {
     this.adoptChild(children[i]);
   }
 };
+
+CompositeTag.prototype.getChild = function(idx) {
+  return this._children[idx];
+};
+
 
 CompositeTag.prototype.adoptChild = function(child) {
   if (! (child instanceof Node)) {
@@ -103,6 +113,15 @@ CompositeTag.prototype.prependChildren = function(children) {
 CompositeTag.prototype.prependChild = function(child) {
   this.adoptChild(child);
   this._children.unshift(child);
+};
+
+CompositeTag.prototype.toStructure = function() {
+  var structure = TagNode.prototype.toStructure.call(this);
+  delete structure.text;
+  structure.children = this._children.map(function(child) {
+    return child.toStructure();
+  }, this);
+  return structure;
 };
 
 exports.CompositeTag = CompositeTag;

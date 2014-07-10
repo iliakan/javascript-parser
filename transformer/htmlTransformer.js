@@ -1,6 +1,5 @@
 const TagNode = require('../node/tagNode').TagNode;
 const TextNode = require('../node/textNode').TextNode;
-const VerbatimText = require('../node/verbatimText').VerbatimText;
 const NO_WRAP_TAGS_SET = require('../consts').NO_WRAP_TAGS_SET;
 const CompositeTag = require('../node/compositeTag').CompositeTag;
 const charTypography = require('../typography/charTypography').charTypography;
@@ -9,18 +8,27 @@ const escapeHtmlAttr = require('../util/htmlUtil').escapeHtmlAttr;
 const escapeHtmlText = require('../util/htmlUtil').escapeHtmlText;
 const sanitize = require('../util/htmlUtil').sanitize;
 const transliterate = require('../util/transliterate');
+const log = require('../util/log')(module);
 
-function HtmlTransformer(roots, options) {
-  if (roots.length === undefined) roots = [roots];
-  this.roots = roots; // node or array
+/**
+ * Asynchronously transform tag tree to html
+ * "Asynchronously", because in the process, it may need to query db for references
+ * @param roots
+ * @constructor
+ */
+function HtmlTransformer(root, options) {
+  this.root = root; // node or array
   this.trusted = options.trusted;
+  this.noContextTypography = options.noContextTypography;
 }
 
 
-HtmlTransformer.prototype.toHtml = function() {
-  var wrapper = new CompositeTag(null, this.roots);
-  return this.transform(wrapper);
-  //return contextTypography(html); no typog here
+HtmlTransformer.prototype.run = function *() {
+  var result = yield this.transform(this.root);
+  if (!this.noContextTypography) {
+    result = contextTypography(result);
+  }
+  return result;
 };
 
 HtmlTransformer.prototype.transform = function(node) {
@@ -34,55 +42,43 @@ HtmlTransformer.prototype.transform = function(node) {
   return method.call(this, node);
 };
 
-HtmlTransformer.prototype.transformCutNode = function(node) {
+HtmlTransformer.prototype.transformCutNode = function* (node) {
   return  "";
 };
 
-HtmlTransformer.prototype.transformHeaderTag = function(node) {
-  var headerContent = this.transformCompositeTag(node);
-  var anchor = node.anchor || this.makeHeaderAnchor(headerContent);
+HtmlTransformer.prototype.transformHeaderTag = function* (node) {
+  var headerContent = yield this.transformCompositeTag(node);
+  var anchor = node.anchor;
 
   return '<h' + node.level + '><a name="' + anchor + '" href="#' + anchor + '">' +
     headerContent +
     '</a></h' + node.level + '>';
 };
 
-HtmlTransformer.prototype.transformNode = function(node) {
+HtmlTransformer.prototype.transformNode = function* (node) {
   throw new Error("Basic node should not be instantiated and used");
 };
 
-HtmlTransformer.prototype.makeHeaderAnchor = function(headerContent) {
-  var anchor = headerContent.trim()
-    .replace(/<\/?[a-z].*?>/gim, '')  // strip tags, leave /<\d/ like: "IE<123"
-    .replace(/[ \t\n!"#$%&'()*+,\-.\/:;<=>?@[\\\]^_`{|}~]/g, '-') // пунктуация, пробелы -> дефис
-    .replace(/[^a-zа-яё0-9-]/gi, '') // убрать любые символы, кроме [слов цифр дефиса])
-    .replace(/-+/gi, '-') // слить дефисы вместе
-    .replace(/^-|-$/g, ''); // убрать дефисы с концов
 
-  anchor = transliterate(anchor).toLowerCase();
-
-  return anchor;
-};
-
-HtmlTransformer.prototype.transformCommentNode = function(node) {
+HtmlTransformer.prototype.transformCommentNode = function* (node) {
   return  "<!--" + node.text + "-->";
 };
 
-HtmlTransformer.prototype.transformErrorTag = function(node) {
-  return this.transformTagNode(node);
+HtmlTransformer.prototype.transformErrorTag = function* (node) {
+  return yield this.transformTagNode(node);
 };
 
-HtmlTransformer.prototype.transformEscapedTag = function(node) {
+HtmlTransformer.prototype.transformEscapedTag = function* (node) {
   var html = escapeHtmlText(node.text);
   html = this.wrapTagAround(node.tag, node.attrs, html);
   return html;
 };
 
-HtmlTransformer.prototype.transformUnresolvedLinkNode = function(node) {
-  throw new Error("Cannot transform: this node must have been preprocessed and transformed to TagNode");
+HtmlTransformer.prototype.transformReferenceNode = function* (node) {
+  throw new Error("Reference nodes must be resolved before transformation");
 };
 
-HtmlTransformer.prototype.transformVerbatimText = function(node) {
+HtmlTransformer.prototype.transformVerbatimText = function* (node) {
   var html = node.text;
   if (!this.trusted) {
     html = sanitize(html);
@@ -90,13 +86,13 @@ HtmlTransformer.prototype.transformVerbatimText = function(node) {
   return html;
 };
 
-HtmlTransformer.prototype.transformCompositeTag = function(node) {
+HtmlTransformer.prototype.transformCompositeTag = function* (node) {
   var labels = {};
   var html = '';
   var children = node.getChildren();
   for (var i = 0; i < children.length; i++) {
     var child = children[i];
-    var childHtml = this.transform(child);
+    var childHtml = yield this.transform(child);
     if (child.getType() != 'TextNode') {
       var label = this.makeLabel();
       labels[label] = childHtml;
@@ -119,13 +115,14 @@ HtmlTransformer.prototype.transformCompositeTag = function(node) {
   return html;
 };
 
-HtmlTransformer.prototype.transformTagNode = function(node) {
+HtmlTransformer.prototype.transformTagNode = function* (node) {
   var html = this.formatHtml(node.text);
+  log.debug(node.tag, html, node.attrs);
   html = this.wrapTagAround(node.tag, node.attrs, html);
   return html;
 };
 
-HtmlTransformer.prototype.transformTextNode = function(node) {
+HtmlTransformer.prototype.transformTextNode = function* (node) {
   return node.text;
 };
 
@@ -158,6 +155,7 @@ HtmlTransformer.prototype.formatHtml = function(html) {
 HtmlTransformer.prototype.wrapTagAround = function(tag, attrs, html) {
   var result = "<" + tag;
 
+//  console.log(tag, attrs, html);
   for (var name in attrs) {
     name = escapeHtmlAttr(name);
     var value = escapeHtmlAttr(attrs[name]);

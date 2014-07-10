@@ -1,5 +1,4 @@
 const BodyParser = require('../../parser/bodyParser').BodyParser;
-const StructureTransformer = require('../../transformer/structureTransformer').StructureTransformer;
 const HtmlTransformer = require('../../transformer/htmlTransformer').HtmlTransformer;
 const contextTypography = require('../../typography/contextTypography').contextTypography;
 const path = require('path');
@@ -7,16 +6,8 @@ const should = require('should');
 const util = require('util');
 
 
-function toStructure(result) {
-  return new StructureTransformer(result).toStructure();
-}
-
-function show(result) {
-  console.log(util.inspect(toStructure(result), {depth: 20}));
-}
-
 function toHtml(result) {
-  return new HtmlTransformer(result).toHtml();
+  return new HtmlTransformer(result).run();
 }
 
 describe("BodyParser", function() {
@@ -25,16 +16,17 @@ describe("BodyParser", function() {
   var options = {
     resourceFsRoot:  path.join(__dirname, 'document'),
     resourceWebRoot: '/document',
-    metadata:        {}
+    metadata:        {},
+    noContextTypography: true
   };
 
   function* format(html) {
     // reset metadata
     options.metadata = {};
     var parser = new BodyParser(html, options);
-    var result = yield parser.parse();
+    var result = yield parser.parseAndWrap();
     var htmlTransformer = new HtmlTransformer(result, options);
-    var htmlResult = htmlTransformer.toHtml();
+    var htmlResult = yield htmlTransformer.run();
     return htmlResult;
   }
 
@@ -110,20 +102,6 @@ describe("BodyParser", function() {
 
     });
 
-    describe("Refs", function() {
-
-      it("creates ref metadata", function*() {
-        var result = yield format('[ref id="test"]');
-        result.should.be.eql('<a name="test"></a>');
-        options.metadata.refs.should.be.eql({test: true});
-      });
-
-      it("errors on duplicate refs", function*() {
-        var result = yield format('[ref id="test"] [ref id="test"]');
-        options.metadata.refs.should.be.eql({test: true});
-        result.should.match(/error/);
-      });
-    });
 
 
     describe("Bold", function() {
@@ -209,7 +187,22 @@ describe("BodyParser", function() {
       });
 
     });
+
+    describe("header", function() {
+
+      it("creates ref metadata", function*() {
+        var result = yield format('# Header [#anchor]');
+        result.should.be.eql('<h1><a name="anchor" href="#anchor">Header</a></h1>');
+        options.metadata.refs.toArray().should.be.eql(["anchor"]);
+      });
+
+      it("errors on duplicate refs", function*() {
+        var result = yield format('# Header [#anchor]\n\n# Header 2 [#anchor]');
+        result.should.match(/error/);
+      });
+    });
   });
+
 
 
   describe("untrusted", function() {

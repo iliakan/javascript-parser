@@ -1,9 +1,8 @@
 {
   "name": "javascript-parser",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Parser for the extended markdown format used at javascript.ru",
   "dependencies": {
-    "clarify": "*",
     "co": "*",
     "gm": "*",
     "image-size": "*",
@@ -11,10 +10,11 @@
     "map-stream": "*",
     "sanitize-html": "*",
     "thunkify": "*",
-    "trace": "*",
     "winston": "*"
   },
   "devDependencies": {
+    "trace": "*",
+    "clarify": "*",
     "co-mocha": "*",
     "gulp-util": "*",
     "gulp": "*",

@@ -6,6 +6,15 @@ const fsReadFile = thunkify(fs.readFile);
 const gm = require('gm');
 const imageSize = thunkify(require('image-size'));
 function SrcResolver(src, options) {
+  if (!options.resourceFsRoot) {
+    throw new Error("resourceFsRoot is required");
+  }
+
+  if (!options.resourceWebRoot) {
+    throw new Error("resourceWebRoot is required");
+  }
+//  console.log(options);
+//throw new Error();
   this.src = src;
   this.options = options;
 }
@@ -73,7 +82,7 @@ SrcResolver.prototype.readFile = function *() {
   }
 };
 
-SrcResolver.prototype.resolveImage = function *() {
+SrcResolver.prototype.resolveImage = function *(withSize) {
 
   if (!/\.(png|jpg|gif|jpeg|svg)$/i.test(this.src)) {
     throw new Error("Bad src: should end with png/jpg/gif/jpeg/svg");
@@ -86,31 +95,36 @@ SrcResolver.prototype.resolveImage = function *() {
   try {
     stat = yield fsStat(fsPath);
   } catch (e) {
-    throw new Error("Bad src: could not read " + this.src);
+    throw new Error("Bad src: could not read " + this.src +
+        (process.env.NODE_ENV == 'development' ? " [from " + this.getFsPath()+"]" : "")
+    );
   }
 
   if (!stat.isFile()) {
     throw new Error("Bad src: not a file " + this.src);
   }
 
-  var size;
-  if (/\.svg$/i.test(this.src)) {
-    size = yield function(callback) {
-      // GraphicsMagick fails with gm identify svg
-      gm(fsPath).options({imageMagick: true}).identify('{"width":%w,"height":%h}', callback);
-    };
+  const data = {
+    fsPath: fsPath,
+    webPath: this.getWebPath()
+  };
 
-    size = JSON.parse(size);
-  } else {
-    size = yield imageSize(fsPath);
+  if (withSize) {
+    var size;
+    if (/\.svg$/i.test(this.src)) {
+      size = yield function(callback) {
+        // GraphicsMagick fails with `gm identify my.svg`
+        gm(fsPath).options({imageMagick: true}).identify('{"width":%w,"height":%h}', callback);
+      };
+
+      size = JSON.parse(size);
+    } else {
+      size = yield imageSize(fsPath);
+    }
+    data.size = size;
   }
 
-
-  return {
-    fsPath: fsPath,
-    webPath: this.getWebPath(),
-    size: size
-  };
+  return data;
 };
 
 

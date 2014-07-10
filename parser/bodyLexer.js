@@ -310,11 +310,16 @@ Lexer.prototype.consumeLink = function() {
     hrefSegment = {start: startPosition2, end: position};
   }
 
+  var href = this.stripQuotes(this.text.slice(hrefSegment.start, hrefSegment.end));
+  var title = this.stripQuotes(this.text.slice(titleSegment.start, titleSegment.end));
+
+  if (!href && !title) return null;
+
   this.position = position + 1;
 
   return {
-    href:  this.stripQuotes(this.text.slice(hrefSegment.start, hrefSegment.end)),
-    title: this.stripQuotes(this.text.slice(titleSegment.start, titleSegment.end)),
+    href:  href,
+    title: title,
     type:  'link'
   };
 };

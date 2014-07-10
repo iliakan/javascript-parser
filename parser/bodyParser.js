@@ -3,23 +3,33 @@
 // that's why I assign it here, before require('./bbtagParser')
 exports.BodyParser = BodyParser;
 
+const _ = require('lodash');
 const StringSet = require('../util/stringSet').StringSet;
+const StringMap = require('../util/stringMap').StringMap;
 const Parser = require('./parser').Parser;
+const SrcResolver = require('./srcResolver').SrcResolver;
 const BbtagParser = require('./bbtagParser').BbtagParser;
 const BodyLexer = require('./bodylexer').BodyLexer;
 const util = require('util');
 const TextNode = require('../node/textNode').TextNode;
 const TagNode = require('../node/tagNode').TagNode;
 const EscapedTag = require('../node/escapedTag').EscapedTag;
+const CompositeTag = require('../node/compositeTag').CompositeTag;
 const ErrorTag = require('../node/errorTag').ErrorTag;
 const CommentNode = require('../node/commentNode').CommentNode;
-const UnresolvedLinkNode = require('../node/unresolvedLinkNode').UnresolvedLinkNode;
+const ReferenceNode = require('../node/referenceNode').ReferenceNode;
 const HeaderTag = require('../node/headerTag').HeaderTag;
 const VerbatimText = require('../node/verbatimText').VerbatimText;
+const HtmlTransformer = require('../transformer/htmlTransformer').HtmlTransformer;
+const TreeWalker = require('../transformer/treeWalker').TreeWalker;
 const HREF_PROTOCOL_REG = require('../consts').HREF_PROTOCOL_REG;
+const makeAnchor = require('../util/htmlUtil').makeAnchor;
+const stripTags = require('../util/htmlUtil').stripTags;
+const log = require('../util/log')(module);
+
 
 /**
- * Parser creates node objects from general text.
+ * BodyParser creates node objects from general text.
  * Node attrs will *not* be checked by sanitizers, they can contain anything like `onclick=`
  * This provides maximal freedom to the parser.
  *
@@ -40,9 +50,15 @@ function BodyParser(text, options) {
   if (!options.metadata.head) {
     options.metadata.head = [];
   }
+  if (!options.metadata.headers) {
+    options.metadata.headers = [];
+  }
+  if (!options.metadata.headersAnchorMap) {
+    options.metadata.headersAnchorMap = new StringMap();
+  }
+  this.taskRenderer = options.taskRenderer; // todo: use me
 
   Parser.call(this, options);
-
 
   this.lexer = new BodyLexer(text);
 }
@@ -153,19 +169,96 @@ BodyParser.prototype.parseNodes = function() {
 };
 
 BodyParser.prototype.parseHeader = function* (token) {
-  const title = yield new BodyParser(token.title, this.subOpts()).parse();
+  const titleNode = yield new BodyParser(token.title, this.subOpts()).parseAndWrap();
+  var level = token.level;
 
-  if (token.anchor) {
-    var id = token.anchor;
-    if (!this.options.metadata.refs) this.options.metadata.refs = new StringSet();
-    if (this.options.metadata.refs.has(id)) {
-      return new ErrorTag('div', '[#' + id + '] already exists');
+  // There should be no ()[#references] inside header text,
+  // because we may need to extract title/navigation from the content
+  // and we'd like to do that without having to use DB for refs
+  // ...anyway, reference inside a header has *no use*
+  const checkWalker = new TreeWalker(titleNode);
+  var foundReference = false;
+  checkWalker.walk(function*(node) {
+    if (node instanceof ReferenceNode) {
+      foundReference = node;
     }
+  });
 
-    this.options.metadata.refs.add(id);
+  if (foundReference) {
+    return new ErrorTag('div', "Reference " + foundReference.title + " is not allowed within a #Header");
   }
 
-  return new HeaderTag(token.level, token.anchor, title);
+
+  // ---- Проверить уровень ----
+  // Уровень ограничен 3, так как
+  // во-первых, 3 должно быть достаточно
+  // во-вторых, при экспорте h3 становится h5
+  if (level > 3) {
+    return new ErrorTag('div', "Header " + token.title + " is nested too deep (max 3)");
+  }
+
+  const headers = this.options.metadata.headers;
+
+  if (headers.length === 0 && level != 1) {
+    return new ErrorTag('div', "Первый заголовок должен иметь уровень 1, а не " + level);
+  }
+
+  if (headers.length > 0) {
+    var prevLevel = headers[headers.length-1][0];
+    if (level > prevLevel + 1) {
+      return new ErrorTag('div', "Неправильная вложенность заголовка " + token.title + ": уровень " + level + " после " + prevLevel);
+    }
+  }
+
+  /*
+  // сдвинуть заголовки для экспорта
+  if (this.options.headerLevelShift) {
+    level += this.options.headerLevelShift;
+  }
+  */
+
+  // проверить, нет ли уже заголовка с тем же названием
+  // при фиксированном anchor к нему нельзя добавить -1 -2 -3
+  // так что это ошибка
+  if (token.anchor) {
+    if (this.options.metadata.refs.has(token.anchor)) {
+      return new ErrorTag('div', '[#' + token.anchor + '] already exists');
+    }
+  }
+
+  // Проверить якорь, при необходимости добавить anchor-1, anchor-2
+  var anchor = token.anchor || makeAnchor(token.title);
+
+  const headersAnchorMap = this.options.metadata.headersAnchorMap;
+
+  if(headersAnchorMap.has(anchor)) {
+    // если якорь взят из заголовка - не имею права его менять (это reference), жёсткая ошибка
+    if (token.anchor) {
+      return new ErrorTag('div', '[#' + token.anchor + '] used in another header');
+    }
+    // иначе просто добавляю -2, -3 ...
+    headersAnchorMap.set(anchor, headersAnchorMap.has(anchor) + 1);
+    anchor = anchor + '-' + headersAnchorMap.get(anchor);
+  } else {
+    headersAnchorMap.set(anchor, 1);
+  }
+
+  // получим HTML заголовка для метаданных
+  const htmlTransformer = new HtmlTransformer(titleNode, this.options);
+  const titleHtml = (yield htmlTransformer.run()).trim();
+
+  // ------- Ошибок точно нет, можно запоминать заголовок и reference ------
+
+  headers.push([level, titleHtml, anchor]);
+
+  // ---- сохранить reference ---
+  if (token.anchor) {
+    this.options.metadata.refs.add(anchor);
+  }
+
+  // в заголовок отдаём не уже полученный HTML, а titleNode,
+  // чтобы внешний анализатор мог поискать в них ошибки
+  return new HeaderTag(level, anchor, titleNode.getChildren());
 };
 
 
@@ -178,13 +271,15 @@ BodyParser.prototype.parseHeader = function* (token) {
  * FIXME: move all link processing into second pass (single place)
  */
 BodyParser.prototype.parseLink = function*(token) {
-  var href = token.href;
-  var title = token.title;
+  var href = token.href || token.title; // [http://ya.ru]() is fine
+  var title = token.title; // [](http://ya.ru) is fine, but [](#test) - see below
 
   var protocol = href.match(HREF_PROTOCOL_REG);
   if (protocol) {
     protocol = protocol[1].trim();
   }
+
+  var titleParsed = yield new BodyParser(title, this.subOpts()).parse();
 
   // external link goes "as is"
   if (protocol) {
@@ -192,16 +287,24 @@ BodyParser.prototype.parseLink = function*(token) {
       return new ErrorTag("span", "Protocol " + protocol + " is not allowed");
     }
 
-    return new TagNode("a", title, {href: href});
+    return new CompositeTag("a", titleParsed, {href: href});
   }
 
-  // absolute link - goes "as is"
   if (href[0] == '/') {
-    return new TagNode("a", title, {href: href});
+    // absolute link with title goes "as is", without title - we'll try to resolve the title
+    if (!title) {
+      return new ReferenceNode(href, titleParsed);
+    }
+    return new CompositeTag("a", titleParsed, {href: href});
   }
 
-  // relative link, need second pass to resolve it
-  return new UnresolvedLinkNode(href, title);
+  if (href[0] == '#') { // Reference, need second pass to resolve it
+    return new ReferenceNode(href, titleParsed);
+  }
+
+  // relative link
+  var resolver = new SrcResolver(href, this.options);
+  return new CompositeTag("a", titleParsed, {href: resolver.getWebPath()});
 };
 
 BodyParser.prototype.parseBbtag = function(token) {
