@@ -19,7 +19,7 @@ alert(1);
 Или:
 <pre>
 ```html
-<!DOCTYPE HTML>
+&lt;!DOCTYPE HTML&gt;
 <title>Viva la HTML5!</title>
 ```
 </pre>
