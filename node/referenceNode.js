@@ -19,5 +19,9 @@ ReferenceNode.prototype.getType = function() {
   return 'ReferenceNode';
 };
 
+ReferenceNode.prototype.isExternal = function() {
+  return true;
+};
+
 exports.ReferenceNode = ReferenceNode;
 

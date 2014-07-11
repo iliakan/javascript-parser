@@ -1,6 +1,12 @@
-Parser for the extended markdown format used at javascript.ru.
+Парсер для адаптированного формата Markdown, который используется на Javascript.ru
 
-Description is coming soon.
+# Вставка кода
+
+Код вставляется как в github:
+
+   ```js
+   alert(1);
+   ```
 
 # Якорь для ссылок #hash
 

@@ -13,7 +13,7 @@ const log = require('../util/log')(module);
 /**
  * Asynchronously transform tag tree to html
  * "Asynchronously", because in the process, it may need to query db for references
- * @param roots
+ * @param root
  * @constructor
  */
 function HtmlTransformer(root, options) {
@@ -23,7 +23,7 @@ function HtmlTransformer(root, options) {
 }
 
 
-HtmlTransformer.prototype.run = function *() {
+HtmlTransformer.prototype.run = function* () {
   var result = yield this.transform(this.root);
   if (!this.noContextTypography) {
     result = contextTypography(result);
@@ -33,6 +33,12 @@ HtmlTransformer.prototype.run = function *() {
 
 HtmlTransformer.prototype.transform = function(node) {
   var type = node.getType();
+
+  if (node.isExternal()) {
+    // return empty text?
+    throw new Error("Node of type " + type + " must be resolved before transformation");
+  }
+
   var method = this['transform' + type[0].toUpperCase() + type.slice(1)];
 
   if (!method) {
@@ -74,9 +80,6 @@ HtmlTransformer.prototype.transformEscapedTag = function* (node) {
   return html;
 };
 
-HtmlTransformer.prototype.transformReferenceNode = function* (node) {
-  throw new Error("Reference nodes must be resolved before transformation");
-};
 
 HtmlTransformer.prototype.transformVerbatimText = function* (node) {
   var html = node.text;

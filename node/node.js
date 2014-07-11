@@ -6,6 +6,10 @@ Node.prototype.getType = function() {
   return "Node";
 };
 
+// requires external processing, cannot be transformed
+Node.prototype.isExternal = function() {
+  return false;
+};
 
 Node.prototype.index = function() {
   if (!this.parent) return -1;

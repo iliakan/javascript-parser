@@ -31,12 +31,12 @@ describe("SrcResolver", function() {
 
   describe("resolveImage", function() {
 
-    it("returns image size", function *() {
+    it("returns image size", function* () {
       var image = yield srcResolver.resolveImage(true);
       image.size.should.be.eql({ width: 256, height: 256 });
     });
 
-    it("throws if no such file", function *() {
+    it("throws if no such file", function* () {
       var resolver = new SrcResolver("no-such-file.jpg", options);
       var caught = false;
       try {

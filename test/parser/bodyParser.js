@@ -20,7 +20,7 @@ describe("BodyParser", function() {
 
   describe('parse', function() {
 
-    it("*italic* text", function *() {
+    it("*italic* text", function* () {
       var parser = new BodyParser(this.test.title, options);
       var result = yield parser.parse();
       var structure = toStructure(result);
@@ -40,7 +40,7 @@ describe("BodyParser", function() {
       );
     });
 
-    it("[img src='html6.jpg'] text", function *() {
+    it("[img src='html6.jpg'] text", function* () {
       var parser = new BodyParser(this.test.title, options);
       var result = yield parser.parse();
       var structure = toStructure(result);
@@ -57,7 +57,7 @@ describe("BodyParser", function() {
       ]);
     });
 
-    it("[online] text *in* [/online] out", function *() {
+    it("[online] text *in* [/online] out", function* () {
       var parser = new BodyParser(this.test.title, options);
       var result = yield parser.parse();
 
@@ -75,7 +75,7 @@ describe("BodyParser", function() {
       );
     });
 
-    it("[js]my code;[css][/css]my code;[/js]", function *() {
+    it("[js]my code;[css][/css]my code;[/js]", function* () {
       var parser = new BodyParser(this.test.title, options);
       var result = yield parser.parse();
       toStructure(result).should.be.eql([
@@ -122,7 +122,7 @@ describe("BodyParser", function() {
       ]);
     });
 
-    it("[compare]+Plus 1\n-Minus *italic*\n[/compare]", function *() {
+    it("[compare]+Plus 1\n-Minus *italic*\n[/compare]", function* () {
       var parser = new BodyParser(this.test.title, options);
       var result = yield parser.parse();
       toStructure(result).should.be.eql([

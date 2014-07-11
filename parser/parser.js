@@ -24,7 +24,7 @@ Parser.prototype.subOpts = function(mergeOptions) {
   return _.assign({}, this.options, mergeOptions || {});
 };
 
-Parser.prototype.parse = function *() {
+Parser.prototype.parse = function* () {
   throw new Error("Not implemented");
 };
 

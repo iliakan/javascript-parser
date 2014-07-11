@@ -85,7 +85,7 @@ BbtagParser.prototype.parse = function() {
 
 };
 
-BbtagParser.prototype.parseOffline = function *() {
+BbtagParser.prototype.parseOffline = function* () {
   if (this.options.export) {
     return yield new BodyParser(this.body, this.subOpts()).parse();
   } else {
@@ -93,13 +93,13 @@ BbtagParser.prototype.parseOffline = function *() {
   }
 };
 
-BbtagParser.prototype.parseDemo = function *() {
+BbtagParser.prototype.parseDemo = function* () {
 
   var attrs = {};
   if (this.params.src) {
     var resolver = new SrcResolver(this.params.src, this.options);
 
-    attrs.href = resolver.getExamplePath();
+    attrs.href = resolver.getWebPath() + '/';
     attrs.target = '_blank';
     return new TagNode('a', 'Демо в новом окне', attrs);
   }
@@ -108,7 +108,7 @@ BbtagParser.prototype.parseDemo = function *() {
 };
 
 
-BbtagParser.prototype.parseHead = function *() {
+BbtagParser.prototype.parseHead = function* () {
   if (this.trusted) {
     if (!this.options.metadata.head) this.options.metadata.head = [];
 
@@ -120,7 +120,7 @@ BbtagParser.prototype.parseHead = function *() {
 // use object for libs, because they are
 // (1) unique
 // (2) keep order
-BbtagParser.prototype.parseLibs = function *() {
+BbtagParser.prototype.parseLibs = function* () {
   if (this.trusted) {
     var lines = this.body.split('\n');
     for (var i = 0; i < lines.length; i++) {
@@ -133,14 +133,14 @@ BbtagParser.prototype.parseLibs = function *() {
   return new TextNode('');
 };
 
-BbtagParser.prototype.parseImportance = function *() {
+BbtagParser.prototype.parseImportance = function* () {
   if (this.trusted) {
     this.options.metadata.importance = parseInt(this.paramsString);
   }
   return new TextNode('');
 };
 
-BbtagParser.prototype.parsePlay = function *() {
+BbtagParser.prototype.parsePlay = function* () {
   if (!this.params.src) {
     return this.paramRequiredError('span', 'src');
   }
@@ -148,13 +148,13 @@ BbtagParser.prototype.parsePlay = function *() {
   var resolver = new SrcResolver(this.params.src, this.options);
 
   var attrs = {
-    href: resolver.getExamplePath()
+    href: resolver.getWebPath() + '/'
   };
 
   return new TagNode('a', this.body, attrs);
 };
 
-BbtagParser.prototype.parseEdit = function *() {
+BbtagParser.prototype.parseEdit = function* () {
   if (!this.params.src) {
     return this.paramRequiredError('span', 'src');
   }
@@ -186,11 +186,11 @@ BbtagParser.prototype.parseEdit = function *() {
   return new TagNode('a', body, attrs);
 };
 
-BbtagParser.prototype.parseCut = function *() {
+BbtagParser.prototype.parseCut = function* () {
   return new CutNode();
 };
 
-BbtagParser.prototype.parseKey = function *() {
+BbtagParser.prototype.parseKey = function* () {
   var results = [];
   var keys = this.paramsString.trim();
   if (keys == "+") {
@@ -213,7 +213,7 @@ BbtagParser.prototype.parseKey = function *() {
 };
 
 /*
-BbtagParser.prototype.parseRef = function *() {
+BbtagParser.prototype.parseRef = function* () {
   throw new Error("[ref is not supported any more");
 
   if (!this.params.id) {
@@ -234,7 +234,7 @@ BbtagParser.prototype.parseRef = function *() {
 };
 */
 
-BbtagParser.prototype.parseBlock = function *() {
+BbtagParser.prototype.parseBlock = function* () {
   var content = yield new BodyParser(this.body, this.subOpts()).parse();
 
   content = [new CompositeTag('div', content, {'class': 'important__content'})];
@@ -258,7 +258,7 @@ BbtagParser.prototype.parseBlock = function *() {
 };
 
 
-BbtagParser.prototype.parseSource = function *() {
+BbtagParser.prototype.parseSource = function* () {
 
   var prismLanguageMap = {
     html: 'markup',
@@ -325,14 +325,14 @@ BbtagParser.prototype.parseSource = function *() {
 };
 
 
-BbtagParser.prototype.parseSummary = function *() {
+BbtagParser.prototype.parseSummary = function* () {
   var summary = yield new BodyParser(this.body, this.subOpts()).parse();
   summary = new CompositeTag('div', summary, {'class' : 'summary__content'});
 
   return new CompositeTag('div', [summary], {'class': 'summary'});
 };
 
-BbtagParser.prototype.parseIframe = function *() {
+BbtagParser.prototype.parseIframe = function* () {
   if (!this.params.src) {
     return this.paramRequiredError('div', 'src');
   }
@@ -349,7 +349,7 @@ BbtagParser.prototype.parseIframe = function *() {
   var resolver = new SrcResolver(this.params.src, this.options);
 
   try {
-    attrs.src = resolver.getExamplePath();
+    attrs.src = resolver.getWebPath() + '/';
     if (this.params.play) {
       attrs['data-play'] = yield resolver.readPlunkId();
     }
@@ -369,7 +369,7 @@ BbtagParser.prototype.parseIframe = function *() {
 
 };
 
-BbtagParser.prototype.parseQuote = function *() {
+BbtagParser.prototype.parseQuote = function* () {
   var children = yield new BodyParser(this.body, this.subOpts()).parse();
 
   if (this.params.author) {
@@ -380,7 +380,7 @@ BbtagParser.prototype.parseQuote = function *() {
   return new CompositeTag('div', [result], {'class': 'quote'});
 };
 
-BbtagParser.prototype.parseHide = function *() {
+BbtagParser.prototype.parseHide = function* () {
   var content = yield new BodyParser(this.body, this.subOpts()).parse();
 
   var children = [
@@ -397,11 +397,11 @@ BbtagParser.prototype.parseHide = function *() {
   return new CompositeTag('div', children, {"class": "hide-close"});
 };
 
-BbtagParser.prototype.parsePre = function *() {
+BbtagParser.prototype.parsePre = function* () {
   return new VerbatimText(this.body);
 };
 
-BbtagParser.prototype.parseCompare = function *() {
+BbtagParser.prototype.parseCompare = function* () {
   var pros = new CompositeTag('ul', [], {"class": "balance__list"});
   var cons = new CompositeTag('ul', [], {"class": "balance__list"});
 
@@ -443,19 +443,23 @@ BbtagParser.prototype.parseCompare = function *() {
 };
 
 
-// TODO
-BbtagParser.prototype.parseTask = function *() {
+BbtagParser.prototype.parseTask = function* () {
   if (!this.params.src) {
     return this.paramRequiredError('div', 'src');
   }
 
-  // todo: think about it
+  if (!this.trusted) {
+    return new ErrorTag("div", "A task can be embedded only in trusted mode");
+  }
+
+  var slug = this.params.src;
+
   return new TaskNode(this.params.src);
 };
 
 
 
-BbtagParser.prototype.parseOnline = function *() {
+BbtagParser.prototype.parseOnline = function* () {
   if (!this.options.export) {
     var parser = new BodyParser(this.body, this.subOpts());
     return yield parser.parse();
@@ -468,7 +472,7 @@ BbtagParser.prototype.paramRequiredError = function(errorTag, paramName) {
   return new ErrorTag(errorTag, this.name + ": attribute required " + paramName);
 };
 
-BbtagParser.prototype.parseImg = function *() {
+BbtagParser.prototype.parseImg = function* () {
   if (!this.params.src) {
     return this.paramRequiredError('div', 'src');
   }
@@ -501,7 +505,7 @@ BbtagParser.prototype.parseImg = function *() {
 };
 
 
-BbtagParser.prototype.parseExample = function *() {
+BbtagParser.prototype.parseExample = function* () {
   if (!this.params.src) {
     return this.paramRequiredError('div', 'src');
   }
@@ -524,7 +528,7 @@ BbtagParser.prototype.parseExample = function *() {
 
   attrs.src = "http://embed.plnkr.co/" + plunkId + "/preview";
 
-  attrs['data-src'] = resolver.getExamplePath();
+  attrs['data-src'] = resolver.getWebPath() + '/';
 
   if (this.params.zip) {
     attrs['data-zip'] = "1";

@@ -36,23 +36,18 @@ SrcResolver.prototype.getFsPath = function() {
 
 SrcResolver.prototype.getWebPath = function() {
   var src = this.cleanSrc();
-  var webPath = path.join(this.options.resourceWebRoot, src);
+  var webPath = this.options.resourceWebRoot + '/' + src;
 
   return webPath;
 };
 
-SrcResolver.prototype.getExamplePath = function() {
-  var src = this.cleanSrc();
-  return path.join(this.options.resourceWebRoot, src, '');
-};
-
-SrcResolver.prototype.readPlunkId = function *() {
+SrcResolver.prototype.readPlunkId = function* () {
   var stat;
 
   try {
     stat = yield fsStat(this.getFsPath());
     if (!stat.isDirectory()) {
-      throw new Error("Not a folder");
+      throw new Error("Bad src: not a folder " + this.src);
     }
   } catch (e) {
     throw new Error("Bad src: could not read directory " + this.src);
@@ -71,7 +66,7 @@ SrcResolver.prototype.readPlunkId = function *() {
   return info.plunk;
 };
 
-SrcResolver.prototype.readFile = function *() {
+SrcResolver.prototype.readFile = function* () {
   try {
     return yield fsReadFile(this.getFsPath(), 'utf-8');
   } catch(e) {
@@ -117,7 +112,7 @@ SrcResolver.prototype.resolveImage = function *(withSize) {
         gm(fsPath).options({imageMagick: true}).identify('{"width":%w,"height":%h}', callback);
       };
 
-      size = JSON.parse(size);
+      size = JSON.parse(size); // warning: no error processing
     } else {
       size = yield imageSize(fsPath);
     }

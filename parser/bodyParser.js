@@ -168,25 +168,27 @@ BodyParser.prototype.parseNodes = function() {
 
 };
 
+/**
+ * This does several things
+ * 1) Parses header (must not contain external stuff)
+ * 2) Checks header structure (and builds headers array)
+ * @param token
+ * @returns {*}
+ */
 BodyParser.prototype.parseHeader = function* (token) {
   const titleNode = yield new BodyParser(token.title, this.subOpts()).parseAndWrap();
   var level = token.level;
 
-  // There should be no ()[#references] inside header text,
+  // There should be no ()[#references] or other external nodes inside header text,
   // because we may need to extract title/navigation from the content
   // and we'd like to do that without having to use DB for refs
   // ...anyway, reference inside a header has *no use*
   const checkWalker = new TreeWalker(titleNode);
-  var foundReference = false;
-  checkWalker.walk(function*(node) {
-    if (node instanceof ReferenceNode) {
-      foundReference = node;
+  yield checkWalker.walk(function*(node) {
+    if (node.isExternal()) {
+      return new TextNode(''); // kill external nodes!
     }
   });
-
-  if (foundReference) {
-    return new ErrorTag('div', "Reference " + foundReference.title + " is not allowed within a #Header");
-  }
 
 
   // ---- Проверить уровень ----
@@ -200,13 +202,13 @@ BodyParser.prototype.parseHeader = function* (token) {
   const headers = this.options.metadata.headers;
 
   if (headers.length === 0 && level != 1) {
-    return new ErrorTag('div', "Первый заголовок должен иметь уровень 1, а не " + level);
+    return new ErrorTag('div', "The first header must have level 1, not " + level);
   }
 
   if (headers.length > 0) {
     var prevLevel = headers[headers.length-1][0];
     if (level > prevLevel + 1) {
-      return new ErrorTag('div', "Неправильная вложенность заголовка " + token.title + ": уровень " + level + " после " + prevLevel);
+      return new ErrorTag('div', "Wrong header structure");
     }
   }
 

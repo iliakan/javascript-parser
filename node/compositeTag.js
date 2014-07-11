@@ -15,6 +15,9 @@ function CompositeTag(tag, children, attrs) {
   if (tag !== null && typeof tag != 'string') {
     throw new Error("Tag must be either undefined/null or a string");
   }
+
+  if (children === undefined) children = [];
+
   if (children.slice === undefined) {
     throw new Error("Children must be array or array-like");
   }

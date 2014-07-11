@@ -18,11 +18,12 @@ exports.makeAnchor = function(title) {
 
 
 exports.escapeHtmlText = function(text) {
-  return text.replace(/&([^#]|#[^0-9]?|#x[^0-9]?|$)/g, '&amp;$1').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // need toString to escape numbers
+  return text.toString().replace(/&([^#]|#[^0-9]?|#x[^0-9]?|$)/g, '&amp;$1').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 };
 
 exports.escapeHtmlAttr = function(text) {
-  return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  return text.toString().replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 };
 
 exports.stripTags = function(text) {
