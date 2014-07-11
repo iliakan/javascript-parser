@@ -20,7 +20,7 @@ alert(1);
 <pre>
 ```html
 &lt;!DOCTYPE HTML&gt;
-<title>Viva la HTML5!</title>
+&lt;title&gt;Viva la HTML5!&lt;/title&gt;
 ```
 </pre>
 
