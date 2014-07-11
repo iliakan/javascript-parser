@@ -65,17 +65,10 @@ alert(1);
 Пример ниже использует код файла `my.html` и запускает его автоматически:
 <pre>
 ```html
-<!--+ src="my.html" autorun -->
+&lt;!--+ src="my.html" autorun --&gt;
 ```
 </pre>
 
-```html
-<!--+ src="my.html" autorun -->
-```
-
-```html
-//+ src="my.html" 
-```
 
 
 ## Выделение в коде
