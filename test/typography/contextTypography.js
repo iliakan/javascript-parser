@@ -23,6 +23,11 @@ describe("contextTypography", function() {
     contextTypography("line1\n\n\n\n\nline2").should.be.eql("<p>line1</p>\n<p>line2</p>");
   });
 
+  it("doesn't insert <p> between block tags", function() {
+    var html = "<div> ... </div>\n\n<table> ... </table>";
+    contextTypography(html).replace(/\n/g, '').should.be.eql(html.replace(/\n/g, ''));
+  });
+
   it("merges newlines with spaces inbetween", function() {
     contextTypography("line1\n\n    \n\n\nline2").should.be.eql("<p>line1</p>\n<p>line2</p>");
   });
