@@ -70,13 +70,13 @@ alert(1);
 Этот пример будет при запуске показан в `<iframe>` высотой `100px`:
 <pre>
 ```html
-<!-- run height=100 -->
-<!DOCTYPE HTML>
-<html>
-<body>
-  <h1>Привет, мир!</h1>
-</body>
-</html>
+&lt;!-- run height=100 -->
+&lt;!DOCTYPE HTML>
+&lt;html>
+&lt;body>
+  &lt;h1>Привет, мир!&lt;/h1>
+&lt;/body>
+&lt;/html>
 ```
 </pre>
 
