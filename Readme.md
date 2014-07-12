@@ -120,7 +120,7 @@ function important() {
 <pre>
 Теги &#96;&lt;script&gt;&#96; и &#96;&lt;b&gt;&#96;
 -- станет
-Теги &lt;code>&amp;lt;script&amp;gt;</code> и &amp;lt;code>&amp;lt;b&amp;gt;</code>
+Теги &lt;code&gt;&amp;lt;script&amp;gt;</code> и &amp;lt;code>&amp;lt;b&amp;gt;</code>
 </pre>
 
 Обычно это удобно, но если экранирование не нужно -- можно использовать `<code>...</code>`:
