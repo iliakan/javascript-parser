@@ -215,7 +215,7 @@ function important() {
 <pre>
 [http://wikipedia.org]()
 -- станет
-<a href="http://wikipedia.org">http://wikipedia.org</a>
+&lt;a href="http://wikipedia.org">http://wikipedia.org&lt;/a>
 </pre>
 
 Для ссылки на статью или задачу с сайта можно использовать только её абсолютный URL, заголовок подставится автоматически, например:
@@ -223,7 +223,7 @@ function important() {
 <pre>
 Читайте об этом в главе [](/events)
 -- станет (из базы будет получен заголовок)
-Читайте об этом в главе <a href="/events">События</a> 
+Читайте об этом в главе &lt;a href="/events">События&lt;/a> 
 </pre>
 
 Для того, чтобы сослаться на заголовок, у которого есть `[#anchor]`:
@@ -231,7 +231,7 @@ function important() {
 <pre>
 [Оператор `instanceof`](#instanceof)
 -- станет (если есть статья с заголовокм [#instanceof])
-<a href="/url-этой-статьи#instanceof">Оператор <code>instanceof</code></a>
+&lt;a href="/url-этой-статьи#instanceof">Оператор &lt;code>instanceof&lt;/code>&lt;/a>
 </pre>
 
 
