@@ -47,7 +47,7 @@ describe("contextTypography", function() {
   });
 
 
-
+/*
   describe("wraps <img> with <figure> if on blank line", function() {
 
     it("wraps <img>", function* () {
@@ -70,5 +70,5 @@ describe("contextTypography", function() {
       );
     });
   });
-
+*/
 });

@@ -99,6 +99,19 @@ Lexer.prototype.peekWord = function(string, startPosition, noCase) {
 
 
 /**
+ * Every consume* shifts this.position and puts old position to this.prevPosition
+ * Here I return the last consumed text
+ */
+Lexer.prototype.getLastConsumedText = function() {
+  return this.text.slice(this.prevPosition, this.position);
+};
+
+Lexer.prototype.setPosition = function(newPosition) {
+  this.prevPosition = this.position;
+  this.position = newPosition;
+};
+
+/**
  * match one of strings in array at current position
  */
 Lexer.prototype.peekStringOneOf = function(array, startPosition, noCase) {
@@ -133,9 +146,30 @@ Lexer.prototype.peekBbtagAttrs = function(startPosition) {
   return null;
 };
 
-
+/**
+ * Returns true if position is exactly after \n or first in text
+ */
 Lexer.prototype.atLineStart = function(position) {
   return position === 0 || this.text[position - 1] === '\n';
+};
+
+/**
+ * Returns true is position is exactly at \n or maybe after spaces \s*?\n or at end of text \s*$
+ */
+Lexer.prototype.atLineEndTrim = function(position) {
+  while(position < this.text.length) {
+    if (this.text[position] == "\n") return true;
+
+    if (this.isWhiteSpaceCode(this.text.charCodeAt(position))) {
+      position++; // try next
+    } else {
+      return false;
+    }
+
+  }
+
+  // end of text, counts as line end too
+  return true;
 };
 
 

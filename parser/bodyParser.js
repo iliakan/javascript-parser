@@ -15,6 +15,7 @@ const TextNode = require('../node/textNode').TextNode;
 const TagNode = require('../node/tagNode').TagNode;
 const EscapedTag = require('../node/escapedTag').EscapedTag;
 const CompositeTag = require('../node/compositeTag').CompositeTag;
+const BbtagAttrsParser = require('./bbtagAttrsParser').BbtagAttrsParser;
 const ErrorTag = require('../node/errorTag').ErrorTag;
 const CommentNode = require('../node/commentNode').CommentNode;
 const ReferenceNode = require('../node/referenceNode').ReferenceNode;
@@ -139,7 +140,7 @@ BodyParser.prototype.parseNodes = function() {
     token = this.lexer.consumeBold() || this.lexer.consumeItalic();
     break;
   case '<':
-    token = this.lexer.consumeComment() || this.lexer.consumeVerbatimTag();
+    token = this.lexer.consumeImg() || this.lexer.consumeComment() || this.lexer.consumeVerbatimTag();
     break;
   case '#':
     token = this.lexer.consumeHeader();
@@ -268,6 +269,44 @@ BodyParser.prototype.parseHeader = function* (token) {
   return new HeaderTag(level, anchor, titleNode.getChildren());
 };
 
+/*
+BodyParser.prototype.parseImg = function* (token) {
+  const parser = new BbtagAttrsParser(token.attrs);
+  const params = parser.parse();
+
+  var consumedText = this.lexer.getLastConsumedText();
+
+  // no size => don't touch this img, can't do anything
+  if (!params.src) {
+    return new TextNode(consumedText);
+  }
+
+  var transformedTag = consumedText.replace(/\s*\/?>$/, ''); // <img ... , without closing /?>
+
+
+  if (params.width === undefined || params.height === undefined) {
+      var resolver = new SrcResolver(params.src, this.options);
+      var imageInfo;
+      try {
+        imageInfo = yield resolver.resolveImage(needSize);
+      } catch (e) {
+        return consumedText;
+      }
+
+      transformedTag += " width='" + imageInfo.width+"' height= '" + imageInfo.height + "'";
+    }
+  }
+
+  attrs.src = imageInfo.webPath;
+  if (needSize) {
+    attrs.width = ''+imageInfo.size.width;
+    attrs.height = ''+imageInfo.size.height;
+  }
+
+  return new TagNode('img', '', attrs);
+};
+*/
+
 
 /**
  * The parser is synchronous, we don't query DB here.
@@ -315,7 +354,7 @@ BodyParser.prototype.parseLink = function*(token) {
 };
 
 BodyParser.prototype.parseBbtag = function(token) {
-  return new BbtagParser(token.name, token.attrs, token.body, this.subOpts()).parse();
+  return new BbtagParser(token, this.subOpts()).parse();
 };
 
 BodyParser.prototype.parseBold = function(token) {

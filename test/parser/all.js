@@ -125,6 +125,36 @@ describe("BodyParser", function() {
 
     });
 
+
+    describe("<img>", function() {
+
+      it("wraps <img> in figure if it occupies a separate line", function* () {
+        (yield format("<img src=\"html6.jpg\" width=0 height=0>")).should.be.eql(
+          "<figure><img src=\"/document/html6.jpg\" width=\"0\" height=\"0\"></figure>"
+        );
+      });
+
+      it("wraps <img> and adds size if absent", function* () {
+        (yield format("<img src=\"html6.jpg\">")).should.be.eql(
+          "<figure><img src=\"/document/html6.jpg\" width=\"256\" height=\"256\"></figure>"
+        );
+      });
+
+
+      it("doesn't wrap <img> in <figure> if not on line start", function* () {
+        (yield format("   \t<img src=\"html6.jpg\">")).should.be.eql(
+          "   \t<img src=\"/document/html6.jpg\" width=\"256\" height=\"256\">"
+        );
+      });
+
+      it("doesn't wrap <img> in <figure> if line has something non-spacey after <img>", function* () {
+        (yield format("<img src=\"html6.jpg\"> bla")).should.be.eql(
+          "<img src=\"/document/html6.jpg\" width=\"256\" height=\"256\"> bla"
+        );
+      });
+
+    });
+
     describe("Code", function() {
       it("converts `code` to code", function* () {
         (yield format('`code`')).should.be.eql('<code>code</code>');

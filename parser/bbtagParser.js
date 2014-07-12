@@ -29,11 +29,12 @@ const VerbatimText = require('../node/verbatimText').VerbatimText;
  *
  * @constructor
  */
-function BbtagParser(name, paramsString, body, options) {
+function BbtagParser(token, options) {
   Parser.call(this, options);
-  this.name = name;
-  this.paramsString = paramsString;
-  this.body = body;
+  this.name = token.name;
+  this.paramsString = token.attrs;
+  this.body = token.body;
+  this.token = token;
 
   this.params = this.readParamsString();
 }
@@ -472,6 +473,7 @@ BbtagParser.prototype.paramRequiredError = function(errorTag, paramName) {
 };
 
 BbtagParser.prototype.parseImg = function* () {
+
   if (!this.params.src) {
     return this.paramRequiredError('div', 'src');
   }
@@ -500,7 +502,9 @@ BbtagParser.prototype.parseImg = function* () {
     attrs.height = ''+imageInfo.size.height;
   }
 
-  return new TagNode('img', '', attrs);
+  var result = new TagNode('img', '', attrs);
+  if (this.token.isFigure) result = new CompositeTag('figure', [result]);
+  return result;
 };
 
 

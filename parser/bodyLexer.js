@@ -9,7 +9,8 @@ util.inherits(BodyLexer, Lexer);
 
 Lexer.prototype.consumeCode = function() {
   if (this.text[this.position] != '`') return null;
-  if (this.isWhiteSpaceCode(this.text.charCodeAt(this.position+1))) return null;
+  if (this.isWhiteSpaceCode(this.text.charCodeAt(this.position + 1))) return null;
+
   var position = this.position + 1;
 
   // found
@@ -17,10 +18,10 @@ Lexer.prototype.consumeCode = function() {
   //  ^
 
   var endPosition;
-  while(true) {
+  while (true) {
     endPosition = this.findCharNoNewline('`', position);
     if (endPosition === null) return null;
-    if (this.isWhiteSpaceCode(this.text.charCodeAt(endPosition-1))) {
+    if (this.isWhiteSpaceCode(this.text.charCodeAt(endPosition - 1))) {
       position = endPosition + 1;
     } else {
       break;
@@ -31,7 +32,7 @@ Lexer.prototype.consumeCode = function() {
   // `\S...\S`
   //         ^
 
-  this.position = endPosition + 1;
+  this.setPosition(endPosition + 1);
   return {
     type: 'code',
     body: this.text.slice(position, endPosition)
@@ -45,7 +46,7 @@ Lexer.prototype.consumeComment = function() {
   var commentEndSegment = this.findString('-->', commentStartPosition + 1);
   if (commentEndSegment === null) return null;
 
-  this.position = commentEndSegment.end + 1;
+  this.setPosition(commentEndSegment.end + 1);
   return {
     type: 'comment',
     body: this.text.slice(commentStartPosition + 1, commentEndSegment.start)
@@ -99,6 +100,48 @@ Lexer.prototype.consumeVerbatimTag = function() {
     type: 'verbatim',
     body: this.text.slice(startPosition, closingStringSegment.end + 1)
   };
+};
+
+Lexer.prototype.consumeImg = function() {
+  if (this.text[this.position] != '<') return null;
+
+  var startPosition = this.position;
+  // found:
+  //   <
+  //    ^
+  var position = startPosition + 1;
+
+  var tagNamePosition = this.peekWord('img', position, true);
+  if (tagNamePosition === null) return null;
+
+  position = tagNamePosition + 1;
+  // found:
+  //   <img
+  //      ^
+  var closingPosition = this.findChar('>', position);
+  if (closingPosition === null) return null;
+
+  // found:
+  //   <img  >
+  //         ^
+
+
+  var isFigure = this.atLineStart(startPosition) && this.atLineEndTrim(closingPosition + 1);
+
+
+  this.setPosition(closingPosition + 1);
+
+  return {
+    type:     'bbtag',
+    name:     'img',
+    attrs:    this.text.slice(
+        tagNamePosition + 1,
+      (this.text[closingPosition - 1] == '/') ? closingPosition - 1 : closingPosition
+    ),
+    isFigure: isFigure,
+    body:     ''
+  };
+
 };
 
 
@@ -163,7 +206,7 @@ Lexer.prototype.consumeBold = function() {
   // found the nearest star except after a space followed by another start and then not wordly char
   // **blabla**
   //         ^
-  this.position = starPosition + 2;
+  this.setPosition(starPosition + 2);
 
   return {
     type: 'bold',
@@ -227,7 +270,7 @@ Lexer.prototype.consumeItalic = function() {
     break;
   }
 
-  this.position = starPosition + 1;
+  this.setPosition(starPosition + 1);
 
   return {
     type: 'italic',
@@ -300,7 +343,7 @@ Lexer.prototype.consumeCharEmphasis = function(star, type) {
     break;
   }
 
-  this.position = starPosition + 1;
+  this.setPosition(starPosition + 1);
 
   return {
     type: type,
@@ -330,7 +373,7 @@ Lexer.prototype.consumeHeader = function() {
     position++;
   }
 
-  this.position = position;
+  this.setPosition(position);
 
   var title = this.text.slice(titlePosition, position).trim();
   var anchor = "";
@@ -404,7 +447,7 @@ Lexer.prototype.consumeLink = function() {
 
   if (!href && !title) return null;
 
-  this.position = position + 1;
+  this.setPosition(position + 1);
 
   return {
     href:  href,
@@ -504,13 +547,13 @@ Lexer.prototype.consumeSource = function() {
   // ^
   var bodyEndPosition = position - 1;
 
-  this.position = position + 4;
+  this.setPosition(position + 4);
 
   return {
-    type: 'bbtag',
-    name: this.text.slice(languagePositionStart, languagePositionEnd),
+    type:  'bbtag',
+    name:  this.text.slice(languagePositionStart, languagePositionEnd),
     attrs: attrsEndPosition ? this.text.slice(attrsStartPosition, attrsEndPosition) : '',
-    body: this.text.slice(bodyStartPosition, bodyEndPosition)
+    body:  this.text.slice(bodyStartPosition, bodyEndPosition)
   };
 
 };
@@ -538,7 +581,7 @@ Lexer.prototype.consumeBbtagSelfClose = function() {
   if (bbtagAttrsPosition === null) return null;
   bbtagAttrsSegment = {start: position, end: bbtagAttrsPosition};
 
-  this.position = bbtagAttrsPosition + 1;
+  this.setPosition(bbtagAttrsPosition + 1);
 
   return {
     type:  'bbtag',
@@ -574,7 +617,7 @@ Lexer.prototype.consumeBbtagNeedClose = function() {
   if (this.text[bbtagAttrsPosition - 1] == '/') {
     // closed "in-place"
     bbtagAttrsSegment = {start: position, end: bbtagAttrsPosition - 1};
-    this.position = bbtagAttrsPosition + 1;
+    this.setPosition(bbtagAttrsPosition + 1);
     return {
       type:  'bbtag',
       name:  bbtagName,
@@ -592,7 +635,7 @@ Lexer.prototype.consumeBbtagNeedClose = function() {
   var closingPositionSegment = this.findString(closingString, position);
   if (closingPositionSegment === null) return null;
 
-  this.position = closingPositionSegment.end + 1;
+  this.setPosition(closingPositionSegment.end + 1);
   return {
     type:  'bbtag',
     name:  bbtagName,

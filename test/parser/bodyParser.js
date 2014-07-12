@@ -40,7 +40,7 @@ describe("BodyParser", function() {
       );
     });
 
-    it("[img src='html6.jpg'] text", function* () {
+    it("<img src='html6.jpg'> text", function* () {
       var parser = new BodyParser(this.test.title, options);
       var result = yield parser.parse();
       var structure = toStructure(result);

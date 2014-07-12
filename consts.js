@@ -33,7 +33,7 @@ const BBTAGS_NEED_CLOSE = "online offline head edit libs summary quote unsafe_te
   .concat(BBTAGS_SOURCE, BBTAGS_BLOCK);
 const BBTAGS_NEED_CLOSE_SET = arrToObj(BBTAGS_NEED_CLOSE);
 
-const BBTAGS_SELF_CLOSE = "cut importance key demo ref img iframe task example".split(' ');
+const BBTAGS_SELF_CLOSE = "cut importance key demo ref iframe task example".split(' ');
 const BBTAGS_SELF_CLOSE_SET = arrToObj(BBTAGS_SELF_CLOSE);
 
 const BBTAGS_ALL = BBTAGS_NEED_CLOSE.concat(BBTAGS_SELF_CLOSE);
