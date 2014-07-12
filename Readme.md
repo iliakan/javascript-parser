@@ -118,7 +118,7 @@ function important() {
 
 Весь HTML внутри таких кавычек автоматически экранируется:
 <pre>
-Теги \`<script>\` и \`<b>\`
+Теги &#96;&lt;script&gt;&#96; и &#96;&lt;b&gt;&#96;
 -- станет
 Теги &lt;code>&amp;lt;script&amp;gt;</code> и &amp;lt;code>&amp;lt;b&amp;gt;</code>
 </pre>
