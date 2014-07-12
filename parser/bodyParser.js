@@ -130,7 +130,10 @@ BodyParser.prototype.parseNodes = function() {
     token = this.lexer.consumeLink() || this.lexer.consumeBbtagSelfClose() || this.lexer.consumeBbtagNeedClose();
     break;
   case '`':
-    token = this.lexer.consumeCode() || this.lexer.consumeSource();
+    token = this.lexer.consumeSource() || this.lexer.consumeCode();
+    break;
+  case '~':
+    token = this.lexer.consumeStrike();
     break;
   case '*':
     token = this.lexer.consumeBold() || this.lexer.consumeItalic();
@@ -152,6 +155,8 @@ BodyParser.prototype.parseNodes = function() {
     return this.parseBold(token);
   case 'italic':
     return this.parseItalic(token);
+  case 'strike':
+    return this.parseStrike(token);
   case 'code':
     return this.parseCode(token);
   case 'comment':
@@ -320,6 +325,11 @@ BodyParser.prototype.parseBold = function(token) {
 BodyParser.prototype.parseItalic = function(token) {
   var parser = new BodyParser(token.body, this.subOpts());
   return parser.parseAndWrap("em");
+};
+
+BodyParser.prototype.parseStrike = function(token) {
+  var parser = new BodyParser(token.body, this.subOpts());
+  return parser.parseAndWrap("strike");
 };
 
 BodyParser.prototype.parseCode = function* (token) {

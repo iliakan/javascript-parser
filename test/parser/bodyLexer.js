@@ -136,6 +136,13 @@ describe("BodyLexer", function() {
       this.test.lexer.isEof().should.be.true;
     });
 
+    it('one ` and ` two', function() {
+      while (!this.test.lexer.isEof()) {
+        should.not.exist(this.test.lexer.consumeCode());
+        this.test.lexer.consumeChar();
+      }
+    });
+
   });
 
   describe("consumeComment", function() {

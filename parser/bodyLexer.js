@@ -9,10 +9,27 @@ util.inherits(BodyLexer, Lexer);
 
 Lexer.prototype.consumeCode = function() {
   if (this.text[this.position] != '`') return null;
+  if (this.isWhiteSpaceCode(this.text.charCodeAt(this.position+1))) return null;
   var position = this.position + 1;
 
-  var endPosition = this.findCharNoNewline('`', position);
-  if (endPosition === null) return null;
+  // found
+  // `\S
+  //  ^
+
+  var endPosition;
+  while(true) {
+    endPosition = this.findCharNoNewline('`', position);
+    if (endPosition === null) return null;
+    if (this.isWhiteSpaceCode(this.text.charCodeAt(endPosition-1))) {
+      position = endPosition + 1;
+    } else {
+      break;
+    }
+  }
+
+  // found
+  // `\S...\S`
+  //         ^
 
   this.position = endPosition + 1;
   return {
@@ -214,6 +231,79 @@ Lexer.prototype.consumeItalic = function() {
 
   return {
     type: 'italic',
+    body: this.text.slice(position, starPosition)
+  };
+
+};
+
+
+Lexer.prototype.consumeItalic = function() {
+  return this.consumeCharEmphasis('*', 'italic');
+};
+
+Lexer.prototype.consumeStrike = function() {
+  return this.consumeCharEmphasis('~', 'strike');
+};
+
+
+Lexer.prototype.consumeCharEmphasis = function(star, type) {
+  if (this.text[this.position] != star) return null;
+
+  var prevChar = this.text[this.position - 1];
+  switch (prevChar) {
+  case undefined: // it was the first position
+  case ' ':
+  case '\n':
+  case '\t':
+  case '>':
+    break; // allow match after these chars
+  default:
+    return null; // no match after other chars
+  }
+
+  var position = this.position + 1;
+  // position is after *
+
+  // testing:
+  // *\S
+  //  ^
+  if (this.isWhiteSpaceCode(this.text.charCodeAt(position))) { // must be **\S
+    return null;
+  }
+
+  // look for nearest star except after a space
+  // *blabla*
+  //        ^
+  var starPosition = position;
+  while (true) {
+    starPosition = this.findCharNoNewline(star, starPosition);
+    if (starPosition === null) return null;
+
+    // ignore after space
+    if (this.isWhiteSpaceCode(this.text.charCodeAt(starPosition - 1))) {
+      starPosition++;
+      continue;
+    }
+
+    // ignore stars followed by a wordly char
+    if (this.isWordlyCode(this.text.charCodeAt(starPosition + 1)) ||
+      this.text[starPosition + 1] == star) {
+      starPosition++;
+      continue;
+    }
+
+    if (starPosition == position) {
+      starPosition++;
+      continue;
+    }
+
+    break;
+  }
+
+  this.position = starPosition + 1;
+
+  return {
+    type: type,
     body: this.text.slice(position, starPosition)
   };
 
