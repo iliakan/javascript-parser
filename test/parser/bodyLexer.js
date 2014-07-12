@@ -9,11 +9,28 @@ describe("BodyLexer", function() {
     this.currentTest.lexer = new BodyLexer(title);
   });
 
+
+  describe('consumeSource', function() {
+
+    it("```js\nalert(1);\n```\n", function() {
+      var bbtag = this.test.lexer.consumeSource();
+      bbtag.should.be.eql({ type: 'bbtag', name: 'js', attrs: '', body: 'alert(1);' });
+      this.test.lexer.isEof().should.be.true;
+    });
+
+    it("```js\n//+ run height=100 src='my.js'\nalert(1);\n```\n", function() {
+      var bbtag = this.test.lexer.consumeSource();
+      bbtag.should.be.eql({ type: 'bbtag', name: 'js', attrs: "run height=100 src='my.js'", body: 'alert(1);' });
+      this.test.lexer.isEof().should.be.true;
+    });
+
+  });
+
   describe('consumeBbtagNeedClose', function() {
 
     it("[js]body[/js]", function() {
       var bbtag = this.test.lexer.consumeBbtagNeedClose();
-      bbtag.should.be.eql({ type: 'bbtag', name:'js', attrs: '', body: 'body' });
+      bbtag.should.be.eql({ type: 'bbtag', name: 'js', attrs: '', body: 'body' });
       this.test.lexer.isEof().should.be.true;
     });
 
@@ -109,7 +126,7 @@ describe("BodyLexer", function() {
       this.test.lexer.isEof().should.be.true;
     });
 
-    
+
   });
 
   describe("consumeCode", function() {
@@ -163,7 +180,7 @@ describe("BodyLexer", function() {
     // but the current lexer is not perfect, it will parse only a part of it
     it('<script attrs="</script>">test</script>', function() {
       this.test.lexer.consumeVerbatimTag().should.be.eql(
-        {type:'verbatim', body: '<script attrs="</script>'}
+        {type: 'verbatim', body: '<script attrs="</script>'}
       );
       this.test.lexer.isEof().should.be.false;
     });
@@ -192,14 +209,14 @@ describe("BodyLexer", function() {
 
 
     it("'**' (**)", function() {
-      while(!this.test.lexer.isEof()) {
+      while (!this.test.lexer.isEof()) {
         should.not.exist(this.test.lexer.consumeBold());
         this.test.lexer.consumeChar();
       }
     });
 
     it("**a * b**", function() {
-      this.test.lexer.consumeBold().should.be.eql({type:'bold', body: 'a * b'});
+      this.test.lexer.consumeBold().should.be.eql({type: 'bold', body: 'a * b'});
       this.test.lexer.isEof().should.be.true;
     });
 
@@ -224,7 +241,7 @@ describe("BodyLexer", function() {
 
 
     it("'*' (*) '**' (**)", function() {
-      while(!this.test.lexer.isEof()) {
+      while (!this.test.lexer.isEof()) {
         should.not.exist(this.test.lexer.consumeBold());
         should.not.exist(this.test.lexer.consumeItalic());
         this.test.lexer.consumeChar();
@@ -232,7 +249,7 @@ describe("BodyLexer", function() {
     });
 
     it("**a * b**", function() {
-      this.test.lexer.consumeBold().should.be.eql({type:'bold', body: 'a * b'});
+      this.test.lexer.consumeBold().should.be.eql({type: 'bold', body: 'a * b'});
       this.test.lexer.isEof().should.be.true;
     });
 

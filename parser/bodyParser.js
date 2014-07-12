@@ -130,7 +130,7 @@ BodyParser.prototype.parseNodes = function() {
     token = this.lexer.consumeLink() || this.lexer.consumeBbtagSelfClose() || this.lexer.consumeBbtagNeedClose();
     break;
   case '`':
-    token = this.lexer.consumeCode();
+    token = this.lexer.consumeCode() || this.lexer.consumeSource();
     break;
   case '*':
     token = this.lexer.consumeBold() || this.lexer.consumeItalic();
@@ -276,7 +276,7 @@ BodyParser.prototype.parseLink = function*(token) {
   var href = token.href || token.title; // [http://ya.ru]() is fine
   var title = token.title; // [](http://ya.ru) is fine, but [](#test) - see below
 
-  var protocol = href.match(HREF_PROTOCOL_REG);
+  var protocol = href.replace(/[\x00-\x20]/g, '').match(HREF_PROTOCOL_REG);
   if (protocol) {
     protocol = protocol[1].trim();
   }

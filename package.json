@@ -22,7 +22,6 @@
     "mocha": "*",
     "should": "*",
     "sinon": "*",
-    "javascript-precommit": "*",
     "javascript-gulp-task-lint": "*"
   },
   "precommit": "gulp pre-commit",

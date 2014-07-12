@@ -263,7 +263,6 @@ BbtagParser.prototype.parseSource = function* () {
   var prismLanguageMap = {
     html: 'markup',
     js: 'javascript',
-    txt: 'none',
     coffee: 'coffeescript'
   };
 

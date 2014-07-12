@@ -87,7 +87,7 @@ Lexer.prototype.consumeVerbatimTag = function() {
 
 Lexer.prototype.consumeBold = function() {
   if (this.text[this.position] != '*') return null;
-  if (this.text[this.position+1] != '*') return null;
+  if (this.text[this.position + 1] != '*') return null;
 
   var prevChar = this.text[this.position - 1];
   switch (prevChar) {
@@ -126,7 +126,7 @@ Lexer.prototype.consumeBold = function() {
       continue;
     }
 
-    if (this.text[starPosition+1] != '*' || starPosition == position + 1) {
+    if (this.text[starPosition + 1] != '*' || starPosition == position + 1) {
       starPosition++;
       continue;
     }
@@ -154,7 +154,6 @@ Lexer.prototype.consumeBold = function() {
   };
 
 };
-
 
 
 Lexer.prototype.consumeItalic = function() {
@@ -198,7 +197,7 @@ Lexer.prototype.consumeItalic = function() {
 
     // ignore stars followed by a wordly char
     if (this.isWordlyCode(this.text.charCodeAt(starPosition + 1)) ||
-      this.text[starPosition + 1] == '*' ) {
+      this.text[starPosition + 1] == '*') {
       starPosition++;
       continue;
     }
@@ -222,7 +221,7 @@ Lexer.prototype.consumeItalic = function() {
 
 
 Lexer.prototype.consumeHeader = function() {
-  if (this.position !== 0 && this.text[this.position - 1] !== '\n' || this.text[this.position] !== '#') {
+  if (!this.atLineStart(this.position) || this.text[this.position] !== '#') {
     return null;
   }
 
@@ -251,10 +250,10 @@ Lexer.prototype.consumeHeader = function() {
   }).trim();
 
   return {
-    type:  'header',
-    level: level,
+    type:   'header',
+    level:  level,
     anchor: anchor,
-    title: title
+    title:  title
   };
 
 };
@@ -328,8 +327,102 @@ Lexer.prototype.consumeChar = function() {
   return this.text[this.position++];
 };
 
-Lexer.prototype.getChar = function() {
-  return this.text[this.position];
+
+Lexer.prototype.consumeSource = function() {
+  if (!this.atLineStart(this.position) || this.peekString('```', this.position) === null) return null;
+
+  var position = this.position + 3;
+  // found
+  // ```
+  //    ^
+
+  var languagePositionStart = position;
+  var languagePositionEnd = this.peekStringOneOf(consts.BBTAGS_SOURCE, languagePositionStart);
+
+  if (languagePositionEnd === null) return null;
+
+  languagePositionEnd++;
+  position = languagePositionEnd;
+  // found
+  // ```js
+  //      ^
+
+
+  while (this.text[position] != '\n' && position < this.text.length) {
+    if (!this.isWhiteSpaceCode(this.text.charCodeAt(position))) {
+      return null;
+    }
+    position++;
+  }
+  if (position == this.text.length) return null;
+
+  position++;
+  // found
+  // ```js  \n
+  //
+  // ^
+
+
+  // get comment //+ run
+
+  /* jshint -W084 */
+  var attrsStartPosition, attrsEndPosition, p;
+  if (attrsStartPosition = this.peekString('//+ ', position)) {
+    attrsEndPosition = this.findChar('\n', attrsStartPosition);
+    if (attrsEndPosition !== null) position = attrsEndPosition + 1;
+  } else if (attrsStartPosition = this.peekString('#+ ', position)) {
+    attrsEndPosition = this.findChar('\n', attrsStartPosition);
+    if (attrsEndPosition !== null) position = attrsEndPosition + 1;
+  } else if (attrsStartPosition = this.peekString('/*+ ', position)) {
+    p = this.findChar('\n', attrsStartPosition);
+    if (p !== null && this.text[p - 2] == '*' && this.text[p - 1] == '/') {
+      attrsEndPosition = p - 2;
+      position = p + 1;
+    }
+  } else if (attrsStartPosition = this.peekString('<!--+ ', position)) {
+    p = this.findChar('\n', attrsStartPosition);
+    if (p !== null && this.text[p - 3] == '-' && this.text[p - 2] == '-' && this.text[p - 1] == '>') {
+      attrsEndPosition = p - 3;
+      position = p + 1;
+    }
+  }
+  if (attrsEndPosition) {
+    attrsStartPosition++; // attributes actually start on the next char after `//+ `
+  }
+
+  // found
+  // ```js
+  // //+ run  (optionally)
+  //
+  // ^
+
+  // now consume body
+  var bodyStartPosition = position;
+  while (position < this.text.length) {
+    if (this.atLineStart(position) && this.peekString('```\n', position) !== null) {
+      break;
+    }
+
+    position++;
+  }
+
+  // found
+  // ```js
+  // //+ run  (optionally)
+  //   alert(1);
+  // ```
+  // ^
+  var bodyEndPosition = position - 1;
+
+  this.position = position + 4;
+
+  return {
+    type: 'bbtag',
+    name: this.text.slice(languagePositionStart, languagePositionEnd),
+    attrs: attrsEndPosition ? this.text.slice(attrsStartPosition, attrsEndPosition) : '',
+    body: this.text.slice(bodyStartPosition, bodyEndPosition)
+  };
+
 };
 
 Lexer.prototype.consumeBbtagSelfClose = function() {

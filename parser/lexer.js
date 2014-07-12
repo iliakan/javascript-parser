@@ -62,6 +62,10 @@ Lexer.prototype.stripQuotes = function(string) {
   return string;
 };
 
+Lexer.prototype.getChar = function() {
+  return this.text[this.position];
+};
+
 /**
  * match string at current position
  */
@@ -128,6 +132,12 @@ Lexer.prototype.peekBbtagAttrs = function(startPosition) {
 
   return null;
 };
+
+
+Lexer.prototype.atLineStart = function(position) {
+  return position === 0 || this.text[position - 1] === '\n';
+};
+
 
 /**
  * Find string, return segment
