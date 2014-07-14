@@ -2,7 +2,7 @@ const Node = require('./node').Node;
 const TextNode = require('./textNode').TextNode;
 const TagNode = require('./tagNode').TagNode;
 const util = require('util');
-const log = require('../util/log')(module);
+const log = require('javascript-log')(module);
 const NO_WRAP_TAGS_SET = require('../consts').NO_WRAP_TAGS_SET;
 
 var htmlUtil = require('../util/htmlUtil');

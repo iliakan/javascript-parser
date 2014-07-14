@@ -1,6 +1,6 @@
 {
   "name": "javascript-parser",
-  "version": "0.0.10",
+  "version": "0.0.12",
   "description": "Parser for the extended markdown format used at javascript.ru",
   "dependencies": {
     "co": "*",
@@ -10,7 +10,7 @@
     "map-stream": "*",
     "sanitize-html": "*",
     "thunkify": "*",
-    "winston": "*"
+    "javascript-log": "*"
   },
   "devDependencies": {
     "trace": "*",

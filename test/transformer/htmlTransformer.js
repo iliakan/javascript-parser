@@ -20,7 +20,6 @@ describe("HtmlTransformer", function() {
       result.should.be.eql("text");
     });
 
-
     it("can transform nested", function* () {
       var input = new CompositeTag('a', [
         new TextNode("Item")

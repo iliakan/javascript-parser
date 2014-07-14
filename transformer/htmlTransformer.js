@@ -8,7 +8,7 @@ const escapeHtmlAttr = require('../util/htmlUtil').escapeHtmlAttr;
 const escapeHtmlText = require('../util/htmlUtil').escapeHtmlText;
 const sanitize = require('../util/htmlUtil').sanitize;
 const transliterate = require('../util/transliterate');
-const log = require('../util/log')(module);
+const log = require('javascript-log')(module);
 
 /**
  * Asynchronously transform tag tree to html
@@ -167,7 +167,7 @@ HtmlTransformer.prototype.wrapTagAround = function(tag, attrs, html) {
 
   result += '>';
 
-  if (tag != 'iframe' && tag != 'img') {
+  if (tag != 'img') {
     result += html + '</' + tag + '>';
   }
   return result;

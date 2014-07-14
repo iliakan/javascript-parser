@@ -26,7 +26,7 @@ const TreeWalker = require('../transformer/treeWalker').TreeWalker;
 const HREF_PROTOCOL_REG = require('../consts').HREF_PROTOCOL_REG;
 const makeAnchor = require('../util/htmlUtil').makeAnchor;
 const stripTags = require('../util/htmlUtil').stripTags;
-const log = require('../util/log')(module);
+const log = require('javascript-log')(module);
 
 
 /**
