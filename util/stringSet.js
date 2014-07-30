@@ -28,4 +28,4 @@ StringSet.prototype.toArray = function() {
   return result;
 };
 
-exports.StringSet = StringSet;
+module.exports = StringSet;

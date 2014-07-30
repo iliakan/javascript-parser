@@ -1,5 +1,5 @@
-const CompositeTag = require('./compositeTag').CompositeTag;
-const util = require('util');
+var CompositeTag = require('./compositeTag');
+var inherits = require('inherits');
 
 /**
  * ReferenceNode is an unresolved link
@@ -13,7 +13,7 @@ function ReferenceNode(ref, children) {
   this.ref = ref;
   CompositeTag.call(this, "a", children);
 }
-util.inherits(ReferenceNode, CompositeTag);
+inherits(ReferenceNode, CompositeTag);
 
 ReferenceNode.prototype.getType = function() {
   return 'ReferenceNode';
@@ -23,5 +23,5 @@ ReferenceNode.prototype.isExternal = function() {
   return true;
 };
 
-exports.ReferenceNode = ReferenceNode;
+module.exports = ReferenceNode;
 

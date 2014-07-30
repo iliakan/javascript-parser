@@ -1,12 +1,12 @@
-const HtmlTransformer = require('../../transformer/htmlTransformer').HtmlTransformer;
-const TagNode = require('../../node/tagNode').TagNode;
-const HeaderTag = require('../../node/headerTag').HeaderTag;
-const CompositeTag = require('../../node/compositeTag').CompositeTag;
-const TextNode = require('../../node/textNode').TextNode;
+var HtmlTransformer = require('../../transformer/htmlTransformer').HtmlTransformer;
+var TagNode = require('../../node/tagNode').TagNode;
+var HeaderTag = require('../../node/headerTag').HeaderTag;
+var CompositeTag = require('../../node/compositeTag').CompositeTag;
+var TextNode = require('../../node/textNode').TextNode;
 
 describe("HtmlTransformer", function() {
 
-  const options = {
+  var options = {
     trusted: true,
     noContextTypography: true
   };

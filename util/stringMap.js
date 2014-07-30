@@ -32,4 +32,4 @@ StringMap.prototype.keys = function() {
   return result;
 };
 
-exports.StringMap = StringMap;
+module.exports = StringMap;

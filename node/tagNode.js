@@ -1,5 +1,5 @@
-const TextNode = require('./textNode').TextNode;
-const util = require('util');
+var TextNode = require('./textNode');
+var inherits = require('inherits');
 
 function TagNode(tag, text, attrs) {
   if (typeof text != "string") {
@@ -10,7 +10,7 @@ function TagNode(tag, text, attrs) {
   this.tag = tag && tag.toLowerCase();
   this.attrs = attrs || {};
 }
-util.inherits(TagNode, TextNode);
+inherits(TagNode, TextNode);
 
 TagNode.prototype.getType = function() {
   return "TagNode";
@@ -25,4 +25,4 @@ TagNode.prototype.toStructure = function() {
   return structure;
 };
 
-exports.TagNode = TagNode;
+module.exports = TagNode;

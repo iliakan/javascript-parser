@@ -1,9 +1,9 @@
-const BodyParser = require('../../parser/bodyParser').BodyParser;
-const HtmlTransformer = require('../../transformer/htmlTransformer').HtmlTransformer;
-const contextTypography = require('../../typography/contextTypography').contextTypography;
-const path = require('path');
-const should = require('should');
-const util = require('util');
+var BodyParser = require('../../parser/bodyParser').BodyParser;
+var HtmlTransformer = require('../../transformer/htmlTransformer').HtmlTransformer;
+var contextTypography = require('../../typography/contextTypography').contextTypography;
+var path = require('path');
+var should = require('should');
+var util = require('util');
 
 
 function toHtml(result) {

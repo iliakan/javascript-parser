@@ -1,6 +1,6 @@
-const SrcResolver = require('../../parser/srcResolver').SrcResolver;
-const should = require('should');
-const path = require('path');
+var SrcResolver = require('../../parser/srcResolver').SrcResolver;
+var should = require('should');
+var path = require('path');
 
 describe("SrcResolver", function() {
 

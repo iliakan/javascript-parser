@@ -1,4 +1,4 @@
-const contextTypography = require('../../typography/contextTypography').contextTypography;
+var contextTypography = require('../../typography/contextTypography').contextTypography;
 
 describe("contextTypography", function() {
 

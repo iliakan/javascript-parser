@@ -1,13 +1,13 @@
-const util = require('util');
-const TagNode = require('./tagNode').TagNode;
+var inherits = require('inherits');
+var TagNode = require('./tagNode');
 
 function ErrorTag(tag, text) {
   TagNode.call(this, tag, text, {'class': 'format_error'});
 }
-util.inherits(ErrorTag, TagNode);
+inherits(ErrorTag, TagNode);
 
 ErrorTag.prototype.getType = function() {
   return "ErrorTag";
 };
 
-exports.ErrorTag = ErrorTag;
+module.exports = ErrorTag;

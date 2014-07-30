@@ -1,13 +1,13 @@
-const util = require('util');
-const Node = require('./node').Node;
+var inherits = require('inherits');
+var Node = require('./node');
 
 function CutNode() {
   Node.apply(this, arguments);
 }
-util.inherits(CutNode, Node);
+inherits(CutNode, Node);
 
 CutNode.prototype.getType = function() {
   return "CutNode";
 };
 
-exports.CutNode = CutNode;
+module.exports = CutNode;

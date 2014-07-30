@@ -24,4 +24,4 @@ Node.prototype.toString = function() {
   return JSON.stringify(this.toStructure());
 };
 
-exports.Node = Node;
+module.exports = Node;

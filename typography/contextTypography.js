@@ -1,6 +1,6 @@
-const NO_WRAP_TAGS_REG = require('../consts').NO_WRAP_TAGS_REG;
-const ATTRS_REG = require('../consts').ATTRS_REG;
-const VERBATIM_TAGS = require('../consts').VERBATIM_TAGS;
+var NO_WRAP_TAGS_REG = require('../consts').NO_WRAP_TAGS_REG;
+var ATTRS_REG = require('../consts').ATTRS_REG;
+var VERBATIM_TAGS = require('../consts').VERBATIM_TAGS;
 
 // В отличие от остальных методов, этот работает не "точечно", а над всем текстом,
 // Например "Мой `код` :)"

@@ -1,13 +1,14 @@
-const util = require('util');
-const TextNode = require('./textNode').TextNode;
+var util = require('util');
+var TextNode = require('./textNode');
+var inherits = require('inherits');
 
 function CommentNode() {
   TextNode.apply(this, arguments);
 }
-util.inherits(CommentNode, TextNode);
+inherits(CommentNode, TextNode);
 
 CommentNode.prototype.getType = function() {
   return "CommentNode";
 };
 
-exports.CommentNode = CommentNode;
+module.exports = CommentNode;

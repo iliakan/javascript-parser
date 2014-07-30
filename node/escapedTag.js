@@ -1,16 +1,15 @@
-const util = require('util');
-const TagNode = require('./tagNode').TagNode;
-const htmlUtil = require('../util/htmlUtil');
+var TagNode = require('./tagNode');
+var inherits = require('inherits');
 
 // Тег, содержимое которого нужно полностью заэкранировать
 // Все теги внутри эскейпятся, так что вложенный HTML заведомо безопасен
 function EscapedTag() {
   TagNode.apply(this, arguments);
 }
-util.inherits(EscapedTag, TagNode);
+inherits(EscapedTag, TagNode);
 
 EscapedTag.prototype.getType = function() {
   return "EscapedTag";
 };
 
-exports.EscapedTag = EscapedTag;
+module.exports = EscapedTag;

@@ -3,30 +3,28 @@
 // that's why I assign it here, before require('./bbtagParser')
 exports.BodyParser = BodyParser;
 
-const _ = require('lodash');
-const StringSet = require('../util/stringSet').StringSet;
-const StringMap = require('../util/stringMap').StringMap;
-const Parser = require('./parser').Parser;
-const SrcResolver = require('./srcResolver').SrcResolver;
-const BbtagParser = require('./bbtagParser').BbtagParser;
-const BodyLexer = require('./bodylexer').BodyLexer;
-const util = require('util');
-const TextNode = require('../node/textNode').TextNode;
-const TagNode = require('../node/tagNode').TagNode;
-const EscapedTag = require('../node/escapedTag').EscapedTag;
-const CompositeTag = require('../node/compositeTag').CompositeTag;
-const BbtagAttrsParser = require('./bbtagAttrsParser').BbtagAttrsParser;
-const ErrorTag = require('../node/errorTag').ErrorTag;
-const CommentNode = require('../node/commentNode').CommentNode;
-const ReferenceNode = require('../node/referenceNode').ReferenceNode;
-const HeaderTag = require('../node/headerTag').HeaderTag;
-const VerbatimText = require('../node/verbatimText').VerbatimText;
-const HtmlTransformer = require('../transformer/htmlTransformer').HtmlTransformer;
-const TreeWalker = require('../transformer/treeWalker').TreeWalker;
-const HREF_PROTOCOL_REG = require('../consts').HREF_PROTOCOL_REG;
-const makeAnchor = require('../util/htmlUtil').makeAnchor;
-const stripTags = require('../util/htmlUtil').stripTags;
-const log = require('javascript-log')(module);
+var inherits = require('inherits');
+var _ = require('lodash');
+var StringSet = require('../util/stringSet');
+var StringMap = require('../util/stringMap');
+var Parser = require('./parser');
+var SrcResolver = require('./srcResolver');
+var BbtagParser = require('./bbtagParser');
+var BodyLexer = require('./bodylexer');
+var TextNode = require('../node/textNode');
+var TagNode = require('../node/tagNode');
+var EscapedTag = require('../node/escapedTag');
+var CompositeTag = require('../node/compositeTag');
+var BbtagAttrsParser = require('./bbtagAttrsParser');
+var ErrorTag = require('../node/errorTag');
+var CommentNode = require('../node/commentNode');
+var ReferenceNode = require('../node/referenceNode');
+var HeaderTag = require('../node/headerTag');
+var VerbatimText = require('../node/verbatimText');
+var HtmlTransformer = require('../transformer/htmlTransformer');
+var TreeWalker = require('../transformer/treeWalker');
+var HREF_PROTOCOL_REG = require('../consts').HREF_PROTOCOL_REG;
+var makeAnchor = require('../util/makeAnchor');
 
 
 /**
@@ -57,14 +55,13 @@ function BodyParser(text, options) {
   if (!options.metadata.headersAnchorMap) {
     options.metadata.headersAnchorMap = new StringMap();
   }
-  this.taskRenderer = options.taskRenderer; // todo: use me
 
   Parser.call(this, options);
 
   this.lexer = new BodyLexer(text);
 }
 
-util.inherits(BodyParser, Parser);
+inherits(BodyParser, Parser);
 
 BodyParser.prototype.validateOptions = function(options) {
 
@@ -182,14 +179,14 @@ BodyParser.prototype.parseNodes = function() {
  * @returns {*}
  */
 BodyParser.prototype.parseHeader = function* (token) {
-  const titleNode = yield new BodyParser(token.title, this.subOpts()).parseAndWrap();
+  var titleNode = yield new BodyParser(token.title, this.subOpts()).parseAndWrap();
   var level = token.level;
 
   // There should be no ()[#references] or other external nodes inside header text,
   // because we may need to extract title/navigation from the content
   // and we'd like to do that without having to use DB for refs
   // ...anyway, reference inside a header has *no use*
-  const checkWalker = new TreeWalker(titleNode);
+  var checkWalker = new TreeWalker(titleNode);
   yield checkWalker.walk(function*(node) {
     if (node.isExternal()) {
       return new TextNode(''); // kill external nodes!
@@ -205,7 +202,7 @@ BodyParser.prototype.parseHeader = function* (token) {
     return new ErrorTag('div', "Header " + token.title + " is nested too deep (max 3)");
   }
 
-  const headers = this.options.metadata.headers;
+  var headers = this.options.metadata.headers;
 
   if (headers.length === 0 && level != 1) {
     return new ErrorTag('div', "The first header must have level 1, not " + level);
@@ -237,7 +234,7 @@ BodyParser.prototype.parseHeader = function* (token) {
   // Проверить якорь, при необходимости добавить anchor-1, anchor-2
   var anchor = token.anchor || makeAnchor(token.title);
 
-  const headersAnchorMap = this.options.metadata.headersAnchorMap;
+  var headersAnchorMap = this.options.metadata.headersAnchorMap;
 
   if(headersAnchorMap.has(anchor)) {
     // если якорь взят из заголовка - не имею права его менять (это reference), жёсткая ошибка
@@ -252,8 +249,8 @@ BodyParser.prototype.parseHeader = function* (token) {
   }
 
   // получим HTML заголовка для метаданных
-  const htmlTransformer = new HtmlTransformer(titleNode, this.options);
-  const titleHtml = (yield htmlTransformer.run()).trim();
+  var htmlTransformer = new HtmlTransformer(titleNode, this.options);
+  var titleHtml = (yield htmlTransformer.run()).trim();
 
   // ------- Ошибок точно нет, можно запоминать заголовок и reference ------
 
@@ -271,8 +268,8 @@ BodyParser.prototype.parseHeader = function* (token) {
 
 /*
 BodyParser.prototype.parseImg = function* (token) {
-  const parser = new BbtagAttrsParser(token.attrs);
-  const params = parser.parse();
+  var parser = new BbtagAttrsParser(token.attrs);
+  var params = parser.parse();
 
   var consumedText = this.lexer.getLastConsumedText();
 

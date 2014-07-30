@@ -1,8 +1,8 @@
 // Transliteration ported from https://github.com/yaroslav/russian/blob/master/lib/russian/transliteration.rb
 
-const _ = require('lodash');
+var _ = require('lodash');
 
-const LOWER_SINGLE = {
+var LOWER_SINGLE = {
   "і": "i", "ґ": "g", "ё": "yo", "№": "#", "є": "e",
   "ї": "yi", "а": "a", "б": "b",
   "в": "v", "г": "g", "д": "d", "е": "e", "ж": "zh",
@@ -13,12 +13,12 @@ const LOWER_SINGLE = {
   "ы": "y", "ь": "", "э": "e", "ю": "yu", "я": "ya"
 };
 
-const LOWER_MULTI = {
+var LOWER_MULTI = {
   "ье": "ie",
   "ьё": "ie"
 };
 
-const UPPER_SINGLE = {
+var UPPER_SINGLE = {
   "Ґ": "G", "Ё": "YO", "Є": "E", "Ї": "YI", "І": "I",
   "А": "A", "Б": "B", "В": "V", "Г": "G",
   "Д": "D", "Е": "E", "Ж": "ZH", "З": "Z", "И": "I",
@@ -28,16 +28,16 @@ const UPPER_SINGLE = {
   "Ш": "SH", "Щ": "SCH", "Ъ": "", "Ы": "Y", "Ь": "",
   "Э": "E", "Ю": "YU", "Я": "YA"
 };
-const UPPER_MULTI = {
+var UPPER_MULTI = {
   "ЬЕ": "IE",
   "ЬЁ": "IE"
 };
 
-const LOWER = _.assign({}, LOWER_SINGLE, LOWER_MULTI);
+var LOWER = _.assign({}, LOWER_SINGLE, LOWER_MULTI);
 
-const UPPER = _.assign({}, UPPER_SINGLE, UPPER_MULTI);
+var UPPER = _.assign({}, UPPER_SINGLE, UPPER_MULTI);
 
-const MULTI_KEYS = Object.keys(_.assign({}, LOWER_MULTI, UPPER_MULTI)).sort(function(a, b) {
+var MULTI_KEYS = Object.keys(_.assign({}, LOWER_MULTI, UPPER_MULTI)).sort(function(a, b) {
   return a.length > b.length;
 });
 

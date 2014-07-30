@@ -1,24 +1,23 @@
-exports.BbtagParser = BbtagParser;
+module.exports = BbtagParser;
 
-const StringSet = require('../util/StringSet');
-const Parser = require('./parser').Parser;
-const BodyParser = require('./bodyParser').BodyParser;
-const BbtagAttrsParser = require('./bbtagAttrsParser').BbtagAttrsParser;
-const consts = require('../consts');
-const util = require('util');
-const path = require('path');
-const _ = require('lodash');
-const TextNode = require('../node/textNode').TextNode;
-const TagNode = require('../node/tagNode').TagNode;
-const CutNode = require('../node/cutNode').CutNode;
-const CompositeTag = require('../node/compositeTag').CompositeTag;
-const TaskNode = require('../node/taskNode').TaskNode;
-const EscapedTag = require('../node/escapedTag').EscapedTag;
-const ErrorTag = require('../node/errorTag').ErrorTag;
-const SrcResolver = require('./srcResolver').SrcResolver;
-const stripIndents = require('../util/source').stripIndents;
-const extractHighlight = require('../util/source').extractHighlight;
-const VerbatimText = require('../node/verbatimText').VerbatimText;
+var StringSet = require('../util/StringSet');
+var Parser = require('./parser');
+var BodyParser = require('./bodyParser');
+var BbtagAttrsParser = require('./bbtagAttrsParser');
+var consts = require('../consts');
+var inherits = require('inherits');
+var _ = require('lodash');
+var TextNode = require('../node/textNode');
+var TagNode = require('../node/tagNode');
+var CutNode = require('../node/cutNode');
+var CompositeTag = require('../node/compositeTag');
+var TaskNode = require('../node/taskNode');
+var EscapedTag = require('../node/escapedTag');
+var ErrorTag = require('../node/errorTag');
+var SrcResolver = require('./srcResolver');
+var stripIndents = require('../util/source').stripIndents;
+var extractHighlight = require('../util/source').extractHighlight;
+var VerbatimText = require('../node/verbatimText');
 
 /**
  * Parser creates node objects from general text.
@@ -38,7 +37,7 @@ function BbtagParser(token, options) {
 
   this.params = this.readParamsString();
 }
-util.inherits(BbtagParser, Parser);
+inherits(BbtagParser, Parser);
 
 
 BbtagParser.prototype.validateOptions = function(options) {

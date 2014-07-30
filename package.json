@@ -6,11 +6,12 @@
     "co": "*",
     "gm": "*",
     "image-size": "*",
+    "inherits": "^2.0.1",
+    "javascript-log": "*",
     "lodash": "*",
     "map-stream": "*",
     "sanitize-html": "*",
-    "thunkify": "*",
-    "javascript-log": "*"
+    "thunkify": "*"
   },
   "devDependencies": {
     "trace": "*",

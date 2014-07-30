@@ -1,14 +1,14 @@
-const TagNode = require('../node/tagNode').TagNode;
-const TextNode = require('../node/textNode').TextNode;
-const NO_WRAP_TAGS_SET = require('../consts').NO_WRAP_TAGS_SET;
-const CompositeTag = require('../node/compositeTag').CompositeTag;
-const charTypography = require('../typography/charTypography').charTypography;
-const contextTypography = require('../typography/contextTypography').contextTypography;
-const escapeHtmlAttr = require('../util/htmlUtil').escapeHtmlAttr;
-const escapeHtmlText = require('../util/htmlUtil').escapeHtmlText;
-const sanitize = require('../util/htmlUtil').sanitize;
-const transliterate = require('../util/transliterate');
-const log = require('javascript-log')(module);
+var TagNode = require('../node/tagNode').TagNode;
+var TextNode = require('../node/textNode').TextNode;
+var NO_WRAP_TAGS_SET = require('../consts').NO_WRAP_TAGS_SET;
+var CompositeTag = require('../node/compositeTag').CompositeTag;
+var charTypography = require('../typography/charTypography').charTypography;
+var contextTypography = require('../typography/contextTypography').contextTypography;
+var escapeHtmlAttr = require('../util/htmlUtil').escapeHtmlAttr;
+var escapeHtmlText = require('../util/htmlUtil').escapeHtmlText;
+var sanitize = require('../util/htmlUtil').sanitize;
+var transliterate = require('../util/transliterate');
+var log = require('javascript-log')(module);
 
 /**
  * Asynchronously transform tag tree to html

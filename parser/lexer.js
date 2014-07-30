@@ -1,10 +1,10 @@
-const util = require('util');
-const consts = require('../consts');
+var inherits = require('inherits');
+var consts = require('../consts');
 
-const FAILURE_FIND_STRING = 'FAILURE_FIND_STRING';
-const FAILURE_FIND_STRING_NO_CASE = 'FAILURE_FIND_STRING_NO_CASE';
-const FAILURE_FIND_CHAR = 'FAILURE_FIND_CHAR';
-const FAILURE_FIND_CHAR_NO_NEWLINE = 'FAILURE_FIND_CHAR_NO_NEWLINE';
+var FAILURE_FIND_STRING = 'FAILURE_FIND_STRING';
+var FAILURE_FIND_STRING_NO_CASE = 'FAILURE_FIND_STRING_NO_CASE';
+var FAILURE_FIND_CHAR = 'FAILURE_FIND_CHAR';
+var FAILURE_FIND_CHAR_NO_NEWLINE = 'FAILURE_FIND_CHAR_NO_NEWLINE';
 
 /**
  * Lexer knows how to consume tokens.

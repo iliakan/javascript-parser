@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var CompositeTag = require('../node/compositeTag').CompositeTag;
+var CompositeTag = require('../node/compositeTag');
 
 // Обычно при создании парсера опции создаются как sub_opts, чтобы передать текущие опции, расширив их
 // Произвольный парсер имеет опции
@@ -32,4 +32,4 @@ Parser.prototype.parseAndWrap = function *(tag, attrs) {
   return new CompositeTag(tag, yield this.parse(), attrs);
 };
 
-exports.Parser = Parser;
+module.exports = Parser;

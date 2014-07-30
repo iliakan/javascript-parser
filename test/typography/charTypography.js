@@ -1,4 +1,4 @@
-const charTypography = require('../../typography/charTypography').charTypography;
+var charTypography = require('../../typography/charTypography').charTypography;
 
 describe("charTypography", function() {
 

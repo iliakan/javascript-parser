@@ -1,11 +1,7 @@
-const Node = require('./node').Node;
-const TextNode = require('./textNode').TextNode;
-const TagNode = require('./tagNode').TagNode;
-const util = require('util');
-const log = require('javascript-log')(module);
-const NO_WRAP_TAGS_SET = require('../consts').NO_WRAP_TAGS_SET;
-
-var htmlUtil = require('../util/htmlUtil');
+var Node = require('./node');
+var TextNode = require('./textNode');
+var TagNode = require('./tagNode');
+var inherits = require('inherits');
 
 //log.debugOn();
 
@@ -26,7 +22,7 @@ function CompositeTag(tag, children, attrs) {
   this._children = [];
   this.appendChildren(children);
 }
-util.inherits(CompositeTag, TagNode);
+inherits(CompositeTag, TagNode);
 
 CompositeTag.prototype.getType = function() {
   return "CompositeTag";
@@ -127,4 +123,4 @@ CompositeTag.prototype.toStructure = function() {
   return structure;
 };
 
-exports.CompositeTag = CompositeTag;
+module.exports = CompositeTag;

@@ -1,10 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const thunkify = require('thunkify');
-const fsStat = thunkify(fs.stat);
-const fsReadFile = thunkify(fs.readFile);
-const gm = require('gm');
-const imageSize = thunkify(require('image-size'));
+var fs = require('fs');
+var path = require('path');
+var thunkify = require('thunkify');
+var fsStat = thunkify(fs.stat);
+var fsReadFile = thunkify(fs.readFile);
+var gm = require('gm');
+var imageSize = thunkify(require('image-size'));
 function SrcResolver(src, options) {
   if (!options.resourceFsRoot) {
     throw new Error("resourceFsRoot is required");
@@ -99,7 +99,7 @@ SrcResolver.prototype.resolveImage = function *(withSize) {
     throw new Error("Bad src: not a file " + this.src);
   }
 
-  const data = {
+  var data = {
     fsPath: fsPath,
     webPath: this.getWebPath()
   };

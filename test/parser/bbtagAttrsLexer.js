@@ -1,6 +1,6 @@
-const BbtagAttrsLexer = require('../../parser/bbtagAttrsLexer').BbtagAttrsLexer;
+var BbtagAttrsLexer = require('../../parser/bbtagAttrsLexer').BbtagAttrsLexer;
 
-const should = require('should');
+var should = require('should');
 
 describe("BbtagAttrsLexer", function() {
 

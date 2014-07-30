@@ -1,12 +1,12 @@
-const Parser = require('./parser').Parser;
-const util = require('util');
-const BbtagAttrsLexer = require('./bbtagAttrsLexer').BbtagAttrsLexer;
+var Parser = require('./parser');
+var inherits = require('inherits');
+var BbtagAttrsLexer = require('./bbtagAttrsLexer');
 
 function BbtagAttrsParser(attrs, options) {
   Parser.call(this, options);
   this.lexer = new BbtagAttrsLexer(attrs);
 }
-util.inherits(BbtagAttrsParser, Parser);
+inherits(BbtagAttrsParser, Parser);
 
 BbtagAttrsParser.prototype.parse = function() {
 
@@ -49,4 +49,4 @@ BbtagAttrsParser.prototype.parse = function() {
   return attrsObject;
 };
 
-exports.BbtagAttrsParser = BbtagAttrsParser;
+module.exports = BbtagAttrsParser;

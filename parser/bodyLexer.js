@@ -1,11 +1,11 @@
-const util = require('util');
-const consts = require('../consts');
-const Lexer = require('./lexer').Lexer;
+var inherits = require('inherits');
+var consts = require('../consts');
+var Lexer = require('./lexer');
 
 function BodyLexer(text) {
   Lexer.apply(this, arguments);
 }
-util.inherits(BodyLexer, Lexer);
+inherits(BodyLexer, Lexer);
 
 Lexer.prototype.consumeCode = function() {
   if (this.text[this.position] != '`') return null;
@@ -645,4 +645,4 @@ Lexer.prototype.consumeBbtagNeedClose = function() {
 
 };
 
-exports.BodyLexer = BodyLexer;
+module.exports = BodyLexer;

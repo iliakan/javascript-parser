@@ -1,5 +1,5 @@
-const CompositeTag = require('./compositeTag').CompositeTag;
-const util = require('util');
+var CompositeTag = require('./compositeTag');
+var inherits = require('inherits');
 
 /**
  * HeaderTag comes from # HEADERS
@@ -28,10 +28,10 @@ function HeaderTag(level, anchor, children, attrs) {
   // we put children into <a> anyway, so we must not use tag here
   CompositeTag.call(this, null, children, attrs);
 }
-util.inherits(HeaderTag, CompositeTag);
+inherits(HeaderTag, CompositeTag);
 
 HeaderTag.prototype.getType = function() {
   return 'HeaderTag';
 };
 
-exports.HeaderTag = HeaderTag;
+module.exports = HeaderTag;

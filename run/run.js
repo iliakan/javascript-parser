@@ -1,7 +1,7 @@
 // PERFORMANCE TESTING
-const co = require('co');
+var co = require('co');
 
-const BodyParser = require('..').BodyParser;
+var BodyParser = require('..').BodyParser;
 
 var text = "# События в деталях\n\nОсновные типы событий, которые нужны в 95% случаев. Глубоко изучаем их особенности и применение.\n\nВы можете читать этот раздел в любом порядке или кратко просмотреть его и вернуться к конкретным событиям, когда они понадобятся.\n\n";
 text = new Array(200).join(text);

@@ -1,11 +1,11 @@
-const util = require('util');
-const consts = require('../consts');
-const Lexer = require('./lexer').Lexer;
+var inherits = require('inherits');
+var consts = require('../consts');
+var Lexer = require('./lexer');
 
 function BbtagAttrsLexer(text) {
   Lexer.apply(this, arguments);
 }
-util.inherits(BbtagAttrsLexer, Lexer);
+inherits(BbtagAttrsLexer, Lexer);
 
 Lexer.prototype.consumeName = function() {
   var startPosition = this.position;
@@ -79,4 +79,4 @@ Lexer.prototype.consumeValue = function() {
 };
 
 
-exports.BbtagAttrsLexer = BbtagAttrsLexer;
+module.exports = BbtagAttrsLexer;

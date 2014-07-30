@@ -1,12 +1,12 @@
 /**
  Типографер для замены символов и спецпоследовательностей,
- работает точечно, 
+ работает точечно,
  (возможно нужно запускать до jsdom, так как некоторые последовательности типа -> <- могут ему не понравиться)
 */
 
-const PUNCT_REG = /[!"#$%&'()*+,\-.\/:;<=>?@[\\\]^_`{|}~]/;
+var PUNCT_REG = /[!"#$%&'()*+,\-.\/:;<=>?@[\\\]^_`{|}~]/;
 
-const SMILES = require('./smiles');
+var SMILES = require('./smiles');
 
 
 function escapeReg(s) {
@@ -14,7 +14,7 @@ function escapeReg(s) {
 }
 
 
-const SMILES_REG = (function() {
+var SMILES_REG = (function() {
   return new RegExp('(\\s)(' + Object.keys(SMILES).map(escapeReg).join('|') + ')(?=\\s|$|' + PUNCT_REG.source + ')', 'gim');
 }());
 
@@ -61,7 +61,7 @@ function processSmiles(text) {
     var smileInfo = SMILES[smile];
     return space + '<img src="/files/smiles/' + smileInfo[0] + '" alt="' + smileInfo[1] + '">';
   });
-  
+
 }
 
 function charTypography(html) {

@@ -1,6 +1,6 @@
-const BodyLexer = require('../../parser/bodyLexer').BodyLexer;
+var BodyLexer = require('../../parser/bodyLexer').BodyLexer;
 
-const should = require('should');
+var should = require('should');
 
 describe("BodyLexer", function() {
 

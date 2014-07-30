@@ -1,11 +1,11 @@
-const Node = require('./node').Node;
-const util = require('util');
+var Node = require('./node');
+var inherits = require('inherits');
 
 function TextNode(text) {
   Node.call(this);
   this.text = text;
 }
-util.inherits(TextNode, Node);
+inherits(TextNode, Node);
 
 TextNode.prototype.getType = function() {
   return "TextNode";
@@ -17,4 +17,4 @@ TextNode.prototype.toStructure = function() {
   return structure;
 };
 
-exports.TextNode = TextNode;
+module.exports = TextNode;

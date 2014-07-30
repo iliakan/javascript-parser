@@ -1,5 +1,5 @@
-const consts = require('consts');
-const should = require('should');
+var consts = require('consts');
+var should = require('should');
 
 // todo: cleanup, remove unused patterns
 0 && describe("Patterns", function() {
@@ -36,7 +36,7 @@ const should = require('should');
     it('*JavaScript* *(обычный текст)*. Они не требуют *подготовки*.', function() {
       this.test.matches.should.eql(['*JavaScript*','*(обычный текст)*', '*подготовки*']);
     });
-    
+
     // работает криво, но как задумано,
     // этот паттерн дополняется проверкой на начало строки или пробел в парсере
     // поэтому в реальном тексте не заменяет (*) "*" итп
@@ -45,7 +45,7 @@ const should = require('should');
     });
 
   });
-  
+
   describe('LINK_PAT', function() {
 
     it("[text](href)", function() {
@@ -55,7 +55,7 @@ const should = require('should');
     it("[many words](href)", function() {
       this.test.firstMatch[0].should.eql(this.test.title);
     });
-    
+
     it('[many words](words not allowed)', function() {
       should.not.exist(this.test.firstMatch);
     });
