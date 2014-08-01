@@ -32,6 +32,11 @@ var TextNode = require('../node/textNode');
  *
  * Parser knows about current trust mode, so it must make sure that these attributes are safe.
  *
+ * Parser builds a tree structure, parsing all text and if needed, transforming it on the fly,
+ * so that a traversal may reach all descendants.
+ *
+ * The final node.toHtml call MAY generate more text, but MAY NOT generate more nodes in the process.
+ *
  * @constructor
  */
 function BodyParser(text, options) {
