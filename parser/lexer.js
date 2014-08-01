@@ -285,6 +285,9 @@ Lexer.prototype.peekQuotedString = function(startPosition) {
 };
 
 Lexer.prototype.isEof = function() {
+  if (this.position > this.text.length) {
+    throw new Error("Position out of text!");
+  }
   return this.position === this.text.length;
 };
 

@@ -5,6 +5,7 @@ module.exports = BodyParser;
 
 var inherits = require('inherits');
 var _ = require('lodash');
+var assert = require('assert');
 var StringSet = require('../util/stringSet');
 var StringMap = require('../util/stringMap');
 var Parser = require('./parser');
@@ -20,7 +21,6 @@ var CommentNode = require('../node/commentNode');
 var HeaderTag = require('../node/headerTag');
 var VerbatimText = require('../node/verbatimText');
 var TreeWalkerSync = require('../transformer/treeWalkerSync');
-var HtmlTransformer = require('../transformer/htmlTransformer');
 var HREF_PROTOCOL_REG = require('../consts').HREF_PROTOCOL_REG;
 var makeAnchor = require('../util/makeAnchor');
 var TextNode = require('../node/textNode');
@@ -82,6 +82,7 @@ BodyParser.prototype.parse = function() {
     var nodes = this.parseNodes();
 
     if (nodes) {
+
       if (nodes.length === undefined) {
         nodes = [nodes];
       }
@@ -159,7 +160,7 @@ BodyParser.prototype.parseNodes = function() {
  * @returns {*}
  */
 BodyParser.prototype.parseHeader = function(token) {
-  var p = new BodyParser(token.title, this.subOpts());
+  var p = new BodyParser(token.title, this.options);
   var titleNode = p.parseAndWrap();
 
   var level = token.level;
@@ -224,7 +225,7 @@ BodyParser.prototype.parseHeader = function(token) {
   }
 
   // получим HTML заголовка для метаданных
-  var titleHtml = titleNode.toHtml(this.options).trim();
+  var titleHtml = titleNode.toHtml({contextTypography: true}).trim();
 
   // ------- Ошибок точно нет, можно запоминать заголовок и reference ------
 
@@ -258,7 +259,7 @@ BodyParser.prototype.parseLink = function(token) {
     protocol = protocol[1].trim();
   }
 
-  var titleParsed = new BodyParser(title, this.subOpts()).parse();
+  var titleParsed = new BodyParser(title, this.options).parse();
 
   // external link goes "as is"
   if (protocol) {
@@ -295,7 +296,7 @@ BodyParser.prototype.parseLink = function(token) {
  protocol = protocol[1].trim();
  }
 
- var titleParsed = new BodyParser(title, this.subOpts()).parse();
+ var titleParsed = new BodyParser(title, this.options).parse();
 
  // external link goes "as is"
  if (protocol) {
@@ -320,20 +321,20 @@ BodyParser.prototype.parseLink = function(token) {
  };
  */
 BodyParser.prototype.parseBbtag = function(token) {
-  return new BbtagParser(token, this.subOpts()).parse();
+  return new BbtagParser(token, this.options).parse();
 };
 
 BodyParser.prototype.parseBold = function(token) {
-  return new BodyParser(token.body, this.subOpts()).parseAndWrap("strong");
+  return new BodyParser(token.body, this.options).parseAndWrap("strong");
 };
 
 BodyParser.prototype.parseItalic = function(token) {
-  var parser = new BodyParser(token.body, this.subOpts());
+  var parser = new BodyParser(token.body, this.options);
   return parser.parseAndWrap("em");
 };
 
 BodyParser.prototype.parseStrike = function(token) {
-  var parser = new BodyParser(token.body, this.subOpts());
+  var parser = new BodyParser(token.body, this.options);
   return parser.parseAndWrap("strike");
 };
 

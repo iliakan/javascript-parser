@@ -8,7 +8,10 @@ var stripPattern = /^\s*(?=[^\s]+)/mg;
 
 // same as Ruby strip_heredoc + strip first lines and rtrim
 module.exports = function(text) {
+
   text = stripFirstLines(text).replace(/\s+$/, '');
+  if (!text) return '';
+
   var indentLen = text.match(stripPattern)
     .reduce(function (min, line) {
       return Math.min(min, line.length);

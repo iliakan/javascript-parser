@@ -481,6 +481,7 @@ Lexer.prototype.consumeSource = function() {
   //      ^
 
 
+  // skip spaces after language
   while (this.text[position] != '\n' && position < this.text.length) {
     if (!this.isWhiteSpaceCode(this.text.charCodeAt(position))) {
       return null;
@@ -532,7 +533,9 @@ Lexer.prototype.consumeSource = function() {
   // now consume body
   var bodyStartPosition = position;
   while (position < this.text.length) {
-    if (this.atLineStart(position) && this.peekString('```\n', position) !== null) {
+    if (this.atLineStart(position) &&
+      this.peekString('```', position) !== null &&
+      ~["\n", undefined].indexOf(this.text[position+3])) { // newline or text end after ```
       break;
     }
 
@@ -544,10 +547,16 @@ Lexer.prototype.consumeSource = function() {
   // //+ run  (optionally)
   //   alert(1);
   // ```
-  // ^
+  //    ^
   var bodyEndPosition = position - 1;
 
-  this.setPosition(position + 4);
+  // this may be end of text OR right after closing ```, at newline
+  position = position + 3;
+
+  // if not end of text, one more step to skip \n
+  if (position < this.text.length) position++;
+
+  this.setPosition(position);
 
   return {
     type:  'bbtag',

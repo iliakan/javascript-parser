@@ -22,10 +22,6 @@ Parser.prototype.validateOptions = function(options) {
   // throw if something's wrong
 };
 
-Parser.prototype.subOpts = function(mergeOptions) {
-  return _.assign({}, this.options, mergeOptions || {});
-};
-
 Parser.prototype.node = function(Constructor/*, args */) {
 
   var node;
