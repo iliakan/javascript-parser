@@ -18,6 +18,11 @@ describe("BodyLexer", function() {
       this.test.lexer.isEof().should.be.true;
     });
 
+
+    it('```js\nignore close on same line```', function() {
+      should.not.exist(this.test.lexer.consumeSource());
+    });
+
     it("```js\n//+ run height=100 src='my.js'\nalert(1);\n```\n", function() {
       var bbtag = this.test.lexer.consumeSource();
       bbtag.should.be.eql({ type: 'bbtag', name: 'js', attrs: "run height=100 src='my.js'", body: 'alert(1);' });
@@ -134,6 +139,10 @@ describe("BodyLexer", function() {
     it('`my code`', function() {
       this.test.lexer.consumeCode().should.be.eql({ type: 'code', body: 'my code' });
       this.test.lexer.isEof().should.be.true;
+    });
+
+    it('`` ignore empty code', function() {
+      should.not.exist(this.test.lexer.consumeCode());
     });
 
     it('one ` and ` two', function() {

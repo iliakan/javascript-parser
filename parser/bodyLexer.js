@@ -11,8 +11,8 @@ Lexer.prototype.consumeCode = function() {
   if (this.text[this.position] != '`') return null;
   if (this.isWhiteSpaceCode(this.text.charCodeAt(this.position + 1))) return null;
 
-  var position = this.position + 1;
-
+  var startPosition = this.position + 1;
+  var position = startPosition;
   // found
   // `\S
   //  ^
@@ -21,11 +21,16 @@ Lexer.prototype.consumeCode = function() {
   while (true) {
     endPosition = this.findCharNoNewline('`', position);
     if (endPosition === null) return null;
-    if (this.isWhiteSpaceCode(this.text.charCodeAt(endPosition - 1))) {
+    if (this.isWhiteSpaceCode(this.text.charCodeAt(endPosition - 1))) { // skip \s`, search more, for \S`
       position = endPosition + 1;
     } else {
       break;
     }
+  }
+
+  if (startPosition == endPosition) {
+    // found ``, ignore it
+    return null;
   }
 
   // found
@@ -35,7 +40,7 @@ Lexer.prototype.consumeCode = function() {
   this.setPosition(endPosition + 1);
   return {
     type: 'code',
-    body: this.text.slice(position, endPosition)
+    body: this.text.slice(startPosition, endPosition)
   };
 };
 
@@ -524,6 +529,7 @@ Lexer.prototype.consumeSource = function() {
     attrsStartPosition++; // attributes actually start on the next char after `//+ `
   }
 
+
   // found
   // ```js
   // //+ run  (optionally)
@@ -541,6 +547,9 @@ Lexer.prototype.consumeSource = function() {
 
     position++;
   }
+
+  if (position == this.text.length) return null;
+
 
   // found
   // ```js
