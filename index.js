@@ -1,18 +1,16 @@
 exports.consts = require('./consts');
 
-exports.CommentNode = require('./node/commentNode').CommentNode;
-exports.CompositeTag = require('./node/compositeTag').CompositeTag;
-exports.CutNode = require('./node/cutNode').CutNode;
-exports.ErrorTag = require('./node/errorTag').ErrorTag;
-exports.EscapedTag = require('./node/escapedTag').EscapedTag;
-exports.HeaderTag = require('./node/headerTag').HeaderTag;
-exports.Node = require('./node/node').Node;
-exports.ReferenceNode = require('./node/referenceNode').ReferenceNode;
-exports.TagNode = require('./node/tagNode').TagNode;
-exports.TaskNode = require('./node/taskNode').TaskNode;
-exports.TextNode = require('./node/textNode').TextNode;
-exports.VerbatimText = require('./node/verbatimText').VerbatimText;
+exports.CommentNode = require('./node/commentNode');
+exports.CompositeTag = require('./node/compositeTag');
+exports.CutNode = require('./node/cutNode');
+exports.ErrorTag = require('./node/errorTag');
+exports.EscapedTag = require('./node/escapedTag');
+exports.HeaderTag = require('./node/headerTag');
+exports.Node = require('./node/node');
+exports.ReferenceNode = require('./node/referenceNode');
+exports.TagNode = require('./node/tagNode');
+exports.TextNode = require('./node/textNode');
+exports.VerbatimText = require('./node/verbatimText');
 
-exports.BodyParser = require('./parser/bodyParser').BodyParser;
-exports.TreeWalker = require('./transformer/treeWalker').TreeWalker;
-exports.HtmlTransformer = require('./transformer/htmlTransformer').HtmlTransformer;
+exports.BodyParser = require('./parser/bodyParser');
+exports.TreeWalkerSync = require('./transformer/treeWalkerSync');

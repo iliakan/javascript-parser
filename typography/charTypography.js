@@ -76,4 +76,4 @@ function charTypography(html) {
   return html;
 }
 
-exports.charTypography = charTypography;
+module.exports = charTypography;

@@ -7,7 +7,7 @@
     "gm": "*",
     "image-size": "*",
     "inherits": "^2.0.1",
-    "javascript-log": "*",
+    "js-log": "*",
     "lodash": "*",
     "map-stream": "*",
     "sanitize-html": "*",
@@ -22,12 +22,13 @@
     "gulp-jshint": "*",
     "mocha": "*",
     "should": "*",
-    "sinon": "*",
-    "javascript-gulp-task-lint": "*"
+    "sinon": "*"
   },
-  "precommit": "gulp pre-commit",
   "engines": {
     "node": ">=0.11.13"
+  },
+  "browser": {
+    "./util/sanitize.js" : "./util/sanitize.browser.js"
   },
   "engineStrict": true,
   "repository": {

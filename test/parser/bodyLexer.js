@@ -1,4 +1,4 @@
-var BodyLexer = require('../../parser/bodyLexer').BodyLexer;
+var BodyLexer = require('../../parser/bodyLexer');
 
 var should = require('should');
 
@@ -56,22 +56,22 @@ describe("BodyLexer", function() {
 
   describe('consumeBbtagSelfClose', function() {
 
-    it("[task]", function() {
+    it("[iframe]", function() {
       var bbtag = this.test.lexer.consumeBbtagSelfClose();
-      bbtag.should.be.eql({ type: 'bbtag', name: 'task', attrs: '', body: '' });
+      bbtag.should.be.eql({ type: 'bbtag', name: 'iframe', attrs: '', body: '' });
       this.test.lexer.isEof().should.be.true;
     });
 
-    it("[task-with-more-words-should-not-match]", function() {
+    it("[iframe-with-more-words-should-not-match]", function() {
       var bbtag = this.test.lexer.consumeBbtagSelfClose();
       should.not.exist(bbtag);
       this.test.lexer.position.should.eql(0);
     });
 
-    it("[task attrs]body[/task]", function() {
+    it("[iframe attrs]body[/iframe]", function() {
       var bbtag = this.test.lexer.consumeBbtagSelfClose();
-      bbtag.should.be.eql({ type: 'bbtag', name: 'task', attrs: ' attrs', body: '' });
-      this.test.lexer.position.should.eql(12);
+      bbtag.should.be.eql({ type: 'bbtag', name: 'iframe', attrs: ' attrs', body: '' });
+      this.test.lexer.position.should.eql(14); // consumed only opening [iframe ...]
     });
 
   });

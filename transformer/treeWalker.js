@@ -1,4 +1,4 @@
-var CompositeTag = require('../node/compositeTag').CompositeTag;
+var CompositeTag = require('../node/compositeTag');
 
 /**
  * Takes single root node, not array of nodes, because it may need to transform on top-level
@@ -40,4 +40,4 @@ function isGeneratorFunction(obj) {
   return obj && obj.constructor && 'GeneratorFunction' == obj.constructor.name;
 }
 
-exports.TreeWalker = TreeWalker;
+module.exports = TreeWalker;

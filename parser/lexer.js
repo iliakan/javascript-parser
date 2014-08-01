@@ -310,4 +310,4 @@ Lexer.prototype.isWordlyCode = function(charCode) {
     charCode == 0x5f; // _
 };
 
-exports.Lexer = Lexer;
+module.exports = Lexer;

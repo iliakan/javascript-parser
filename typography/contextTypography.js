@@ -92,4 +92,4 @@ function contextTypography(html) {
   return html;
 }
 
-exports.contextTypography = contextTypography;
+module.exports = contextTypography;

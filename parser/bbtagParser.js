@@ -7,17 +7,16 @@ var BbtagAttrsParser = require('./bbtagAttrsParser');
 var consts = require('../consts');
 var inherits = require('inherits');
 var _ = require('lodash');
-var TextNode = require('../node/textNode');
+var SourceTag = require('../node/sourceTag');
 var TagNode = require('../node/tagNode');
 var CutNode = require('../node/cutNode');
+var ImgTag = require('../node/imgTag');
+var KeyTag = require('../node/keyTag');
 var CompositeTag = require('../node/compositeTag');
-var TaskNode = require('../node/taskNode');
 var EscapedTag = require('../node/escapedTag');
 var ErrorTag = require('../node/errorTag');
-var SrcResolver = require('./srcResolver');
-var stripIndents = require('../util/source').stripIndents;
-var extractHighlight = require('../util/source').extractHighlight;
 var VerbatimText = require('../node/verbatimText');
+var TextNode = require('../node/textNode');
 
 /**
  * Parser creates node objects from general text.
@@ -44,16 +43,6 @@ BbtagParser.prototype.validateOptions = function(options) {
 
   if (!("trusted" in options)) {
     throw new Error("Must have trusted option");
-  }
-
-  // if we need [img src="my.png"], we read my.png from *this folder* to retreive it's size
-  if (!options.resourceFsRoot) {
-    throw new Error("Must have resourceFsRoot option: filesystem dir to read resources from");
-  }
-
-  // if we need
-  if (!options.resourceWebRoot) {
-    throw new Error("Must have resourceWebRoot option: web dir to reference resources");
   }
 
 };
@@ -85,42 +74,48 @@ BbtagParser.prototype.parse = function() {
 
 };
 
-BbtagParser.prototype.parseOffline = function* () {
+BbtagParser.prototype.parseOffline = function() {
   if (this.options.export) {
-    return yield new BodyParser(this.body, this.subOpts()).parse();
+    return new BodyParser(this.body, this.subOpts()).parse();
   } else {
-    return new TextNode("");
+    return this.node("");
   }
 };
 
-BbtagParser.prototype.parseDemo = function* () {
+BbtagParser.prototype.parseDemo = function() {
 
   var attrs = {};
   if (this.params.src) {
-    var resolver = new SrcResolver(this.params.src, this.options);
-
-    attrs.href = resolver.getWebPath() + '/';
+    attrs.href = this.normalizeSrc(this.params.src) + '/';
     attrs.target = '_blank';
-    return new TagNode('a', 'Демо в новом окне', attrs);
+    return this.node(TagNode, 'a', 'Демо в новом окне', attrs);
   }
 
-  return new TagNode('button', "Запустить демо", {"onclick": 'runDemo(this)'});
+  return this.node(TagNode, 'button', "Запустить демо", {"onclick": 'runDemo(this)'});
+};
+
+BbtagParser.prototype.normalizeSrc = function(src) {
+  if (src[0] == '/') return src;
+
+  if (~src.indexOf('://')) return src;
+
+  return this.resourceRoot + '/' + src;
 };
 
 
-BbtagParser.prototype.parseHead = function* () {
+BbtagParser.prototype.parseHead = function() {
   if (this.trusted) {
     if (!this.options.metadata.head) this.options.metadata.head = [];
 
     this.options.metadata.head.push(this.body);
   }
-  return new TextNode('');
+  return this.node('');
 };
 
 // use object for libs, because they are
 // (1) unique
 // (2) keep order
-BbtagParser.prototype.parseLibs = function* () {
+BbtagParser.prototype.parseLibs = function() {
   if (this.trusted) {
     var lines = this.body.split('\n');
     for (var i = 0; i < lines.length; i++) {
@@ -130,43 +125,19 @@ BbtagParser.prototype.parseLibs = function* () {
       this.options.metadata.libs.add(lib);
     }
   }
-  return new TextNode('');
+  return this.node('');
 };
 
-BbtagParser.prototype.parseImportance = function* () {
+BbtagParser.prototype.parseImportance = function() {
   if (this.trusted) {
     this.options.metadata.importance = parseInt(this.paramsString);
   }
-  return new TextNode('');
+  return this.node('');
 };
 
-BbtagParser.prototype.parsePlay = function* () {
+BbtagParser.prototype.parseEdit = function() {
   if (!this.params.src) {
     return this.paramRequiredError('span', 'src');
-  }
-
-  var resolver = new SrcResolver(this.params.src, this.options);
-
-  var attrs = {
-    href: resolver.getWebPath() + '/'
-  };
-
-  return new TagNode('a', this.body, attrs);
-};
-
-BbtagParser.prototype.parseEdit = function* () {
-  if (!this.params.src) {
-    return this.paramRequiredError('span', 'src');
-  }
-
-
-  var resolver = new SrcResolver(this.params.src, this.options);
-
-  var plunkId;
-  try {
-    plunkId = yield resolver.readPlunkId();
-  } catch (e) {
-    return new ErrorTag('span', 'edit: ' + e.message);
   }
 
   var body = this.body;
@@ -180,164 +151,68 @@ BbtagParser.prototype.parseEdit = function* () {
 
   var attrs = {
     "class": "edit",
-    href: "http://plnkr.co/edit/" + plunkId + "?p=preview"
+    href:    "/play" + this.normalizeSrc(this.params.src)
   };
 
-  return new TagNode('a', body, attrs);
+  return this.node(TagNode, 'a', body, attrs);
 };
 
-BbtagParser.prototype.parseCut = function* () {
-  return new CutNode();
+BbtagParser.prototype.parseCut = function() {
+  return this.node(CutNode);
 };
 
-BbtagParser.prototype.parseKey = function* () {
-  var results = [];
-  var keys = this.paramsString.trim();
-  if (keys == "+") {
-    return new TagNode('kbd', '+', {'class': 'shortcut'});
-  }
-
-  var plusLabel = Math.random();
-  keys = keys.replace(/\+\+/g, '+'+plusLabel);
-  keys = keys.split('+');
-
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i];
-    results.push(new TextNode((key == plusLabel) ? '+' : key));
-    if (i < keys.length - 1) {
-      results.push(new TagNode('span','+', {"class": "shortcut__plus"}));
-    }
-  }
-
-  return new CompositeTag('kbd', results, {"class": "shortcut"});
+BbtagParser.prototype.parseKey = function() {
+  return this.node(KeyTag, this.paramsString.trim());
 };
 
-/*
-BbtagParser.prototype.parseRef = function* () {
-  throw new Error("[ref is not supported any more");
 
-  if (!this.params.id) {
-    return this.paramRequiredError('span', 'id');
-  }
+BbtagParser.prototype.parseBlock = function() {
+  var content = [];
 
-  var id = this.params.id;
-
-  if (!this.options.metadata.refs) this.options.metadata.refs = new StringSet();
-  if (this.options.metadata.refs.has(id)) {
-    return new ErrorTag('div', '[#'+id+']: duplicate in the same article');
-  }
-
-  this.options.metadata.refs.add(id);
-
-  return new TagNode('a', '', {"name": id});
-
-};
-*/
-
-BbtagParser.prototype.parseBlock = function* () {
-  var content = yield new BodyParser(this.body, this.subOpts()).parse();
-
-  content = [new CompositeTag('div', content, {'class': 'important__content'})];
-
-  var children;
+  content.push('<div class="important__header">');
   if (this.params.header) {
-    var headerContent =  yield new BodyParser(this.params.header, this.subOpts()).parse();
-    children = [
-      new TagNode('span', '', {'class': 'important__type'}),
-      new CompositeTag('h3', headerContent, {'class': 'important__title'})
-    ];
+    content.push('<span class="important__type"></span><h3 class="important__title">');
+    var headerContent = new BodyParser(this.params.header, this.subOpts()).parse();
+    content.push.apply(content, headerContent);
+    content.push('</h3>');
   } else {
-    children = [
-      new TagNode('span', consts.BBTAG_BLOCK_DEFAULT_TITLE[this.name], {'class': 'important__type'})
-    ];
+    content.push('<span class="important__type">', consts.BBTAG_BLOCK_DEFAULT_TITLE[this.name], '</span>');
   }
 
-  content.unshift(new CompositeTag('div', children, {'class' : 'important__header'}));
+  content.push('</div>'); // ../important__header
 
-  return new CompositeTag('div', content, {'class':'important important_'+this.name});
+  content.push('<div class="important__content">');
+  content.push.apply(content, new BodyParser(this.body, this.subOpts()).parse());
+  content.push('</div>');
+
+  content = content.map(function(item) {
+    return (typeof item == 'string') ? this.node(item) : item;
+  }, this);
+
+  return this.node(CompositeTag, 'div', content, {'class': 'important important_' + this.name});
 };
 
 
-BbtagParser.prototype.parseSource = function* () {
-
-  var prismLanguageMap = {
-    html: 'markup',
-    js: 'javascript',
-    coffee: 'coffeescript'
-  };
-
-  var prismLanguage = prismLanguageMap[this.name] || this.name;
-
-  var attrs =  {
-        'class': "language-" + prismLanguage + " line-numbers",
-        "data-trusted": (this.trusted && !this.params.untrusted) ? '1' : '0'
-  };
-
-  var body = this.body;
-
-  if (this.params.src) {
-    var resolver = new SrcResolver(this.params.src, this.options);
-
-    try {
-      body = yield resolver.readFile();
-    } catch (e) {
-      return new ErrorTag('div', e.message);
-    }
-
-  }
-
-  // strip first empty lines
-  body = stripIndents(body);
-
-  var highlight = extractHighlight(body);
-  if (highlight.block) {
-    attrs['data-highlight-block'] = highlight.block;
-  }
-  if (highlight.inline) {
-    attrs['data-highlight-inline'] = highlight.inline;
-  }
-  body = highlight.text;
-
-  if (this.params.height) {
-    attrs['data-demo-height'] = this.params.height;
-  }
-
-  if (this.params.autorun) {
-    attrs['data-autorun'] = '1';
-  }
-  if (this.params.refresh) {
-    attrs['data-refresh'] = '1';
-  }
-  if (this.params.run) {
-    attrs['data-run'] = '1';
-  }
-  if (this.params.demo) {
-    attrs['data-demo'] = '1';
-  }
-
-  if (this.params.hide) {
-    attrs['data-hide'] = (this.params.hide === true) ? "" : this.params.hide;
-    attrs['class'] += 'hide';
-  }
-
-  return new EscapedTag('pre', body, attrs);
+BbtagParser.prototype.parseSource = function() {
+  return this.node(SourceTag, this.name, this.body, this.params);
 };
 
 
-BbtagParser.prototype.parseSummary = function* () {
-  var summary = yield new BodyParser(this.body, this.subOpts()).parse();
-  summary = new CompositeTag('div', summary, {'class' : 'summary__content'});
+BbtagParser.prototype.parseSummary = function() {
+  var summary = new BodyParser(this.body, this.subOpts()).parse();
 
-  return new CompositeTag('div', [summary], {'class': 'summary'});
+  var content = this.node(CompositeTag, 'div', summary, {'class': "summary__content"});
+
+  return this.node(CompositeTag, 'div', [content], {'class': 'summary'});
 };
 
-BbtagParser.prototype.parseIframe = function* () {
+BbtagParser.prototype.parseIframe = function() {
   if (!this.params.src) {
     return this.paramRequiredError('div', 'src');
   }
 
   var attrs = {
-    'class': 'result__iframe',
+    'class':        'result__iframe',
     'data-trusted': this.trusted ? '1' : '0'
   };
 
@@ -345,15 +220,9 @@ BbtagParser.prototype.parseIframe = function* () {
     attrs['data-demo-height'] = this.params.height;
   }
 
-  var resolver = new SrcResolver(this.params.src, this.options);
-
-  try {
-    attrs.src = resolver.getWebPath() + '/';
-    if (this.params.play) {
-      attrs['data-play'] = yield resolver.readPlunkId();
-    }
-  } catch (e) {
-    return new ErrorTag('div', 'iframe: ' + e.message);
+  attrs.src = this.normalizeSrc(this.params.src) + '/';
+  if (this.params.play) {
+    attrs['data-play'] = "1";
   }
 
   if (this.params.link) {
@@ -364,61 +233,61 @@ BbtagParser.prototype.parseIframe = function* () {
     attrs['data-zip'] = 1;
   }
 
-  return new TagNode('iframe', '', attrs);
+  return this.node(TagNode, 'iframe', '', attrs);
 
 };
 
-BbtagParser.prototype.parseQuote = function* () {
-  var children = yield new BodyParser(this.body, this.subOpts()).parse();
+BbtagParser.prototype.parseQuote = function() {
+  var children = new BodyParser(this.body, this.subOpts()).parse();
 
   if (this.params.author) {
-    children.push( new TagNode('div', this.params.author, {'class':'quote-author'}) );
+    children.push(this.node(TagNode, 'div', this.params.author, {'class': 'quote-author'}));
   }
 
-  var result = new CompositeTag('div', children, {'class':'quote-author'});
-  return new CompositeTag('div', [result], {'class': 'quote'});
+  var result = this.node(CompositeTag, 'div', children, {'class': 'quote-author'});
+  return this.node(CompositeTag, 'div', [result], {'class': 'quote'});
 };
 
-BbtagParser.prototype.parseHide = function* () {
-  var content = yield new BodyParser(this.body, this.subOpts()).parse();
+BbtagParser.prototype.parseHide = function() {
+  var content = new BodyParser(this.body, this.subOpts()).parse();
 
   var children = [
-      new CompositeTag('div', content, {"class": "hide-content"})
+    this.node(CompositeTag, 'div', content, {"class": "hide-content"})
   ];
 
   if (this.params.text) {
-    var text = yield new BodyParser(this.params.text, this.subOpts()).parse();
+    var text = new BodyParser(this.params.text, this.subOpts()).parse();
 
     /*jshint scripturl:true*/
-    children.unshift(new CompositeTag('a', text,  {"class": "hide-link", "href": "javascript:;"}));
+    children.unshift(this.node(CompositeTag, 'a', text, {"class": "hide-link", "href": "javascript:;"}));
   }
 
-  return new CompositeTag('div', children, {"class": "hide-close"});
+  return this.node(CompositeTag, 'div', children, {"class": "hide-close"});
 };
 
-BbtagParser.prototype.parsePre = function* () {
-  return new VerbatimText(this.body);
+BbtagParser.prototype.parsePre = function() {
+  return this.node(VerbatimText, this.body);
 };
 
-BbtagParser.prototype.parseCompare = function* () {
-  var pros = new CompositeTag('ul', [], {"class": "balance__list"});
-  var cons = new CompositeTag('ul', [], {"class": "balance__list"});
+BbtagParser.prototype.parseCompare = function() {
+  var pros = this.node(CompositeTag, 'ul', [], {"class": "balance__list"});
+  var cons = this.node(CompositeTag, 'ul', [], {"class": "balance__list"});
 
   var parts = this.body.split(/\n+/);
   for (var i = 0; i < parts.length; i++) {
     var item = parts[i];
     if (!item) continue;
-    var content = yield new BodyParser(item.slice(1), this.subOpts()).parse();
+    var content = new BodyParser(item.slice(1), this.subOpts()).parse();
     if (item[0] == '+') {
-      pros.appendChild( new CompositeTag('li', content, {'class':'plus'}) );
+      pros.appendChild(this.node(CompositeTag, 'li', content, {'class': 'plus'}));
     } else if (item[0] == '-') {
-      cons.appendChild( new CompositeTag('li', content, {'class':'minus'}) );
+      cons.appendChild(this.node(CompositeTag, 'li', content, {'class': 'minus'}));
     } else {
       return new ErrorTag('div', 'compare items should start with either + or -');
     }
   }
 
-  var balance = new CompositeTag('div', [], {'class': 'balance__content'});
+  var balance = this.node(CompositeTag, 'div', [], {'class': 'balance__content'});
 
   var balanceAttrs = {
     'class': 'balance'
@@ -430,40 +299,23 @@ BbtagParser.prototype.parseCompare = function* () {
   }
 
   if (pros.hasChildren()) {
-    if (title) pros.prependChild( new TagNode('h3', 'Достоинства', {'class' : 'balance__title'}));
-    balance.appendChild( new CompositeTag('div', [pros], {'class':'balance__pluses'}));
+    if (title) pros.prependChild(this.node(TagNode, 'h3', 'Достоинства', {'class': 'balance__title'}));
+    balance.appendChild(this.node(CompositeTag, 'div', [pros], {'class': 'balance__pluses'}));
   }
 
   if (cons.hasChildren()) {
-    if (title) cons.prependChild( new TagNode('h3', 'Недостатки', {'class' : 'balance__title'}));
-    balance.appendChild( new CompositeTag('div', [cons], {'class':'balance__minuses'}));
+    if (title) cons.prependChild(this.node(TagNode, 'h3', 'Недостатки', {'class': 'balance__title'}));
+    balance.appendChild(this.node(CompositeTag, 'div', [cons], {'class': 'balance__minuses'}));
   }
-  return new CompositeTag('div', [balance], balanceAttrs);
+  return this.node(CompositeTag, 'div', [balance], balanceAttrs);
 };
 
-
-BbtagParser.prototype.parseTask = function* () {
-  if (!this.params.src) {
-    return this.paramRequiredError('div', 'src');
-  }
-
-  if (!this.trusted) {
-    return new ErrorTag("div", "A task can be embedded only in trusted mode");
-  }
-
-  var slug = this.params.src;
-
-  return new TaskNode(this.params.src);
-};
-
-
-
-BbtagParser.prototype.parseOnline = function* () {
+BbtagParser.prototype.parseOnline = function() {
   if (!this.options.export) {
     var parser = new BodyParser(this.body, this.subOpts());
-    return yield parser.parse();
+    return parser.parse();
   } else {
-    return new TextNode("");
+    return "";
   }
 };
 
@@ -471,73 +323,40 @@ BbtagParser.prototype.paramRequiredError = function(errorTag, paramName) {
   return new ErrorTag(errorTag, this.name + ": attribute required " + paramName);
 };
 
-BbtagParser.prototype.parseImg = function* () {
+BbtagParser.prototype.parseImg = function() {
 
   if (!this.params.src) {
     return this.paramRequiredError('div', 'src');
   }
 
-  var attrs = this.trusted ? _.clone(this.params) : {"src" : this.params.src };
+  var attrs = this.trusted ? _.clone(this.params) : _.pick(this.params, ['src', 'width', 'height']);
 
-  var resolver = new SrcResolver(this.params.src, this.options);
+  attrs.src = this.normalizeSrc(attrs.src);
 
-  var needSize = true;
-  if (this.params.width && this.params.height) {
-    attrs.width = ''+parseInt(this.params.width);
-    attrs.height = ''+parseInt(this.params.height);
-    needSize = false;
-  }
-
-  var imageInfo;
-  try {
-    imageInfo = yield resolver.resolveImage(needSize);
-  } catch (e) {
-    return new ErrorTag('div', e.message);
-  }
-
-  attrs.src = imageInfo.webPath;
-  if (needSize) {
-    attrs.width = ''+imageInfo.size.width;
-    attrs.height = ''+imageInfo.size.height;
-  }
-
-  var result = new TagNode('img', '', attrs);
-  if (this.token.isFigure) result = new CompositeTag('figure', [result]);
-  return result;
+  return this.node(ImgTag, attrs, this.token.isFigure);
 };
 
 
-BbtagParser.prototype.parseExample = function* () {
+BbtagParser.prototype.parseExample = function() {
   if (!this.params.src) {
     return this.paramRequiredError('div', 'src');
   }
 
   var attrs = {
-    'class': 'result__iframe',
+    'class':        'result__iframe',
     'data-trusted': this.trusted ? '1' : '0'
   };
 
   attrs['data-demo-height'] = this.params.height || 350;
 
-  var resolver = new SrcResolver(this.params.src, this.options);
+  attrs['data-src'] = this.normalizeSrc(this.params.src);
 
-  var plunkId;
-  try {
-    plunkId = yield resolver.readPlunkId();
-  } catch (e) {
-    return new ErrorTag('div', 'example: ' + e.message);
-  }
-
-  attrs.src = "http://embed.plnkr.co/" + plunkId + "/preview";
-
-  attrs['data-src'] = resolver.getWebPath() + '/';
+  attrs.src = "/example" + attrs['data-src'];
 
   if (this.params.zip) {
     attrs['data-zip'] = "1";
   }
 
-  return new TagNode("iframe", "", attrs);
+  return this.node(TagNode, "iframe", "", attrs);
 };
-
-
 

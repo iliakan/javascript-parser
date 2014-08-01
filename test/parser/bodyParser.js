@@ -1,28 +1,27 @@
-var BodyParser = require('../../parser/bodyParser').BodyParser;
+var BodyParser = require('../../parser/bodyParser');
 var path = require('path');
 var should = require('should');
 var util = require('util');
 
 function toStructure(nodes) {
   return nodes.map(function(node) {
-    return node.toStructure();
+    return node.toStructure({skipTrusted: true});
   });
 }
 
 describe("BodyParser", function() {
 
   var options = {
-    resourceFsRoot:  path.join(__dirname, 'document'),
-    resourceWebRoot: '/document',
+    resourceRoot: '/document',
     trusted:         true,
     metadata:        { }
   };
 
   describe('parse', function() {
 
-    it("*italic* text", function* () {
+    it("*italic* text", function() {
       var parser = new BodyParser(this.test.title, options);
-      var result = yield parser.parse();
+      var result = parser.parse();
       var structure = toStructure(result);
       structure.should.be.eql([
           {
@@ -40,26 +39,22 @@ describe("BodyParser", function() {
       );
     });
 
-    it("<img src='html6.jpg'> text", function* () {
+    it("<img src='html6.jpg'> test", function() {
       var parser = new BodyParser(this.test.title, options);
-      var result = yield parser.parse();
+      var result = parser.parse();
       var structure = toStructure(result);
       structure.should.be.eql([
-        {
-          type:  'TagNode',
-          tag:   'img',
+        { type:  'ImgTag',
           text:  '',
-          attrs: {
-            src: '/document/html6.jpg', width: 256, height: 256
-          }
-        },
-        { type: 'TextNode', text: ' text' }
+          tag:   'img',
+          attrs: { src: '/document/html6.jpg' } },
+        { type: 'TextNode', text: ' test' }
       ]);
     });
 
-    it("[online] text *in* [/online] out", function* () {
+    it("[online] text *in* [/online] out", function() {
       var parser = new BodyParser(this.test.title, options);
-      var result = yield parser.parse();
+      var result = parser.parse();
 
       toStructure(result).should.be.eql([
           { type: 'TextNode', text: ' text ' },
@@ -75,24 +70,20 @@ describe("BodyParser", function() {
       );
     });
 
-    it("[js]my code;[css][/css]my code;[/js]", function* () {
+    it("[js]my code;[css][/css]my code;[/js]", function() {
       var parser = new BodyParser(this.test.title, options);
-      var result = yield parser.parse();
+      var result = parser.parse();
       toStructure(result).should.be.eql([
-        { type:  'EscapedTag',
-          text:  'my code;[css][/css]my code;',
-          tag:   'pre',
-          attrs: {
-            class:          'language-javascript line-numbers',
-            'data-trusted': '1'
-          }
+        { type: 'SourceTag',
+          text: 'my code;[css][/css]my code;',
+          tag:  'pre'
         }
       ]);
     });
 
-    it("# Header *italic*", function* () {
+    it("# Header *italic*", function() {
       var parser = new BodyParser(this.test.title, options);
-      var result = yield parser.parse();
+      var result = parser.parse();
 
       toStructure(result).should.be.eql([
         { type:     'HeaderTag',
@@ -108,9 +99,9 @@ describe("BodyParser", function() {
       ]);
     });
 
-    it("# Header\n\n Content", function* () {
+    it("# Header\n\n Content", function() {
       var parser = new BodyParser(this.test.title, options);
-      var result = yield parser.parse();
+      var result = parser.parse();
 
       toStructure(result).should.be.eql([
         { type:     'HeaderTag',
@@ -122,9 +113,9 @@ describe("BodyParser", function() {
       ]);
     });
 
-    it("[compare]+Plus 1\n-Minus *italic*\n[/compare]", function* () {
+    it("[compare]+Plus 1\n-Minus *italic*\n[/compare]", function() {
       var parser = new BodyParser(this.test.title, options);
-      var result = yield parser.parse();
+      var result = parser.parse();
       toStructure(result).should.be.eql([
         { type:     'CompositeTag',
           tag:      'div',

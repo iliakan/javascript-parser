@@ -1,4 +1,4 @@
-var BbtagAttrsLexer = require('../../parser/bbtagAttrsLexer').BbtagAttrsLexer;
+var BbtagAttrsLexer = require('../../parser/bbtagAttrsLexer');
 
 var should = require('should');
 

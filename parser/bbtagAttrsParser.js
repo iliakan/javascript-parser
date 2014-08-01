@@ -30,7 +30,7 @@ BbtagAttrsParser.prototype.parse = function() {
       // found name w/o value:
       //   name
       //       ^
-      attrsObject[name.body] = true;
+      attrsObject[name.body.toLowerCase()] = true;
       continue;
     }
 
@@ -39,11 +39,11 @@ BbtagAttrsParser.prototype.parse = function() {
     //        ^
     var value = this.lexer.consumeValue();
     if (!value) { // name= without value?
-      attrsObject[name.body + '='] = true;
+      attrsObject[name.body.toLowerCase() + '='] = true;
       continue;
     }
 
-    attrsObject[name.body] = value.body;
+    attrsObject[name.body.toLowerCase()] = value.body;
   }
 
   return attrsObject;

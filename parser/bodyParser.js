@@ -1,31 +1,29 @@
 // circular require BodyParser <- BbtagParser <- BodyParser
 // when I require BodyParser it will get the unfinished export
 // that's why I assign it here, before require('./bbtagParser')
-exports.BodyParser = BodyParser;
+module.exports = BodyParser;
 
 var inherits = require('inherits');
 var _ = require('lodash');
 var StringSet = require('../util/stringSet');
 var StringMap = require('../util/stringMap');
 var Parser = require('./parser');
-var SrcResolver = require('./srcResolver');
 var BbtagParser = require('./bbtagParser');
 var BodyLexer = require('./bodylexer');
-var TextNode = require('../node/textNode');
+var ReferenceNode = require('../node/referenceNode');
 var TagNode = require('../node/tagNode');
 var EscapedTag = require('../node/escapedTag');
 var CompositeTag = require('../node/compositeTag');
 var BbtagAttrsParser = require('./bbtagAttrsParser');
 var ErrorTag = require('../node/errorTag');
 var CommentNode = require('../node/commentNode');
-var ReferenceNode = require('../node/referenceNode');
 var HeaderTag = require('../node/headerTag');
 var VerbatimText = require('../node/verbatimText');
+var TreeWalkerSync = require('../transformer/treeWalkerSync');
 var HtmlTransformer = require('../transformer/htmlTransformer');
-var TreeWalker = require('../transformer/treeWalker');
 var HREF_PROTOCOL_REG = require('../consts').HREF_PROTOCOL_REG;
 var makeAnchor = require('../util/makeAnchor');
-
+var TextNode = require('../node/textNode');
 
 /**
  * BodyParser creates node objects from general text.
@@ -75,7 +73,7 @@ BodyParser.prototype.validateOptions = function(options) {
 //  например [online] ... [/online] возвращает своё содержимое с учетом вложенных тегов
 //  или пустой тег, если экспорт-режим
 //  Это должен быть valid html
-BodyParser.prototype.parse = function*() {
+BodyParser.prototype.parse = function() {
   var buffer = '';
   var children = [];
 
@@ -84,7 +82,6 @@ BodyParser.prototype.parse = function*() {
     var nodes = this.parseNodes();
 
     if (nodes) {
-      nodes = yield nodes;
       if (nodes.length === undefined) {
         nodes = [nodes];
       }
@@ -93,7 +90,7 @@ BodyParser.prototype.parse = function*() {
         var node = nodes[i];
 
         if (buffer) {
-          children.push(new TextNode(buffer));
+          children.push(this.node(buffer));
           buffer = "";
         }
         children.push(node);
@@ -106,7 +103,7 @@ BodyParser.prototype.parse = function*() {
   }
 
   if (buffer) {
-    children.push(new TextNode(buffer));
+    children.push(this.node(buffer));
   }
 
   return children;
@@ -114,8 +111,6 @@ BodyParser.prototype.parse = function*() {
 
 
 /**
- * Every parse* method must return a generator (if sync => be generator by itself)
- *
  * @returns tokens array or (most often, for perf reasons) null if no token found
  */
 BodyParser.prototype.parseNodes = function() {
@@ -123,7 +118,7 @@ BodyParser.prototype.parseNodes = function() {
   var token = null;
 
   // perf optimization for most chars
-  switch(this.lexer.getChar()) {
+  switch (this.lexer.getChar()) {
   case '[':
     token = this.lexer.consumeLink() || this.lexer.consumeBbtagSelfClose() || this.lexer.consumeBbtagNeedClose();
     break;
@@ -146,29 +141,14 @@ BodyParser.prototype.parseNodes = function() {
 
   if (token === null) return null;
 
-  switch (token.type) {
-  case 'link':
-    return this.parseLink(token);
-  case 'bold':
-    return this.parseBold(token);
-  case 'italic':
-    return this.parseItalic(token);
-  case 'strike':
-    return this.parseStrike(token);
-  case 'code':
-    return this.parseCode(token);
-  case 'comment':
-    return this.parseComment(token);
-  case 'bbtag':
-    return this.parseBbtag(token);
-  case 'verbatim':
-    return this.parseVerbatim(token);
-  case 'header':
-    return this.parseHeader(token);
-  default:
-    throw new Error("Unexpected token: " + util.inspect(token));
+  var methodName = 'parse' + token.type[0].toUpperCase() + token.type.slice(1);
+  if (!this[methodName]) {
+    throw new Error("Unknown token: " + JSON.stringify(token));
   }
 
+  var node = this[methodName](token);
+
+  return node;
 };
 
 /**
@@ -178,56 +158,50 @@ BodyParser.prototype.parseNodes = function() {
  * @param token
  * @returns {*}
  */
-BodyParser.prototype.parseHeader = function* (token) {
-  var titleNode = yield new BodyParser(token.title, this.subOpts()).parseAndWrap();
+BodyParser.prototype.parseHeader = function(token) {
+  var p = new BodyParser(token.title, this.subOpts());
+  var titleNode = p.parseAndWrap();
+
   var level = token.level;
 
   // There should be no ()[#references] or other external nodes inside header text,
   // because we may need to extract title/navigation from the content
   // and we'd like to do that without having to use DB for refs
   // ...anyway, reference inside a header has *no use*
-  var checkWalker = new TreeWalker(titleNode);
-  yield checkWalker.walk(function*(node) {
+  var checkWalker = new TreeWalkerSync(titleNode);
+  checkWalker.walk(function(node) {
     if (node.isExternal()) {
-      return new TextNode(''); // kill external nodes!
+      return this.node(''); // kill external nodes!
     }
-  });
-
+  }.bind(this));
 
   // ---- Проверить уровень ----
   // Уровень ограничен 3, так как
   // во-первых, 3 должно быть достаточно
   // во-вторых, при экспорте h3 становится h5
   if (level > 3) {
-    return new ErrorTag('div', "Header " + token.title + " is nested too deep (max 3)");
+    return new ErrorTag('div', "Заголовок " + token.title + " слишком глубоко вложен (более чем 3 уровня)");
   }
 
   var headers = this.options.metadata.headers;
 
   if (headers.length === 0 && level != 1) {
-    return new ErrorTag('div', "The first header must have level 1, not " + level);
+    return new ErrorTag('div', "Первый заголовок должен иметь уровень 1, а не " + level);
   }
 
   if (headers.length > 0) {
-    var prevLevel = headers[headers.length-1][0];
+    var prevLevel = headers[headers.length - 1][0];
     if (level > prevLevel + 1) {
-      return new ErrorTag('div', "Wrong header structure");
+      return new ErrorTag('div', "Некорректная вложенность заголовков (уровень " + level + " после " + prevLevel + ")");
     }
   }
-
-  /*
-  // сдвинуть заголовки для экспорта
-  if (this.options.headerLevelShift) {
-    level += this.options.headerLevelShift;
-  }
-  */
 
   // проверить, нет ли уже заголовка с тем же названием
   // при фиксированном anchor к нему нельзя добавить -1 -2 -3
   // так что это ошибка
   if (token.anchor) {
     if (this.options.metadata.refs.has(token.anchor)) {
-      return new ErrorTag('div', '[#' + token.anchor + '] already exists');
+      return new ErrorTag('div', '[#' + token.anchor + '] уже существует');
     }
   }
 
@@ -236,10 +210,11 @@ BodyParser.prototype.parseHeader = function* (token) {
 
   var headersAnchorMap = this.options.metadata.headersAnchorMap;
 
-  if(headersAnchorMap.has(anchor)) {
-    // если якорь взят из заголовка - не имею права его менять (это reference), жёсткая ошибка
+  if (headersAnchorMap.has(anchor)) {
+    // если якорь использовался ранее, обычно к нему прибавляется номер,
+    // но если он явно [#назначен] в заголовке - не имею права его менять, жёсткая ошибка
     if (token.anchor) {
-      return new ErrorTag('div', '[#' + token.anchor + '] used in another header');
+      return new ErrorTag('div', '[#' + token.anchor + '] используется в другом заголовке');
     }
     // иначе просто добавляю -2, -3 ...
     headersAnchorMap.set(anchor, headersAnchorMap.has(anchor) + 1);
@@ -249,8 +224,7 @@ BodyParser.prototype.parseHeader = function* (token) {
   }
 
   // получим HTML заголовка для метаданных
-  var htmlTransformer = new HtmlTransformer(titleNode, this.options);
-  var titleHtml = (yield htmlTransformer.run()).trim();
+  var titleHtml = titleNode.toHtml(this.options).trim();
 
   // ------- Ошибок точно нет, можно запоминать заголовок и reference ------
 
@@ -263,46 +237,8 @@ BodyParser.prototype.parseHeader = function* (token) {
 
   // в заголовок отдаём не уже полученный HTML, а titleNode,
   // чтобы внешний анализатор мог поискать в них ошибки
-  return new HeaderTag(level, anchor, titleNode.getChildren());
+  return this.node(HeaderTag, level, anchor, titleNode.getChildren());
 };
-
-/*
-BodyParser.prototype.parseImg = function* (token) {
-  var parser = new BbtagAttrsParser(token.attrs);
-  var params = parser.parse();
-
-  var consumedText = this.lexer.getLastConsumedText();
-
-  // no size => don't touch this img, can't do anything
-  if (!params.src) {
-    return new TextNode(consumedText);
-  }
-
-  var transformedTag = consumedText.replace(/\s*\/?>$/, ''); // <img ... , without closing /?>
-
-
-  if (params.width === undefined || params.height === undefined) {
-      var resolver = new SrcResolver(params.src, this.options);
-      var imageInfo;
-      try {
-        imageInfo = yield resolver.resolveImage(needSize);
-      } catch (e) {
-        return consumedText;
-      }
-
-      transformedTag += " width='" + imageInfo.width+"' height= '" + imageInfo.height + "'";
-    }
-  }
-
-  attrs.src = imageInfo.webPath;
-  if (needSize) {
-    attrs.width = ''+imageInfo.size.width;
-    attrs.height = ''+imageInfo.size.height;
-  }
-
-  return new TagNode('img', '', attrs);
-};
-*/
 
 
 /**
@@ -313,7 +249,7 @@ BodyParser.prototype.parseImg = function* (token) {
  *  [ref] *may* exist later in this document, so we need parse it full before resolving
  * FIXME: move all link processing into second pass (single place)
  */
-BodyParser.prototype.parseLink = function*(token) {
+BodyParser.prototype.parseLink = function(token) {
   var href = token.href || token.title; // [http://ya.ru]() is fine
   var title = token.title; // [](http://ya.ru) is fine, but [](#test) - see below
 
@@ -322,7 +258,7 @@ BodyParser.prototype.parseLink = function*(token) {
     protocol = protocol[1].trim();
   }
 
-  var titleParsed = yield new BodyParser(title, this.subOpts()).parse();
+  var titleParsed = new BodyParser(title, this.subOpts()).parse();
 
   // external link goes "as is"
   if (protocol) {
@@ -330,26 +266,59 @@ BodyParser.prototype.parseLink = function*(token) {
       return new ErrorTag("span", "Protocol " + protocol + " is not allowed");
     }
 
-    return new CompositeTag("a", titleParsed, {href: href});
+    return this.node(CompositeTag, "a", titleParsed, {href: href});
   }
 
   if (href[0] == '/') {
-    // absolute link with title goes "as is", without title - we'll try to resolve the title
+    // absolute link with title goes "as is", without title - we'll try to resolve the title on 2nd pass
     if (!title) {
-      return new ReferenceNode(href, titleParsed);
+      return this.node(ReferenceNode, href, titleParsed);
     }
-    return new CompositeTag("a", titleParsed, {href: href});
+    return this.node(CompositeTag, "a", titleParsed, {href: href});
   }
 
   if (href[0] == '#') { // Reference, need second pass to resolve it
-    return new ReferenceNode(href, titleParsed);
+    return this.node(ReferenceNode, href, titleParsed);
   }
 
   // relative link
-  var resolver = new SrcResolver(href, this.options);
-  return new CompositeTag("a", titleParsed, {href: resolver.getWebPath()});
+  return new ErrorTag("span", "относительные ссылки могут быть легко ломаться, используйте #метки или абсолютные URL вместо " + href);
 };
 
+/*
+ BodyParser.prototype.parseLink = function(token) {
+ var href = token.href || token.title; // [http://ya.ru]() is fine
+ var title = token.title || token.href; // [](http://ya.ru) is fine too
+
+ var protocol = href.replace(/[\x00-\x20]/g, '').match(HREF_PROTOCOL_REG);
+ if (protocol) {
+ protocol = protocol[1].trim();
+ }
+
+ var titleParsed = new BodyParser(title, this.subOpts()).parse();
+
+ // external link goes "as is"
+ if (protocol) {
+ if (!this.trusted && !~["http", "ftp", "https", "mailto"].indexOf(protocol.toLowerCase())) {
+ return new ErrorTag("span", "Протокол " + protocol + " не разрешён");
+ }
+
+ return this.node(CompositeTag, "a", titleParsed, {href: href});
+ }
+
+ if (href[0] == '/' || href[0] == '#') {
+ return this.node(CompositeTag, "a", titleParsed, {href: href});
+ }
+
+ // relative link
+ if (this.options.resourceWebRoot) {
+ var resolver = new SrcResolver(href, this.options);
+ return this.node(CompositeTag, "a", titleParsed, {href: resolver.getWebPath()});
+ } else {
+ return new ErrorTag("span", "относительная ссылка в материале без точного URL: " + href);
+ }
+ };
+ */
 BodyParser.prototype.parseBbtag = function(token) {
   return new BbtagParser(token, this.subOpts()).parse();
 };
@@ -368,14 +337,14 @@ BodyParser.prototype.parseStrike = function(token) {
   return parser.parseAndWrap("strike");
 };
 
-BodyParser.prototype.parseCode = function* (token) {
-  return new EscapedTag("code", token.body);
+BodyParser.prototype.parseCode = function(token) {
+  return this.node(EscapedTag, "code", token.body);
 };
 
-BodyParser.prototype.parseComment = function* (token) {
-  return new CommentNode(token.body);
+BodyParser.prototype.parseComment = function(token) {
+  return this.node(CommentNode, token.body);
 };
 
-BodyParser.prototype.parseVerbatim = function*(token) {
-  return new VerbatimText(token.body);
+BodyParser.prototype.parseVerbatim = function(token) {
+  return this.node(VerbatimText, token.body);
 };

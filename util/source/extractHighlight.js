@@ -1,23 +1,4 @@
 
-// strip first empty lines
-function stripFirstLines(text) {
-  return text.replace(/$(^[ \t]*\n)*/gim, '');
-}
-
-var stripPattern = /^\s*(?=[^\s]+)/mg;
-
-// same as Ruby strip_heredoc + strip first lines and rtrim
-exports.stripIndents = function(text) {
-  text = stripFirstLines(text).replace(/\s+$/, '');
-  var indentLen = text.match(stripPattern)
-    .reduce(function (min, line) {
-      return Math.min(min, line.length);
-    }, Infinity);
-
-  var indent = new RegExp('^\\s{' + indentLen + '}', 'mg');
-  return indentLen > 0 ? text.replace(indent, '') : text;
-};
-
 function deTab(text) {
   // attacklab: Detab's completely rewritten for speed.
   // In perl we could fix it by anchoring the regexp with \G.
@@ -49,7 +30,7 @@ function deTab(text) {
   return text;
 }
 
-exports.extractHighlight = function(text) {
+module.exports = function(text) {
   text = deTab(text);
   text += "\n";
   var r = {block: [], inline: []};

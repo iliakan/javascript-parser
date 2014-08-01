@@ -11,10 +11,14 @@ TextNode.prototype.getType = function() {
   return "TextNode";
 };
 
-TextNode.prototype.toStructure = function() {
-  var structure = Node.prototype.toStructure.call(this);
+TextNode.prototype.toStructure = function(options) {
+  var structure = Node.prototype.toStructure.call(this, options);
   structure.text = this.text;
   return structure;
+};
+
+TextNode.prototype.toHtml = function() {
+  return this.text;
 };
 
 module.exports = TextNode;

@@ -1,8 +1,10 @@
-var SrcResolver = require('../../parser/srcResolver').SrcResolver;
+/* moved to async transformers
+
+var SrcResolver = require('.././srcResolver').ResourceResolver;
 var should = require('should');
 var path = require('path');
 
-describe("SrcResolver", function() {
+describe("ResourceResolver", function() {
 
   var options = {
     resourceFsRoot:  path.join(__dirname, 'document'),
@@ -50,3 +52,5 @@ describe("SrcResolver", function() {
   });
 
 });
+
+  */

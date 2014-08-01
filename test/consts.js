@@ -1,4 +1,4 @@
-var consts = require('consts');
+var consts = require('../consts');
 var should = require('should');
 
 // todo: cleanup, remove unused patterns

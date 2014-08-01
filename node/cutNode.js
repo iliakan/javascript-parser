@@ -10,4 +10,8 @@ CutNode.prototype.getType = function() {
   return "CutNode";
 };
 
+CutNode.prototype.toHtml = function(options) {
+  return '';
+};
+
 module.exports = CutNode;
