@@ -69,7 +69,6 @@ CompositeTag.prototype.getChild = function(idx) {
 
 CompositeTag.prototype.adoptChild = function(child) {
   if (!(child instanceof Node)) {
-    debugger
     throw new Error("Not a node");
   }
 
@@ -154,11 +153,12 @@ CompositeTag.prototype.toHtml = function(options) {
     html = wrapTagAround(this.tag, this.attrs, html);
   }
 
-  if (options && options.contextTypography) {
-    html = contextTypography(html);
-  }
-
   return html;
+};
+
+// context typography can be applied only once!
+CompositeTag.prototype.toFinalHtml = function(options) {
+  return contextTypography(this.toHtml(options));
 };
 
 CompositeTag.prototype.makeLabel = function() {

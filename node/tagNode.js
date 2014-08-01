@@ -34,7 +34,7 @@ TagNode.prototype.formatHtml = function(html) {
 
   this.ensureKnowTrusted();
 
-  if (!this.trusted) {
+  if (!this.isTrusted()) {
     html = sanitize(html);
   }
 

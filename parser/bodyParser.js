@@ -96,7 +96,7 @@ BodyParser.prototype.parse = function() {
         var node = nodes[i];
 
         if (buffer) {
-          children.push(this.node(buffer));
+          children.push(new TextNode(buffer));
           buffer = "";
         }
         children.push(node);
@@ -109,7 +109,7 @@ BodyParser.prototype.parse = function() {
   }
 
   if (buffer) {
-    children.push(this.node(buffer));
+    children.push(new TextNode(buffer));
   }
 
   return children;
@@ -177,7 +177,7 @@ BodyParser.prototype.parseHeader = function(token) {
   var checkWalker = new TreeWalkerSync(titleNode);
   checkWalker.walk(function(node) {
     if (node.isExternal()) {
-      return this.node(''); // kill external nodes!
+      return new TextNode(''); // kill external nodes!
     }
   }.bind(this));
 
@@ -243,7 +243,7 @@ BodyParser.prototype.parseHeader = function(token) {
 
   // в заголовок отдаём не уже полученный HTML, а titleNode,
   // чтобы внешний анализатор мог поискать в них ошибки
-  return this.node(HeaderTag, level, anchor, titleNode.getChildren());
+  return new HeaderTag(level, anchor, titleNode.getChildren());
 };
 
 
@@ -272,19 +272,19 @@ BodyParser.prototype.parseLink = function(token) {
       return new ErrorTag("span", "Protocol " + protocol + " is not allowed");
     }
 
-    return this.node(CompositeTag, "a", titleParsed, {href: href});
+    return new CompositeTag("a", titleParsed, {href: href});
   }
 
   if (href[0] == '/') {
     // absolute link with title goes "as is", without title - we'll try to resolve the title on 2nd pass
     if (!title) {
-      return this.node(ReferenceNode, href, titleParsed);
+      return new ReferenceNode(href, titleParsed);
     }
-    return this.node(CompositeTag, "a", titleParsed, {href: href});
+    return new CompositeTag("a", titleParsed, {href: href});
   }
 
   if (href[0] == '#') { // Reference, need second pass to resolve it
-    return this.node(ReferenceNode, href, titleParsed);
+    return new ReferenceNode(href, titleParsed);
   }
 
   // relative link
@@ -309,17 +309,17 @@ BodyParser.prototype.parseLink = function(token) {
  return new ErrorTag("span", "Протокол " + protocol + " не разрешён");
  }
 
- return this.node(CompositeTag, "a", titleParsed, {href: href});
+ return new CompositeTag("a", titleParsed, {href: href});
  }
 
  if (href[0] == '/' || href[0] == '#') {
- return this.node(CompositeTag, "a", titleParsed, {href: href});
+ return new CompositeTag("a", titleParsed, {href: href});
  }
 
  // relative link
  if (this.options.resourceWebRoot) {
  var resolver = new SrcResolver(href, this.options);
- return this.node(CompositeTag, "a", titleParsed, {href: resolver.getWebPath()});
+ return new CompositeTag("a", titleParsed, {href: resolver.getWebPath()});
  } else {
  return new ErrorTag("span", "относительная ссылка в материале без точного URL: " + href);
  }
@@ -344,13 +344,13 @@ BodyParser.prototype.parseStrike = function(token) {
 };
 
 BodyParser.prototype.parseCode = function(token) {
-  return this.node(EscapedTag, "code", token.body);
+  return new EscapedTag("code", token.body);
 };
 
 BodyParser.prototype.parseComment = function(token) {
-  return this.node(CommentNode, token.body);
+  return new CommentNode(token.body);
 };
 
 BodyParser.prototype.parseVerbatim = function(token) {
-  return this.node(VerbatimText, token.body);
+  return new VerbatimText(token.body);
 };

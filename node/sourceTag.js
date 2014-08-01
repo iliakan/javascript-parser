@@ -7,9 +7,10 @@ var wrapTagAround = require('../util/wrapTagAround');
 
 // Тег, содержимое которого нужно полностью заэкранировать
 // Все теги внутри эскейпятся, так что вложенный HTML заведомо безопасен
-function SourceTag(name, text, params) {
+function SourceTag(name, text, src, params) {
   EscapedTag.call(this, 'pre', text);
   this.name = name;
+  this.src = src;
   this.params = params;
 }
 inherits(SourceTag, EscapedTag);
@@ -19,7 +20,12 @@ SourceTag.prototype.getType = function() {
 };
 
 SourceTag.prototype.isExternal = function() {
-  return this.params.src ? true : false;
+  return this.src && !this.isLoaded;
+};
+
+SourceTag.prototype.setTextFromSrc = function(text) {
+  this.text = text;
+  this.isLoaded = true;
 };
 
 // on this stage the tag either contains this.src OR the resolved text
@@ -27,7 +33,7 @@ SourceTag.prototype.toHtml = function(options) {
 
   this.ensureKnowTrusted();
 
-  var text = this.params.src ? ('Содержимое файла ' + this.params.src) : this.text;
+  var text = this.isExternal() ? ('Содержимое файла ' + this.src) : this.text;
 
   var prismLanguageMap = {
     html:   'markup',

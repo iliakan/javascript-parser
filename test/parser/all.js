@@ -95,7 +95,6 @@ describe("BodyParser", function() {
     });
 
 
-
     describe("Bold", function() {
       it("converts ** to <strong>", function () {
         (format('**bold**')).should.be.eql("<strong>bold</strong>");
@@ -131,7 +130,6 @@ describe("BodyParser", function() {
           "<figure><img src=\"/document/html6.jpg\"></figure>"
         );
       });
-
 
       it("doesn't wrap <img> in <figure> if not on line start", function () {
         (format("   \t<img src=\"html6.jpg\">")).should.be.eql(

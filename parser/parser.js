@@ -22,44 +22,15 @@ Parser.prototype.validateOptions = function(options) {
   // throw if something's wrong
 };
 
-Parser.prototype.node = function(Constructor/*, args */) {
-
-  var node;
-
-  /* slow
-  if (typeof Constructor == "string") {
-    node = new TextNode(Constructor);
-  } else {
-    // jshint -W082
-    var args = Array.prototype.slice.call(arguments, 1);
-    function F() {
-      return Constructor.apply(this, args);
-    }
-
-    F.prototype = Constructor.prototype;
-    node = new F();
-  }
-  */
-
-
-  if (typeof Constructor == "string") {
-    node = new TextNode(Constructor);
-  } else {
-    var args = Array.prototype.slice.call(arguments, 1);
-    var node = Object.create(Constructor.prototype);
-    Constructor.apply(node, args);
-  }
-
-  node.trusted = this.trusted;
-  return node;
-};
 
 Parser.prototype.parse = function() {
   throw new Error("Not implemented");
 };
 
 Parser.prototype.parseAndWrap = function(tag, attrs) {
-  return this.node(CompositeTag, tag, this.parse(), attrs);
+  var result = new CompositeTag(tag, this.parse(), attrs);
+  result.trusted = this.trusted;
+  return result;
 };
 
 module.exports = Parser;

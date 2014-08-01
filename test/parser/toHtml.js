@@ -28,51 +28,53 @@ describe("toHtml", function() {
   describe("toHtml", function() {
 
     it("can transform text", function () {
-      var input = node("text");
+      var input = new TextNode("text");
       input.toHtml().should.be.eql("text");
     });
 
     it("can transform nested", function () {
-      var input = node(CompositeTag, 'a', [
+      var input = new CompositeTag('a', [
         node("Item")
       ], {'class': 'link', title: '"in quotes"'});
-
+      input.trusted = true;
       input.toHtml().should.be.eql('<a class="link" title="&quot;in quotes&quot;">Item</a>');
     });
 
     it("can transform header", function () {
-      var input = node(HeaderTag, 1, "header-italic", [
-        node('Header '),
-        node(CompositeTag, 'em', [
-          node('italic')
+      var input = new HeaderTag(1, "header-italic", [
+        new TextNode('Header '),
+        new CompositeTag('em', [
+          new TextNode('italic')
         ])
       ]);
-
+      input.trusted = true;
       input.toHtml().should.be.eql('<h1><a name="header-italic" href="#header-italic">Header <em>italic</em></a></h1>');
     });
 
     it("can transform header with anchor", function () {
-      var input = node(HeaderTag, 1, "anchor", [
-        node('Header '),
-        node(CompositeTag, 'em', [
-          node('italic')
+      var input = new HeaderTag(1, "anchor", [
+        new TextNode('Header '),
+        new CompositeTag('em', [
+          new TextNode('italic')
         ])
       ]);
+      input.trusted = true;
 
       input.toHtml().should.be.eql('<h1><a name="anchor" href="#anchor">Header <em>italic</em></a></h1>');
     });
 
     it("can transform more nested", function () {
-      var input = node(CompositeTag, 'div', [], {'class': 'container'});
-      var ul = node(CompositeTag, 'ul', []);
+      var input = new CompositeTag('div', [], {'class': 'container'});
+      var ul = new CompositeTag('ul', []);
       input.appendChild(ul);
       ul.appendChildren([
-        node(TagNode, 'li', 'Item 1'),
-        node(CompositeTag, 'li', [
-          node("Item "),
-          node(TagNode, 'em', 'italic', {class: 'nice'})
+        new TagNode('li', 'Item 1'),
+        new CompositeTag('li', [
+          new TextNode("Item "),
+          new TagNode('em', 'italic', {class: 'nice'})
         ])
       ]);
+      input.trusted = true;
 
       input.toHtml().should.be.eql('<div class="container"><ul><li>Item 1</li><li>Item <em class="nice">italic</em></li></ul></div>');
     });

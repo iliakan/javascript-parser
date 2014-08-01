@@ -4,8 +4,6 @@
   "description": "Parser for the extended markdown format used at javascript.ru",
   "dependencies": {
     "co": "*",
-    "gm": "*",
-    "image-size": "*",
     "inherits": "^2.0.1",
     "js-log": "*",
     "lodash": "*",

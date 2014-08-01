@@ -17,7 +17,7 @@ VerbatimText.prototype.toHtml = function(options) {
   this.ensureKnowTrusted();
 
   var html = this.text;
-  if (!this.trusted) {
+  if (!this.isTrusted()) {
     html = sanitize(html);
   }
   return html;

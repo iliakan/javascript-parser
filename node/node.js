@@ -18,7 +18,7 @@ Node.prototype.index = function() {
 
 Node.prototype.toStructure = function(options) {
   var structure = {type: this.getType()};
-  if (!options.skipTrusted) {
+  if (this.trusted !== undefined && !options.skipTrusted) {
     structure.trusted = this.trusted;
   }
   return structure;
@@ -32,8 +32,13 @@ Node.prototype.toHtml = function(options) {
   throw new Error("Basic node should not be instantiated and used");
 };
 
+Node.prototype.isTrusted = function() {
+  return this.trusted !== undefined ? this.trusted :
+    this.parent ? this.parent.isTrusted() : undefined;
+};
+
 Node.prototype.ensureKnowTrusted = function() {
-  if (this.trusted === undefined) {
+  if (this.isTrusted() === undefined) {
     throw new Error("Must know .trusted");
   }
 };
