@@ -18,7 +18,7 @@ Node.prototype.index = function() {
 
 Node.prototype.toStructure = function(options) {
   var structure = {type: this.getType()};
-  if (this.trusted !== undefined && !options.skipTrusted) {
+  if (this.trusted !== undefined && !(options && options.skipTrusted)) {
     structure.trusted = this.trusted;
   }
   return structure;

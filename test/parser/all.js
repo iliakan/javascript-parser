@@ -9,8 +9,7 @@ describe("BodyParser", function() {
 
   var options = {
     resourceRoot: '/document',
-    metadata:        {},
-    noContextTypography: true
+    metadata:        {}
   };
 
   function format(html) {
@@ -24,7 +23,7 @@ describe("BodyParser", function() {
 
   describe('trusted', function() {
 
-    before(function() {
+    beforeEach(function() {
       options.trusted = true;
     });
 
@@ -94,7 +93,6 @@ describe("BodyParser", function() {
 
     });
 
-
     describe("Bold", function() {
       it("converts ** to <strong>", function () {
         (format('**bold**')).should.be.eql("<strong>bold</strong>");
@@ -115,7 +113,6 @@ describe("BodyParser", function() {
       });
 
     });
-
 
     describe("<img>", function() {
 
@@ -175,7 +172,7 @@ describe("BodyParser", function() {
       });
     });
 
-    describe("Out-of-text blocks", function() {
+    describe("out-of-text blocks", function() {
 
       it("smart without title", function () {
         var result = (format("[smart]text[/smart]")).replace(/\n/g, '');
@@ -199,15 +196,6 @@ describe("BodyParser", function() {
       );
     });
 
-    describe("source code", function() {
-
-      it("[js]...[/js]", function () {
-        var result = format('[js]alert(1)[/js]');
-        result.should.be.eql('<pre class="language-javascript line-numbers" data-trusted="1">alert(1)</pre>');
-      });
-
-    });
-
     describe("header", function() {
 
       it("creates ref metadata", function() {
@@ -221,13 +209,27 @@ describe("BodyParser", function() {
         result.should.match(/error/);
       });
     });
+
+    describe("source code with and without untrusted", function() {
+
+      it("[js]...[/js]", function () {
+        var result = format('[js]alert(1)[/js]');
+        result.should.be.eql('<pre class="language-javascript line-numbers" data-trusted="1">alert(1)</pre>');
+      });
+
+      it("[js untrusted]...[/js]", function () {
+        var result = format('[js untrusted]alert(1)[/js]');
+        result.should.be.eql('<pre class="language-javascript line-numbers" data-trusted="0">alert(1)</pre>');
+      });
+
+    });
   });
 
 
 
   describe("untrusted", function() {
 
-    before(function() {
+    beforeEach(function() {
       options.trusted = false;
     });
 

@@ -45,7 +45,7 @@ SourceTag.prototype.toHtml = function(options) {
 
   var attrs = {
     'class':        "language-" + prismLanguage + " line-numbers",
-    "data-trusted": (this.trusted && !this.params.untrusted) ? '1' : '0'
+    "data-trusted": (this.isTrusted() && !this.params.untrusted) ? '1' : '0'
   };
 
   if (this.params.height) {
