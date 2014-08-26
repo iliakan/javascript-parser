@@ -69,7 +69,7 @@ function makeParagraphs(html) {
 
 function contextTypography(html) {
 
-  var noTypographyReg = new RegExp('<(' + VERBATIM_TAGS.join('|') + '|code)' + ATTRS_REG.source + '>.*?</\\1>', 'gim');
+  var noTypographyReg = new RegExp('<(' + VERBATIM_TAGS.join('|') + '|code)' + ATTRS_REG.source + '>[\\s\\S]*?</\\1>', 'gim');
 
   var labels = [];
   var label = ('' + Math.random()).slice(2);
