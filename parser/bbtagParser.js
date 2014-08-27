@@ -1,6 +1,6 @@
 module.exports = BbtagParser;
 
-var StringSet = require('../util/StringSet');
+var StringSet = require('../util/stringSet');
 var Parser = require('./parser');
 var BodyParser = require('./bodyParser');
 var BbtagAttrsParser = require('./bbtagAttrsParser');
