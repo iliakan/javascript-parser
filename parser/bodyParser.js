@@ -196,7 +196,7 @@ BodyParser.prototype.parseHeader = function(token) {
   }
 
   if (headers.length > 0) {
-    var prevLevel = headers[headers.length - 1][0];
+    var prevLevel = headers[headers.length - 1].level;
     if (level > prevLevel + 1) {
       return new ErrorTag('div', "Некорректная вложенность заголовков (уровень " + level + " после " + prevLevel + ")");
     }
@@ -234,7 +234,7 @@ BodyParser.prototype.parseHeader = function(token) {
 
   // ------- Ошибок точно нет, можно запоминать заголовок и reference ------
 
-  headers.push([level, titleHtml, anchor]);
+  headers.push({ level: level, title: titleHtml, anchor: anchor});
 
   // ---- сохранить reference ---
   if (token.anchor) {
