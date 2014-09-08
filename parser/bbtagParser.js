@@ -221,7 +221,7 @@ BbtagParser.prototype.parseIframe = function() {
     attrs['data-demo-height'] = this.params.height;
   }
 
-  attrs.src = this.normalizeSrc(this.params.src) + '/';
+  attrs.src = this.normalizeSrc(this.params.src) + '/index.html';
   if (this.params.play) {
     attrs['data-play'] = "1";
   }
