@@ -37,13 +37,18 @@ HeaderTag.prototype.getType = function() {
 
 HeaderTag.prototype.toHtml = function(options) {
   var headerContent = CompositeTag.prototype.toHtml.call(this, options);
-  var anchor = this.anchor;
-
-  return '<h' + this.level + '><a name="' + anchor + '" href="#' + anchor + '">' +
-    headerContent +
-    '</a></h' + this.level + '>';
+  return '<h' + this.level + '>' + headerContent + '</h' + this.level + '>';
 };
 
-
+//
+//HeaderTag.prototype.toHtml = function(options) {
+//  var headerContent = CompositeTag.prototype.toHtml.call(this, options);
+//  var anchor = this.anchor;
+//
+//  return '<h' + this.level + '><a name="' + anchor + '" href="#' + anchor + '">' +
+//    headerContent +
+//    '</a></h' + this.level + '>';
+//};
+//
 
 module.exports = HeaderTag;
